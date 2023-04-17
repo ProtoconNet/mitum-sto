@@ -1,9 +1,9 @@
 package sto
 
 import (
-	"github.com/spikeekips/mitum-currency/currency"
-	"github.com/spikeekips/mitum/util"
-	"github.com/spikeekips/mitum/util/hint"
+	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	"github.com/ProtoconNet/mitum2/util"
+	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
 var (
@@ -46,13 +46,18 @@ func (po STOPolicy) IsValid([]byte) error {
 		return util.ErrInvalid.Errorf("aggregate not over zero")
 	}
 
-	if err := util.CheckIsValiders(nil, false, po.BaseHinter, po.controllers); err != nil {
+	if err := util.CheckIsValiders(nil, false, po.BaseHinter); err != nil {
 		return util.ErrInvalid.Errorf("invalid currency policy: %w", err)
 	}
 
 	for _, p := range po.partitions {
 		if err := p.IsValid(nil); err != nil {
 			return util.ErrInvalid.Errorf("invalid Partition: %w", err)
+		}
+	}
+	for _, p := range po.controllers {
+		if err := p.IsValid(nil); err != nil {
+			return util.ErrInvalid.Errorf("invalid Controller: %w", err)
 		}
 	}
 
