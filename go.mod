@@ -2,16 +2,11 @@ module github.com/ProtoconNet/mitum-sto
 
 go 1.19
 
-replace github.com/spikeekips/mitum => /Users/soonkukkang/go/src/github.com/spikeekips/mitum2
-
-replace github.com/spikeekips/mitum-currency => /Users/soonkukkang/go/src/github.com/soonkuk/mitum-currency-v2
-
-replace github.com/spikeekips/mitum-currency-extension => /Users/soonkukkang/go/src/github.com/soonkuk/mitum-currency-extension-v2
-
 require (
+	github.com/ProtoconNet/mitum-currency-extension/v2 v2.0.0-alpha
+	github.com/ProtoconNet/mitum-currency/v2 v2.0.0-alpha
+	github.com/ProtoconNet/mitum2 v0.0.0-20230327234451-801228e1e81f
 	github.com/pkg/errors v0.9.1
-	github.com/spikeekips/mitum v0.0.0-00010101000000-000000000000
-	github.com/spikeekips/mitum-currency v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -57,6 +52,5 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
