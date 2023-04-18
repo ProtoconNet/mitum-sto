@@ -1,6 +1,7 @@
 package sto
 
 import (
+	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -13,28 +14,28 @@ var (
 	SetDocumentsHint     = hint.MustNewHint("mitum-sto-set-document-operation-v0.0.1")
 )
 
-var MaxSetDocumentsItems uint = 10
-
-type SetDocumentsItem interface {
-	hint.Hinter
-	util.IsValider
-	Bytes() []byte
-	Address() (base.Address, error)
-	Rebuild() SetDocumentsItem
-}
-
 type SetDocumentsFact struct {
 	base.BaseFact
-	sender base.Address
-	items  []SetDocumentsItem
+	sender       base.Address
+	stoID        currencyextension.ContractID // token id
+	contract     base.Address                 // contract account
+	title        string                       // document title
+	uri          URI                          // document uri
+	documentHash string                       // document hash
+	currency     currency.CurrencyID          // fee
 }
 
-func NewSetDocumentsFact(token []byte, sender base.Address, items []SetDocumentsItem) SetDocumentsFact {
+func NewSetDocumentsFact(token []byte, stoID currencyextension.ContractID, sender, contract base.Address, title string, uri URI, hash string, currency currency.CurrencyID) SetDocumentsFact {
 	bf := base.NewBaseFact(SetDocumentsFactHint, token)
 	fact := SetDocumentsFact{
-		BaseFact: bf,
-		sender:   sender,
-		items:    items,
+		BaseFact:     bf,
+		sender:       sender,
+		stoID:        stoID,
+		contract:     contract,
+		title:        title,
+		uri:          uri,
+		documentHash: hash,
+		currency:     currency,
 	}
 	fact.SetHash(fact.GenerateHash())
 
@@ -50,15 +51,15 @@ func (fact SetDocumentsFact) GenerateHash() util.Hash {
 }
 
 func (fact SetDocumentsFact) Bytes() []byte {
-	is := make([][]byte, len(fact.items))
-	for i := range fact.items {
-		is[i] = fact.items[i].Bytes()
-	}
-
 	return util.ConcatBytesSlice(
 		fact.Token(),
 		fact.sender.Bytes(),
-		util.ConcatBytesSlice(is...),
+		fact.stoID.Bytes(),
+		fact.contract.Bytes(),
+		[]byte(fact.title),
+		fact.uri.Bytes(),
+		[]byte(fact.documentHash),
+		fact.currency.Bytes(),
 	)
 }
 
@@ -71,13 +72,7 @@ func (fact SetDocumentsFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if n := len(fact.items); n < 1 {
-		return util.ErrInvalid.Errorf("empty items")
-	} else if n > int(MaxSetDocumentsItems) {
-		return util.ErrInvalid.Errorf("items, %d over max, %d", n, MaxSetDocumentsItems)
-	}
-
-	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
+	if err := util.CheckIsValiders(nil, false, fact.sender, fact.stoID, fact.contract, fact.uri, fact.currency); err != nil {
 		return err
 	}
 
@@ -92,48 +87,13 @@ func (fact SetDocumentsFact) Sender() base.Address {
 	return fact.sender
 }
 
-func (fact SetDocumentsFact) Items() []SetDocumentsItem {
-	return fact.items
-}
-
-func (fact SetDocumentsFact) Targets() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items))
-	for i := range fact.items {
-		a, err := fact.items[i].Address()
-		if err != nil {
-			return nil, err
-		}
-		as[i] = a
-	}
-
-	return as, nil
-}
-
 func (fact SetDocumentsFact) Addresses() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items)+1)
+	as := make([]base.Address, 2)
 
-	tas, err := fact.Targets()
-	if err != nil {
-		return nil, err
-	}
-	copy(as, tas)
-
-	as[len(fact.items)] = fact.sender
+	as[0] = fact.sender
+	as[1] = fact.contract
 
 	return as, nil
-}
-
-func (fact SetDocumentsFact) Rebuild() SetDocumentsFact {
-	items := make([]SetDocumentsItem, len(fact.items))
-	for i := range fact.items {
-		it := fact.items[i]
-		items[i] = it.Rebuild()
-	}
-
-	fact.items = items
-	fact.SetHash(fact.GenerateHash())
-
-	return fact
 }
 
 type SetDocuments struct {

@@ -13,19 +13,29 @@ import (
 func (fact SetDocumentsFact) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
-			"_hint":  fact.Hint().String(),
-			"sender": fact.sender,
-			"items":  fact.items,
-			"hash":   fact.BaseFact.Hash().String(),
-			"token":  fact.BaseFact.Token(),
+			"_hint":        fact.Hint().String(),
+			"sender":       fact.sender,
+			"stoid":        fact.stoID,
+			"contract":     fact.contract,
+			"title":        fact.title,
+			"uri":          fact.uri,
+			"documenthash": fact.documentHash,
+			"currencyid":   fact.currency,
+			"hash":         fact.BaseFact.Hash().String(),
+			"token":        fact.BaseFact.Token(),
 		},
 	)
 }
 
 type SetDocumentsFactBSONUnmarshaler struct {
-	Hint   string   `bson:"_hint"`
-	Sender string   `bson:"sender"`
-	Items  bson.Raw `bson:"items"`
+	Hint         string `bson:"_hint"`
+	Sender       string `bson:"sender"`
+	STOID        string `bson:"stoid"`
+	Contract     string `bson:"contract"`
+	Title        string `bson:"title"`
+	Uri          string `bson:"uri"`
+	DocumentHash string `bson:"documenthash"`
+	Currency     string `bson:"currencyid"`
 }
 
 func (fact *SetDocumentsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
@@ -51,7 +61,7 @@ func (fact *SetDocumentsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
-	return fact.unpack(enc, uf.Sender, uf.Items)
+	return fact.unpack(enc, uf.Sender, uf.STOID, uf.Contract, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
 }
 
 func (op SetDocuments) MarshalBSON() ([]byte, error) {
