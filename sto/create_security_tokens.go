@@ -1,6 +1,7 @@
 package sto
 
 import (
+	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -19,7 +20,10 @@ type CreateSecurityTokensItem interface {
 	hint.Hinter
 	util.IsValider
 	Bytes() []byte
-	STODesign() STODesign
+	STO() currencyextension.ContractID
+	Granularity() uint64
+	DefaultPartitions() []Partition
+	Controllers() []base.Address
 }
 
 type CreateSecurityTokensFact struct {

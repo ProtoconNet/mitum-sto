@@ -6,10 +6,10 @@ import (
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
-func (fact *CreateSecurityTokensFact) unpack(enc encoder.Encoder, ow string, bit []byte) error {
+func (fact *CreateSecurityTokensFact) unpack(enc encoder.Encoder, sa string, bit []byte) error {
 	e := util.StringErrorFunc("failed to unmarshal CreateSecurityTokensFact")
 
-	switch a, err := base.DecodeAddress(ow, enc); {
+	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:
 		return e(err, "")
 	default:
