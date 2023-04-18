@@ -24,6 +24,7 @@ type CreateSecurityTokensItem interface {
 	Granularity() uint64
 	DefaultPartitions() []Partition
 	Controllers() []base.Address
+	Addresses() []base.Address
 }
 
 type CreateSecurityTokensFact struct {
@@ -100,8 +101,18 @@ func (fact CreateSecurityTokensFact) Items() []CreateSecurityTokensItem {
 }
 
 func (fact CreateSecurityTokensFact) Addresses() ([]base.Address, error) {
-	as := make([]base.Address, 1)
-	as[0] = fact.sender
+	as := []base.Address{}
+
+	adrMap := make(map[string]struct{})
+	for i := range fact.items {
+		for j := range fact.items[i].Addresses() {
+			if _, found := adrMap[fact.items[i].Addresses()[j].String()]; !found {
+				adrMap[fact.items[i].Addresses()[j].String()] = struct{}{}
+				as = append(as, fact.items[i].Addresses()[j])
+			}
+		}
+	}
+	as = append(as, fact.sender)
 
 	return as, nil
 }

@@ -10,14 +10,16 @@ import (
 type BaseAuthorizeOperatorsItem struct {
 	hint.BaseHinter
 	stoID    currencyextension.ContractID // token id
-	operator base.Address                 // initial controllers
-	currency currency.CurrencyID          // fee
+	contract base.Address
+	operator base.Address        // initial controllers
+	currency currency.CurrencyID // fee
 }
 
-func NewBaseAuthorizeOperatorsItem(ht hint.Hint, stoID currencyextension.ContractID, operator base.Address, currency currency.CurrencyID) BaseAuthorizeOperatorsItem {
+func NewBaseAuthorizeOperatorsItem(ht hint.Hint, stoID currencyextension.ContractID, contract, operator base.Address, currency currency.CurrencyID) BaseAuthorizeOperatorsItem {
 	return BaseAuthorizeOperatorsItem{
 		BaseHinter: hint.NewBaseHinter(ht),
 		stoID:      stoID,
+		contract:   contract,
 		operator:   operator,
 		currency:   currency,
 	}

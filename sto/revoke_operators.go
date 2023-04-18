@@ -19,8 +19,7 @@ type RevokeOperatorsItem interface {
 	hint.Hinter
 	util.IsValider
 	Bytes() []byte
-	Address() (base.Address, error)
-	Rebuild() RevokeOperatorsItem
+	Addresses() []base.Address
 }
 
 type RevokeOperatorsFact struct {
@@ -106,44 +105,21 @@ func (fact RevokeOperatorsFact) Items() []RevokeOperatorsItem {
 	return fact.items
 }
 
-func (fact RevokeOperatorsFact) Targets() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items))
-	for i := range fact.items {
-		a, err := fact.items[i].Address()
-		if err != nil {
-			return nil, err
-		}
-		as[i] = a
-	}
-
-	return as, nil
-}
-
 func (fact RevokeOperatorsFact) Addresses() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items)+1)
+	as := []base.Address{}
 
-	tas, err := fact.Targets()
-	if err != nil {
-		return nil, err
+	adrMap := make(map[string]struct{})
+	for i := range fact.items {
+		for j := range fact.items[i].Addresses() {
+			if _, found := adrMap[fact.items[i].Addresses()[j].String()]; !found {
+				adrMap[fact.items[i].Addresses()[j].String()] = struct{}{}
+				as = append(as, fact.items[i].Addresses()[j])
+			}
+		}
 	}
-	copy(as, tas)
-
-	as[len(fact.items)] = fact.sender
+	as = append(as, fact.sender)
 
 	return as, nil
-}
-
-func (fact RevokeOperatorsFact) Rebuild() RevokeOperatorsFact {
-	items := make([]RevokeOperatorsItem, len(fact.items))
-	for i := range fact.items {
-		it := fact.items[i]
-		items[i] = it.Rebuild()
-	}
-
-	fact.items = items
-	fact.SetHash(fact.GenerateHash())
-
-	return fact
 }
 
 type RevokeOperators struct {

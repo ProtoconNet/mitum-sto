@@ -20,6 +20,7 @@ type RedeemTokensItem interface {
 	Amount() currency.Amount
 	Account() base.Address
 	Partition() Partition
+	Addresses() []base.Address
 }
 
 type RedeemTokensFact struct {
@@ -93,6 +94,23 @@ func (fact RedeemTokensFact) Sender() base.Address {
 
 func (fact RedeemTokensFact) Items() []RedeemTokensItem {
 	return fact.items
+}
+
+func (fact RedeemTokensFact) Addresses() ([]base.Address, error) {
+	as := []base.Address{}
+
+	adrMap := make(map[string]struct{})
+	for i := range fact.items {
+		for j := range fact.items[i].Addresses() {
+			if _, found := adrMap[fact.items[i].Addresses()[j].String()]; !found {
+				adrMap[fact.items[i].Addresses()[j].String()] = struct{}{}
+				as = append(as, fact.items[i].Addresses()[j])
+			}
+		}
+	}
+	as = append(as, fact.sender)
+
+	return as, nil
 }
 
 type RedeemTokens struct {

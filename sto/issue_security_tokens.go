@@ -19,6 +19,7 @@ type IssueSecurityTokensItem interface {
 	util.IsValider
 	Bytes() []byte
 	Receiver() (base.Address, error)
+	Addresses() []base.Address
 }
 
 type IssueSecurityTokensFact struct {
@@ -83,6 +84,23 @@ func (fact IssueSecurityTokensFact) IsValid(b []byte) error {
 	}
 
 	return nil
+}
+
+func (fact IssueSecurityTokensFact) Addresses() ([]base.Address, error) {
+	as := []base.Address{}
+
+	adrMap := make(map[string]struct{})
+	for i := range fact.items {
+		for j := range fact.items[i].Addresses() {
+			if _, found := adrMap[fact.items[i].Addresses()[j].String()]; !found {
+				adrMap[fact.items[i].Addresses()[j].String()] = struct{}{}
+				as = append(as, fact.items[i].Addresses()[j])
+			}
+		}
+	}
+	as = append(as, fact.sender)
+
+	return as, nil
 }
 
 type IssueSecurityTokens struct {

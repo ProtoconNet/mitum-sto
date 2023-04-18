@@ -22,6 +22,7 @@ type AuthorizeOperatorsItem interface {
 	Bytes() []byte
 	STO() currencyextension.ContractID
 	Operator() base.Address
+	Addresses() []base.Address
 }
 
 type AuthorizeOperatorsFact struct {
@@ -114,13 +115,18 @@ func (fact AuthorizeOperatorsFact) Items() []AuthorizeOperatorsItem {
 }
 
 func (fact AuthorizeOperatorsFact) Addresses() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items)+1)
+	as := []base.Address{}
 
+	adrMap := make(map[string]struct{})
 	for i := range fact.items {
-		addr := fact.items[i].Operator()
-		as[i] = addr
+		for j := range fact.items[i].Addresses() {
+			if _, found := adrMap[fact.items[i].Addresses()[j].String()]; !found {
+				adrMap[fact.items[i].Addresses()[j].String()] = struct{}{}
+				as = append(as, fact.items[i].Addresses()[j])
+			}
+		}
 	}
-	as[len(fact.items)] = fact.sender
+	as = append(as, fact.sender)
 
 	return as, nil
 }

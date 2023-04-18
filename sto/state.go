@@ -259,11 +259,11 @@ func (sv TokenHolderPartitionOperatorsStateValue) IsValid([]byte) error {
 			return err
 		}
 
-		if _, found := m[k.Address().String()]; found {
+		if _, found := m[k.String()]; found {
 			return util.ErrInvalid.Errorf("duplicated Account found")
 		}
 
-		m[k.Address().String()] = struct{}{}
+		m[k.String()] = struct{}{}
 	}
 
 	return nil
@@ -365,10 +365,10 @@ func (p PartitionControllersStateValue) IsValid([]byte) error {
 
 	m := map[string]struct{}{}
 	for _, controller := range p.Controllers {
-		if _, found := m[controller.Address().String()]; found {
+		if _, found := m[controller.String()]; found {
 			return util.ErrInvalid.Errorf("duplicated Address found")
 		}
-		m[controller.Address().String()] = struct{}{}
+		m[controller.String()] = struct{}{}
 	}
 
 	return nil
@@ -434,7 +434,7 @@ func (o OperatorTokenHoldersStateValue) IsValid([]byte) error {
 			return err
 		}
 
-		if _, found := m[k..String()]; found {
+		if _, found := m[k.String()]; found {
 			return util.ErrInvalid.Errorf("duplicated Account found")
 		}
 

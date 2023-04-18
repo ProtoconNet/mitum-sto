@@ -22,8 +22,7 @@ type TransferSecurityTokensPartitionItem interface {
 	Recipient() base.Address
 	Partition() string
 	Bytes() []byte
-	Address() (base.Address, error)
-	Rebuild() CreateSecurityTokensItem
+	Addresses() []base.Address
 }
 
 type TransferSecurityTokensPartitionFact struct {
@@ -120,40 +119,21 @@ func (fact TransferSecurityTokensPartitionFact) Items() []TransferSecurityTokens
 	return fact.items
 }
 
-func (fact TransferSecurityTokensPartitionFact) Targets() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items))
-	for i := range fact.items {
-		as[i] = fact.items[i].Recipient()
-
-	}
-
-	return as, nil
-}
-
 func (fact TransferSecurityTokensPartitionFact) Addresses() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items)+1)
+	as := []base.Address{}
 
-	tas, err := fact.Targets()
-	if err != nil {
-		return nil, err
+	adrMap := make(map[string]struct{})
+	for i := range fact.items {
+		for j := range fact.items[i].Addresses() {
+			if _, found := adrMap[fact.items[i].Addresses()[j].String()]; !found {
+				adrMap[fact.items[i].Addresses()[j].String()] = struct{}{}
+				as = append(as, fact.items[i].Addresses()[j])
+			}
+		}
 	}
-	copy(as, tas)
-
-	as[len(fact.items)] = fact.sender
+	as = append(as, fact.sender)
 
 	return as, nil
-}
-
-func (fact TransferSecurityTokensPartitionFact) Rebuild() TransferSecurityTokensPartitionFact {
-	items := make([]TransferSecurityTokensPartitionItem, len(fact.items))
-	for i := range fact.items {
-		items[i] = fact.items[i]
-	}
-
-	fact.items = items
-	fact.SetHash(fact.GenerateHash())
-
-	return fact
 }
 
 type TransferSecurityTokensPartition struct {
