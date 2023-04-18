@@ -2,6 +2,7 @@ package sto
 
 import (
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
@@ -14,23 +15,32 @@ type STOPolicy struct {
 	hint.BaseHinter
 	partitions  []Partition
 	aggregate   currency.Amount
-	controllers []currency.Account
+	controllers []base.Address
+	documents   []Document
 }
 
-func NewSTOPolicy(partitions []Partition, aggregate currency.Amount, controllers []currency.Account) STOPolicy {
+func NewSTOPolicy(partitions []Partition, aggregate currency.Amount, controllers []base.Address, documents []Document) STOPolicy {
 	return STOPolicy{
 		BaseHinter:  hint.NewBaseHinter(STOPolicyHint),
 		partitions:  partitions,
 		aggregate:   aggregate,
 		controllers: controllers,
+		documents:   documents,
 	}
 }
 
 func (po STOPolicy) Bytes() []byte {
-	bs := make([][]byte, len(po.partitions))
+	bs := make([][]byte, len(po.partitions)+len(po.controllers)+len(po.documents))
 	for i, p := range po.partitions {
 		bs[i] = p.Bytes()
 	}
+	for i, p := range po.controllers {
+		bs[i+len(po.partitions)] = p.Bytes()
+	}
+	for i, p := range po.documents {
+		bs[i+len(po.partitions)+len(po.controllers)] = p.Bytes()
+	}
+
 	return util.ConcatBytesSlice(
 		util.ConcatBytesSlice(bs...),
 		po.aggregate.Bytes(),
@@ -60,6 +70,11 @@ func (po STOPolicy) IsValid([]byte) error {
 			return util.ErrInvalid.Errorf("invalid Controller: %w", err)
 		}
 	}
+	for _, p := range po.documents {
+		if err := p.IsValid(nil); err != nil {
+			return util.ErrInvalid.Errorf("invalid Document: %w", err)
+		}
+	}
 
 	return nil
 }
@@ -72,6 +87,10 @@ func (po STOPolicy) Aggregate() currency.Amount {
 	return po.aggregate
 }
 
-func (po STOPolicy) Controllers() []currency.Account {
+func (po STOPolicy) Controllers() []base.Address {
 	return po.controllers
+}
+
+func (po STOPolicy) Documents() []Document {
+	return po.documents
 }
