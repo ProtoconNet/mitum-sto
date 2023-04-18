@@ -19,7 +19,7 @@ type RedeemTokensItem interface {
 	Bytes() []byte
 	Amount() currency.Amount
 	Account() base.Address
-	Rebuild() RedeemTokensItem
+	Partition() Partition
 }
 
 type RedeemTokensFact struct {
@@ -95,25 +95,12 @@ func (fact RedeemTokensFact) Items() []RedeemTokensItem {
 	return fact.items
 }
 
-func (fact RedeemTokensFact) Rebuild() RedeemTokensFact {
-	items := make([]RedeemTokensItem, len(fact.items))
-	for i := range fact.items {
-		it := fact.items[i]
-		items[i] = it.Rebuild()
-	}
-
-	fact.items = items
-	fact.SetHash(fact.GenerateHash())
-
-	return fact
-}
-
 type RedeemTokens struct {
 	currency.BaseOperation
 }
 
 func NewRedeemTokens(fact RedeemTokensFact) (RedeemTokens, error) {
-	return RedeemTokens{BaseOperation: currency.NewBaseOperation(MintSecurityTokensHint, fact)}, nil
+	return RedeemTokens{BaseOperation: currency.NewBaseOperation(IssueSecurityTokensHint, fact)}, nil
 }
 
 func (op *RedeemTokens) HashSign(priv base.Privatekey, networkID base.NetworkID) error {
