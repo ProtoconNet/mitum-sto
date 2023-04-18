@@ -6,10 +6,10 @@ import (
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
-func (fact *AuthorizeOperatorsFact) unpack(enc encoder.Encoder, ow string, bit []byte) error {
+func (fact *AuthorizeOperatorsFact) unpack(enc encoder.Encoder, sa string, bit []byte) error {
 	e := util.StringErrorFunc("failed to unmarshal AuthorizeOperatorsFact")
 
-	switch a, err := base.DecodeAddress(ow, enc); {
+	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:
 		return e(err, "")
 	default:

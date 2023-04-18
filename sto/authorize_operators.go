@@ -1,6 +1,7 @@
 package sto
 
 import (
+	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -19,8 +20,8 @@ type AuthorizeOperatorsItem interface {
 	hint.Hinter
 	util.IsValider
 	Bytes() []byte
-	Address() (base.Address, error)
-	Rebuild() AuthorizeOperatorsItem
+	STO() currencyextension.ContractID
+	Operator() base.Address
 }
 
 type AuthorizeOperatorsFact struct {
@@ -88,10 +89,7 @@ func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
 		}
 
 		it := fact.items[i]
-		addr, err := it.Address()
-		if err != nil {
-			return err
-		}
+		addr := it.Operator()
 
 		if _, found := foundAddrs[addr.String()]; found {
 			return util.ErrInvalid.Errorf("duplicate address found, %s", addr)
@@ -115,44 +113,16 @@ func (fact AuthorizeOperatorsFact) Items() []AuthorizeOperatorsItem {
 	return fact.items
 }
 
-func (fact AuthorizeOperatorsFact) Targets() ([]base.Address, error) {
-	as := make([]base.Address, len(fact.items))
-	for i := range fact.items {
-		a, err := fact.items[i].Address()
-		if err != nil {
-			return nil, err
-		}
-		as[i] = a
-	}
-
-	return as, nil
-}
-
 func (fact AuthorizeOperatorsFact) Addresses() ([]base.Address, error) {
 	as := make([]base.Address, len(fact.items)+1)
 
-	tas, err := fact.Targets()
-	if err != nil {
-		return nil, err
+	for i := range fact.items {
+		addr := fact.items[i].Operator()
+		as[i] = addr
 	}
-	copy(as, tas)
-
 	as[len(fact.items)] = fact.sender
 
 	return as, nil
-}
-
-func (fact AuthorizeOperatorsFact) Rebuild() AuthorizeOperatorsFact {
-	items := make([]AuthorizeOperatorsItem, len(fact.items))
-	for i := range fact.items {
-		it := fact.items[i]
-		items[i] = it.Rebuild()
-	}
-
-	fact.items = items
-	fact.SetHash(fact.GenerateHash())
-
-	return fact
 }
 
 type AuthorizeOperators struct {
