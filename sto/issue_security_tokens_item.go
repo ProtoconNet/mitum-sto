@@ -9,16 +9,22 @@ import (
 
 type BaseIssueSecurityTokensItem struct {
 	hint.BaseHinter
-	stoID    currencyextension.ContractID // token id
-	receiver base.Address                 // token holder
-	currency currency.CurrencyID          // fee
+	stoID     currencyextension.ContractID // token id
+	contract  base.Address                 // contract
+	receiver  base.Address                 // token holder
+	amount    currency.Big                 // amount
+	partition Partition                    // partition
+	currency  currency.CurrencyID          // fee
 }
 
-func NewBaseIssueSecurityTokensItem(ht hint.Hint, stoID currencyextension.ContractID, receiver base.Address, currency currency.CurrencyID) BaseIssueSecurityTokensItem {
+func NewBaseIssueSecurityTokensItem(ht hint.Hint, stoID currencyextension.ContractID, contract, receiver base.Address, amount currency.Big, partition Partition, currency currency.CurrencyID) BaseIssueSecurityTokensItem {
 	return BaseIssueSecurityTokensItem{
 		BaseHinter: hint.NewBaseHinter(ht),
 		stoID:      stoID,
+		contract:   contract,
 		receiver:   receiver,
+		amount:     amount,
+		partition:  partition,
 		currency:   currency,
 	}
 }

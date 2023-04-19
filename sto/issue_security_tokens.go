@@ -19,13 +19,14 @@ type IssueSecurityTokensItem interface {
 	util.IsValider
 	Bytes() []byte
 	Receiver() (base.Address, error)
+	Amount() currency.Big
+	Partition() Partition
 	Addresses() []base.Address
 }
 
 type IssueSecurityTokensFact struct {
 	base.BaseFact
 	sender base.Address
-	token  base.Token
 	items  []IssueSecurityTokensItem
 }
 
