@@ -13,7 +13,7 @@ func (po STOPolicy) MarshalBSON() ([]byte, error) {
 		bson.M{
 			"_hint":       po.Hint().String(),
 			"partitions":  po.partitions,
-			"aggregate":   po.aggregate,
+			"aggregate":   po.aggregate.String(),
 			"controllers": po.controllers,
 			"documents":   po.documents,
 		},
@@ -23,7 +23,7 @@ func (po STOPolicy) MarshalBSON() ([]byte, error) {
 type STOPolicyBSONUnmarshaler struct {
 	Hint        string   `bson:"_hint"`
 	Partitions  bson.Raw `json:"partitions"`
-	Aggregate   bson.Raw `json:"aggregate"`
+	Aggregate   string   `json:"aggregate"`
 	Controllers []string `json:"controllers"`
 	Documents   bson.Raw `json:"documents"`
 }
