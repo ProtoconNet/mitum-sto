@@ -3,7 +3,6 @@ package sto
 import (
 	"encoding/json"
 
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -12,17 +11,17 @@ import (
 
 type STOPolicyJSONMarshaler struct {
 	hint.BaseHinter
-	Partitions  []Partition     `json:"partitions"`
-	Aggregate   currency.Amount `json:"aggregate"`
-	Controllers []base.Address  `json:"controllers"`
-	Documents   []Document      `json:"documents"`
+	Partitions  []Partition    `json:"partitions"`
+	Aggregate   string         `json:"aggregate"`
+	Controllers []base.Address `json:"controllers"`
+	Documents   []Document     `json:"documents"`
 }
 
 func (po STOPolicy) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(STOPolicyJSONMarshaler{
 		BaseHinter:  po.BaseHinter,
 		Partitions:  po.partitions,
-		Aggregate:   po.aggregate,
+		Aggregate:   po.aggregate.String(),
 		Controllers: po.controllers,
 		Documents:   po.documents,
 	})
@@ -31,7 +30,7 @@ func (po STOPolicy) MarshalJSON() ([]byte, error) {
 type STOPolicyJSONUnmarshaler struct {
 	Hint        hint.Hint       `json:"_hint"`
 	Partitions  json.RawMessage `json:"partitions"`
-	Aggregate   json.RawMessage `json:"aggregate"`
+	Aggregate   string          `json:"aggregate"`
 	Controllers []string        `json:"controllers"`
 	Documents   json.RawMessage `json:"documents"`
 }

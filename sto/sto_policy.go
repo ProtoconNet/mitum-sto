@@ -14,12 +14,12 @@ var (
 type STOPolicy struct {
 	hint.BaseHinter
 	partitions  []Partition
-	aggregate   currency.Amount
+	aggregate   currency.Big
 	controllers []base.Address
 	documents   []Document
 }
 
-func NewSTOPolicy(partitions []Partition, aggregate currency.Amount, controllers []base.Address, documents []Document) STOPolicy {
+func NewSTOPolicy(partitions []Partition, aggregate currency.Big, controllers []base.Address, documents []Document) STOPolicy {
 	return STOPolicy{
 		BaseHinter:  hint.NewBaseHinter(STOPolicyHint),
 		partitions:  partitions,
@@ -52,7 +52,7 @@ func (po STOPolicy) IsValid([]byte) error {
 		return util.ErrInvalid.Errorf("empty partitions")
 	}
 
-	if !po.aggregate.Big().OverZero() {
+	if !po.aggregate.OverZero() {
 		return util.ErrInvalid.Errorf("aggregate not over zero")
 	}
 
@@ -83,7 +83,7 @@ func (po STOPolicy) Partitions() []Partition {
 	return po.partitions
 }
 
-func (po STOPolicy) Aggregate() currency.Amount {
+func (po STOPolicy) Aggregate() currency.Big {
 	return po.aggregate
 }
 

@@ -8,7 +8,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, bps, bag []byte, bcs []string, bds []byte) error {
+func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, bps []byte, big string, bcs []string, bds []byte) error {
 	e := util.StringErrorFunc("failed to decode bson of STOPolicy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
@@ -29,10 +29,8 @@ func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, bps, bag []byte, 
 	}
 	po.partitions = partitions
 
-	if hinter, err := enc.Decode(bag); err != nil {
+	if ag, err := currency.NewBigFromString(big); err != nil {
 		return e(err, "")
-	} else if ag, ok := hinter.(currency.Amount); !ok {
-		return util.ErrWrongType.Errorf("expected Amount, not %T", hinter)
 	} else {
 		po.aggregate = ag
 	}
