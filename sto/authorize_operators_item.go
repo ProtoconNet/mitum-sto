@@ -8,6 +8,8 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
+var AuthorizeOperatorsItemHint = hint.MustNewHint("mitum-sto-authorize-operators-item-v0.0.1")
+
 type BaseAuthorizeOperatorsItem struct {
 	hint.BaseHinter
 	stoID    extensioncurrency.ContractID // token id
@@ -16,9 +18,9 @@ type BaseAuthorizeOperatorsItem struct {
 	currency currency.CurrencyID // fee
 }
 
-func NewBaseAuthorizeOperatorsItem(ht hint.Hint, stoID extensioncurrency.ContractID, contract, operator base.Address, currency currency.CurrencyID) BaseAuthorizeOperatorsItem {
+func NewBaseAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract, operator base.Address, currency currency.CurrencyID) BaseAuthorizeOperatorsItem {
 	return BaseAuthorizeOperatorsItem{
-		BaseHinter: hint.NewBaseHinter(ht),
+		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorsItemHint),
 		stoID:      stoID,
 		contract:   contract,
 		operator:   operator,
