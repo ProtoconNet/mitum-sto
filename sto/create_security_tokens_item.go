@@ -19,7 +19,7 @@ type CreateSecurityTokensItem struct {
 	currency         currency.CurrencyID          // fee
 }
 
-func NewBaseCreateSecurityTokensItem(stoID extensioncurrency.ContractID, granularity uint64, partition Partition, controllers []base.Address, currency currency.CurrencyID) CreateSecurityTokensItem {
+func NewCreateSecurityTokensItem(stoID extensioncurrency.ContractID, granularity uint64, partition Partition, controllers []base.Address, currency currency.CurrencyID) CreateSecurityTokensItem {
 	return CreateSecurityTokensItem{
 		BaseHinter:       hint.NewBaseHinter(CreateSecurityTokensItemHint),
 		stoID:            stoID,

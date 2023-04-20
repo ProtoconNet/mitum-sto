@@ -21,7 +21,7 @@ type CreateSecurityTokensFact struct {
 	items  []CreateSecurityTokensItem
 }
 
-func NewCreateTokenAccountsFact(token []byte, sender base.Address, items []CreateSecurityTokensItem) CreateSecurityTokensFact {
+func NewCreateSecurityTokensFact(token []byte, sender base.Address, items []CreateSecurityTokensItem) CreateSecurityTokensFact {
 	bf := base.NewBaseFact(CreateSecurityTokensFactHint, token)
 	fact := CreateSecurityTokensFact{
 		BaseFact: bf,
