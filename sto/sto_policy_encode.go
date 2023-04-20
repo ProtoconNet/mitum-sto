@@ -8,24 +8,14 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, bps []byte, big string, bcs []string, bds []byte) error {
+func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big string, bcs []string, bds []byte) error {
 	e := util.StringErrorFunc("failed to decode bson of STOPolicy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
 
-	hps, err := enc.DecodeSlice(bps)
-	if err != nil {
-		return e(err, "")
-	}
-
-	partitions := make([]Partition, len(hps))
-	for i := range hps {
-		p, ok := hps[i].(Partition)
-		if !ok {
-			return util.ErrWrongType.Errorf("expected Partition, not %T", hps[i])
-		}
-
-		partitions[i] = p
+	partitions := make([]Partition, len(ps))
+	for i, p := range ps {
+		partitions[i] = Partition(p)
 	}
 	po.partitions = partitions
 
@@ -51,7 +41,7 @@ func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, bps []byte, big s
 	}
 
 	documents := make([]Document, len(hds))
-	for i := range hps {
+	for i := range hds {
 		doc, ok := hds[i].(Document)
 		if !ok {
 			return util.ErrWrongType.Errorf("expected Document, not %T", hds[i])

@@ -29,7 +29,7 @@ func (po STOPolicy) MarshalJSON() ([]byte, error) {
 
 type STOPolicyJSONUnmarshaler struct {
 	Hint        hint.Hint       `json:"_hint"`
-	Partitions  json.RawMessage `json:"partitions"`
+	Partitions  []string        `json:"partitions"`
 	Aggregate   string          `json:"aggregate"`
 	Controllers []string        `json:"controllers"`
 	Documents   json.RawMessage `json:"documents"`
