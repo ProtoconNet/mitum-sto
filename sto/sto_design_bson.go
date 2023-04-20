@@ -12,7 +12,7 @@ func (de STODesign) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":  de.Hint().String(),
-			"sto":    de.stoID,
+			"stoid":  de.stoID,
 			"policy": de.policy,
 		},
 	)
@@ -20,7 +20,7 @@ func (de STODesign) MarshalBSON() ([]byte, error) {
 
 type STODesignBSONUnmarshaler struct {
 	Hint   string   `bson:"_hint"`
-	STO    string   `bson:"sto"`
+	STO    string   `bson:"stoid"`
 	Policy bson.Raw `bson:"policy"`
 }
 

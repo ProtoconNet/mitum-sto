@@ -1,7 +1,7 @@
 package sto
 
 import (
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -20,7 +20,8 @@ type AuthorizeOperatorsItem interface {
 	hint.Hinter
 	util.IsValider
 	Bytes() []byte
-	STO() currencyextension.ContractID
+	STO() extensioncurrency.ContractID
+	Contract() base.Address
 	Operator() base.Address
 	Addresses() []base.Address
 }

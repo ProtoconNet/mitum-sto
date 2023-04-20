@@ -9,7 +9,7 @@ import (
 
 type DocumentJSONMarshaler struct {
 	hint.BaseHinter
-	STO   extensioncurrency.ContractID `json:"sto"`
+	STO   extensioncurrency.ContractID `json:"stoid"`
 	Title string                       `json:"title"`
 	Hash  string                       `json:"hash"`
 	URI   URI                          `json:"uri"`
@@ -27,7 +27,7 @@ func (doc Document) MarshalJSON() ([]byte, error) {
 
 type DocumentJSONUnmarshaler struct {
 	Hint  hint.Hint `json:"_hint"`
-	STO   string    `json:"sto"`
+	STO   string    `json:"stoid"`
 	Title string    `json:"title"`
 	Hash  string    `json:"hash"`
 	URI   string    `json:"uri"`
