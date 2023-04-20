@@ -10,7 +10,7 @@ import (
 
 var AuthorizeOperatorsItemHint = hint.MustNewHint("mitum-sto-authorize-operators-item-v0.0.1")
 
-type BaseAuthorizeOperatorsItem struct {
+type AuthorizeOperatorsItem struct {
 	hint.BaseHinter
 	stoID    extensioncurrency.ContractID // token id
 	contract base.Address
@@ -18,8 +18,8 @@ type BaseAuthorizeOperatorsItem struct {
 	currency currency.CurrencyID // fee
 }
 
-func NewBaseAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract, operator base.Address, currency currency.CurrencyID) BaseAuthorizeOperatorsItem {
-	return BaseAuthorizeOperatorsItem{
+func NewBaseAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract, operator base.Address, currency currency.CurrencyID) AuthorizeOperatorsItem {
+	return AuthorizeOperatorsItem{
 		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorsItemHint),
 		stoID:      stoID,
 		contract:   contract,
@@ -28,7 +28,7 @@ func NewBaseAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract,
 	}
 }
 
-func (it BaseAuthorizeOperatorsItem) Bytes() []byte {
+func (it AuthorizeOperatorsItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.stoID.Bytes(),
 		it.contract.Bytes(),
@@ -37,7 +37,7 @@ func (it BaseAuthorizeOperatorsItem) Bytes() []byte {
 	)
 }
 
-func (it BaseAuthorizeOperatorsItem) IsValid([]byte) error {
+func (it AuthorizeOperatorsItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.stoID, it.contract, it.operator, it.currency); err != nil {
 		return err
 	}
@@ -49,19 +49,19 @@ func (it BaseAuthorizeOperatorsItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it BaseAuthorizeOperatorsItem) STO() extensioncurrency.ContractID {
+func (it AuthorizeOperatorsItem) STO() extensioncurrency.ContractID {
 	return it.stoID
 }
 
-func (it BaseAuthorizeOperatorsItem) Contract() base.Address {
+func (it AuthorizeOperatorsItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it BaseAuthorizeOperatorsItem) Operator() base.Address {
+func (it AuthorizeOperatorsItem) Operator() base.Address {
 	return it.operator
 }
 
-func (it BaseAuthorizeOperatorsItem) Addresses() []base.Address {
+func (it AuthorizeOperatorsItem) Addresses() []base.Address {
 	ad := make([]base.Address, 2)
 
 	ad[0] = it.contract
@@ -70,6 +70,6 @@ func (it BaseAuthorizeOperatorsItem) Addresses() []base.Address {
 	return ad
 }
 
-func (it BaseAuthorizeOperatorsItem) Rebuild() AuthorizeOperatorsItem {
+func (it AuthorizeOperatorsItem) Rebuild() AuthorizeOperatorsItem {
 	return it
 }

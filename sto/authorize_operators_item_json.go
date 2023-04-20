@@ -17,7 +17,7 @@ type AuthorizeOperatorsItemJSONMarshaler struct {
 	Currency currency.CurrencyID          `json:"currency"`
 }
 
-func (it BaseAuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
+func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(AuthorizeOperatorsItemJSONMarshaler{
 		BaseHinter: it.BaseHinter,
 		STO:        it.stoID,
@@ -35,8 +35,8 @@ type AuthorizeOperatorsItemJSONUnMarshaler struct {
 	Currency string    `json:"currency"`
 }
 
-func (it *BaseAuthorizeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of BaseAuthorizeOperatorsItem")
+func (it *AuthorizeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of AuthorizeOperatorsItem")
 
 	var uit AuthorizeOperatorsItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {

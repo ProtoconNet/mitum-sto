@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (it BaseAuthorizeOperatorsItem) MarshalBSON() ([]byte, error) {
+func (it AuthorizeOperatorsItem) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":    it.Hint().String(),
@@ -27,8 +27,8 @@ type AuthorizeOperatorsItemBSONUnmarshaler struct {
 	Currency string `bson:"currency"`
 }
 
-func (it *BaseAuthorizeOperatorsItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of BaseAuthorizeOperatorsItem")
+func (it *AuthorizeOperatorsItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of AuthorizeOperatorsItem")
 
 	var uit AuthorizeOperatorsItemBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uit); err != nil {

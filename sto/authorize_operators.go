@@ -1,7 +1,6 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -15,16 +14,6 @@ var (
 )
 
 var MaxAuthorizeOperatorsItems uint = 10
-
-type AuthorizeOperatorsItem interface {
-	hint.Hinter
-	util.IsValider
-	Bytes() []byte
-	STO() extensioncurrency.ContractID
-	Contract() base.Address
-	Operator() base.Address
-	Addresses() []base.Address
-}
 
 type AuthorizeOperatorsFact struct {
 	base.BaseFact
