@@ -11,7 +11,7 @@ import (
 
 type STODesignJSONMarshaler struct {
 	hint.BaseHinter
-	STO    extensioncurrency.ContractID `json:"sto"`
+	STO    extensioncurrency.ContractID `json:"stoid"`
 	Policy STOPolicy                    `json:"policy"`
 }
 
@@ -25,7 +25,7 @@ func (de STODesign) MarshalJSON() ([]byte, error) {
 
 type STODesignJSONUnmarshaler struct {
 	Hint   hint.Hint       `json:"_hint"`
-	STO    string          `json:"sto"`
+	STO    string          `json:"stoid"`
 	Policy json.RawMessage `json:"policy"`
 }
 

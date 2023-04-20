@@ -22,10 +22,10 @@ func (po STOPolicy) MarshalBSON() ([]byte, error) {
 
 type STOPolicyBSONUnmarshaler struct {
 	Hint        string   `bson:"_hint"`
-	Partitions  bson.Raw `json:"partitions"`
-	Aggregate   string   `json:"aggregate"`
-	Controllers []string `json:"controllers"`
-	Documents   bson.Raw `json:"documents"`
+	Partitions  bson.Raw `bson:"partitions"`
+	Aggregate   string   `bson:"aggregate"`
+	Controllers []string `bson:"controllers"`
+	Documents   bson.Raw `bson:"documents"`
 }
 
 func (po *STOPolicy) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {

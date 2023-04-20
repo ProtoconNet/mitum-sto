@@ -12,7 +12,7 @@ func (doc Document) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint": doc.Hint().String(),
-			"sto":   doc.stoID,
+			"stoid": doc.stoID,
 			"title": doc.title,
 			"hash":  doc.hash,
 			"uri":   doc.uri,
@@ -22,10 +22,10 @@ func (doc Document) MarshalBSON() ([]byte, error) {
 
 type DocumentBSONUnmarshaler struct {
 	Hint  string `bson:"_hint"`
-	STO   string `json:"sto"`
-	Title string `json:"title"`
-	Hash  string `json:"hash"`
-	URI   string `json:"uri"`
+	STO   string `bson:"stoid"`
+	Title string `bson:"title"`
+	Hash  string `bson:"hash"`
+	URI   string `bson:"uri"`
 }
 
 func (doc *Document) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
