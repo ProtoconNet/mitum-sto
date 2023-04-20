@@ -22,7 +22,7 @@ func (po STOPolicy) MarshalBSON() ([]byte, error) {
 
 type STOPolicyBSONUnmarshaler struct {
 	Hint        string   `bson:"_hint"`
-	Partitions  bson.Raw `bson:"partitions"`
+	Partitions  []string `bson:"partitions"`
 	Aggregate   string   `bson:"aggregate"`
 	Controllers []string `bson:"controllers"`
 	Documents   bson.Raw `bson:"documents"`
