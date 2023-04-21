@@ -7,11 +7,12 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (de *STODesign) unpack(enc encoder.Encoder, ht hint.Hint, sto string, bpo []byte) error {
+func (de *STODesign) unpack(enc encoder.Encoder, ht hint.Hint, sto string, gra uint64, bpo []byte) error {
 	e := util.StringErrorFunc("failed to decode bson of STODesign")
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 	de.stoID = extensioncurrency.ContractID(sto)
+	de.granularity = gra
 
 	if hinter, err := enc.Decode(bpo); err != nil {
 		return e(err, "")
