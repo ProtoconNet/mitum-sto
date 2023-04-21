@@ -8,9 +8,11 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/ProtoconNet/mitum-sto/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 
+	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 )
 
@@ -181,6 +183,24 @@ func (v *CurrencyIDFlag) String() string {
 	return v.CID.String()
 }
 
+type ContractIDFlag struct {
+	ID extensioncurrency.ContractID
+}
+
+func (v *ContractIDFlag) UnmarshalText(b []byte) error {
+	id := extensioncurrency.ContractID(string(b))
+	if err := id.IsValid(nil); err != nil {
+		return err
+	}
+	v.ID = id
+
+	return nil
+}
+
+func (v *ContractIDFlag) String() string {
+	return v.ID.String()
+}
+
 type CurrencyAmountFlag struct {
 	CID currency.CurrencyID
 	Big currency.Big
@@ -213,4 +233,22 @@ func (v *CurrencyAmountFlag) UnmarshalText(b []byte) error {
 
 func (v *CurrencyAmountFlag) String() string {
 	return v.CID.String() + "," + v.Big.String()
+}
+
+type PartitionFlag struct {
+	Partition sto.Partition
+}
+
+func (v *PartitionFlag) UnmarshalText(b []byte) error {
+	p := sto.Partition(string(b))
+	if err := p.IsValid(nil); err != nil {
+		return err
+	}
+	v.Partition = p
+
+	return nil
+}
+
+func (v *PartitionFlag) String() string {
+	return v.Partition.String()
 }

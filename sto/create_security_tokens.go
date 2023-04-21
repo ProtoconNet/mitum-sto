@@ -1,6 +1,8 @@
 package sto
 
 import (
+	"fmt"
+
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -79,15 +81,17 @@ func (fact CreateSecurityTokensFact) IsValid(b []byte) error {
 		return err
 	}
 
-	items := fact.items
-
 	founds := map[string]struct{}{}
-	for i := range items {
-		if err := items[i].IsValid(nil); err != nil {
+	for _, it := range fact.items {
+		if err := it.IsValid(nil); err != nil {
 			return err
 		}
 
-		k := StateKeySTO(items[i].contract, items[i].stoID)
+		if it.contract.Equal(fact.sender) {
+			return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
+		}
+
+		k := fmt.Sprintf("%s-%s", it.contract.String(), it.stoID.String())
 
 		if _, found := founds[k]; found {
 			return util.ErrInvalid.Errorf("duplicated contract-sto found, %s", k)

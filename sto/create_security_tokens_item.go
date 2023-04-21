@@ -59,16 +59,20 @@ func (it CreateSecurityTokensItem) IsValid([]byte) error {
 	}
 
 	founds := map[string]struct{}{}
-	for i := range it.controllers {
-		if err := it.controllers[i].IsValid(nil); err != nil {
+	for _, con := range it.controllers {
+		if err := con.IsValid(nil); err != nil {
 			return err
 		}
 
-		if _, found := founds[it.controllers[i].String()]; found {
-			return util.ErrInvalid.Errorf("duplicated controller found, %s", it.controllers[i].String())
+		if con.Equal(it.contract) {
+			return util.ErrInvalid.Errorf("controller address is same with contract, %q", con)
 		}
 
-		founds[it.controllers[i].String()] = struct{}{}
+		if _, found := founds[con.String()]; found {
+			return util.ErrInvalid.Errorf("duplicated controller found, %s", con.String())
+		}
+
+		founds[con.String()] = struct{}{}
 	}
 
 	return nil
@@ -86,7 +90,7 @@ func (it CreateSecurityTokensItem) Granularity() uint64 {
 	return it.granularity
 }
 
-func (it CreateSecurityTokensItem) DefaultPartitions() Partition {
+func (it CreateSecurityTokensItem) DefaultPartition() Partition {
 	return it.defaultPartition
 }
 
