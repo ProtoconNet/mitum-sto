@@ -12,15 +12,17 @@ var (
 
 type STODesign struct {
 	hint.BaseHinter
-	stoID  extensioncurrency.ContractID
-	policy STOPolicy
+	stoID       extensioncurrency.ContractID
+	granularity uint64
+	policy      STOPolicy
 }
 
-func NewSTODesign(stoID extensioncurrency.ContractID, policy STOPolicy) STODesign {
+func NewSTODesign(stoID extensioncurrency.ContractID, granularity uint64, policy STOPolicy) STODesign {
 	return STODesign{
-		BaseHinter: hint.NewBaseHinter(STODesignHint),
-		stoID:      stoID,
-		policy:     policy,
+		BaseHinter:  hint.NewBaseHinter(STODesignHint),
+		stoID:       stoID,
+		granularity: granularity,
+		policy:      policy,
 	}
 }
 
@@ -43,12 +45,17 @@ func (s STODesign) IsValid([]byte) error {
 func (s STODesign) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		s.stoID.Bytes(),
+		util.Uint64ToBigBytes(s.granularity),
 		s.policy.Bytes(),
 	)
 }
 
 func (s STODesign) STO() extensioncurrency.ContractID {
 	return s.stoID
+}
+
+func (s STODesign) Granularity() uint64 {
+	return s.granularity
 }
 
 func (s STODesign) Policy() STOPolicy {

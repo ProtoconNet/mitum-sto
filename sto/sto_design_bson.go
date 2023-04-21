@@ -11,17 +11,19 @@ import (
 func (de STODesign) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
-			"_hint":  de.Hint().String(),
-			"stoid":  de.stoID,
-			"policy": de.policy,
+			"_hint":       de.Hint().String(),
+			"stoid":       de.stoID,
+			"granularity": de.granularity,
+			"policy":      de.policy,
 		},
 	)
 }
 
 type STODesignBSONUnmarshaler struct {
-	Hint   string   `bson:"_hint"`
-	STO    string   `bson:"stoid"`
-	Policy bson.Raw `bson:"policy"`
+	Hint        string   `bson:"_hint"`
+	STO         string   `bson:"stoid"`
+	Granularity uint64   `bson:"granularity"`
+	Policy      bson.Raw `bson:"policy"`
 }
 
 func (de *STODesign) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
@@ -37,5 +39,5 @@ func (de *STODesign) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 		return e(err, "")
 	}
 
-	return de.unpack(enc, ht, ud.STO, ud.Policy)
+	return de.unpack(enc, ht, ud.STO, ud.Granularity, ud.Policy)
 }
