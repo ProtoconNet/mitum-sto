@@ -20,6 +20,7 @@ import (
 	mongodbstorage "github.com/ProtoconNet/mitum-currency-extension/v2/digest/mongodb"
 	mitumcurrency "github.com/ProtoconNet/mitum-currency/v2/currency"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v2/digest/util/bson"
+	"github.com/ProtoconNet/mitum-sto/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
 	isaacblock "github.com/ProtoconNet/mitum2/isaac/block"
@@ -170,6 +171,7 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	opr.SetProcessor(mitumcurrency.SuffrageInflationHint, currency.NewSuffrageInflationProcessor(params.Threshold()))
 	opr.SetProcessor(currency.CreateContractAccountsHint, currency.NewCreateContractAccountsProcessor())
 	opr.SetProcessor(currency.WithdrawsHint, currency.NewWithdrawsProcessor())
+	opr.SetProcessor(sto.CreateSecurityTokensHint, sto.NewCreateSecurityTokensProcessor())
 
 	_ = set.Add(mitumcurrency.CreateAccountsHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
@@ -235,6 +237,15 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	})
 
 	_ = set.Add(currency.WithdrawsHint, func(height base.Height) (base.OperationProcessor, error) {
+		return opr.New(
+			height,
+			db.State,
+			nil,
+			nil,
+		)
+	})
+
+	_ = set.Add(sto.CreateSecurityTokensHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
 			height,
 			db.State,

@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -45,7 +45,7 @@ func NewStateMergeValue(key string, stv base.StateValue) base.StateMergeValue {
 }
 
 // sto:address-stoID
-func StateKeySTOPrefix(addr base.Address, stoID currencyextension.ContractID) string {
+func StateKeySTOPrefix(addr base.Address, stoID extensioncurrency.ContractID) string {
 	return fmt.Sprintf("%s%s-%s", STOPrefix, addr.String(), stoID)
 }
 
@@ -102,7 +102,7 @@ func IsStateSTODesignKey(key string) bool {
 }
 
 // sto:address-stoID:design
-func StateKeySTODesign(addr base.Address, sid currencyextension.ContractID) string {
+func StateKeySTODesign(addr base.Address, sid extensioncurrency.ContractID) string {
 	return fmt.Sprintf("%s%s", StateKeySTOPrefix(addr, sid), STODesignSuffix)
 }
 
@@ -165,7 +165,7 @@ func IsStateTokenHolderPartitionsKey(key string) bool {
 	return strings.HasSuffix(key, TokenHolderPartitionsSuffix)
 }
 
-func StateKeyTokenHolderPartitions(caddr base.Address, sid currencyextension.ContractID, uaddr base.Address) string {
+func StateKeyTokenHolderPartitions(caddr base.Address, sid extensioncurrency.ContractID, uaddr base.Address) string {
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, sid), uaddr.String(), TokenHolderPartitionsSuffix)
 }
 
@@ -210,7 +210,7 @@ func (sv TokenHolderPartitionBalanceStateValue) HashBytes() []byte {
 	return sv.Amount.Bytes()
 }
 
-func StateKeyTokenHolderPartitionBalance(caddr base.Address, stoID currencyextension.ContractID, uaddr base.Address, partition Partition) string {
+func StateKeyTokenHolderPartitionBalance(caddr base.Address, stoID extensioncurrency.ContractID, uaddr base.Address, partition Partition) string {
 	return fmt.Sprintf("%s-%s-%s%s", StateKeySTOPrefix(caddr, stoID), uaddr.String(), partition, TokenHolderPartitionBalanceSuffix)
 }
 
@@ -280,7 +280,7 @@ func (sv TokenHolderPartitionOperatorsStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyTokenHolderPartitionOperators(caddr base.Address, stoID currencyextension.ContractID, uaddr base.Address, partition Partition) string {
+func StateKeyTokenHolderPartitionOperators(caddr base.Address, stoID extensioncurrency.ContractID, uaddr base.Address, partition Partition) string {
 	return fmt.Sprintf("%s-%s-%s%s", StateKeySTOPrefix(caddr, stoID), uaddr.String(), partition.String(), TokenHolderPartitionOperatorsSuffix)
 }
 
@@ -323,7 +323,7 @@ func (sv PartitionBalanceStateValue) HashBytes() []byte {
 	return sv.Amount.Bytes()
 }
 
-func StateKeyPartitionBalance(caddr base.Address, stoID currencyextension.ContractID, partition Partition) string {
+func StateKeyPartitionBalance(caddr base.Address, stoID extensioncurrency.ContractID, partition Partition) string {
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, stoID), partition.String(), PartitionBalanceSuffix)
 }
 
@@ -385,7 +385,7 @@ func (p PartitionControllersStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyPartitionControllers(caddr base.Address, stoID currencyextension.ContractID, partition Partition) string {
+func StateKeyPartitionControllers(caddr base.Address, stoID extensioncurrency.ContractID, partition Partition) string {
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, stoID), partition.String(), PartitionControllersSuffix)
 }
 
@@ -394,7 +394,7 @@ func IsStatePartitionControllersKey(key string) bool {
 }
 
 var (
-	OperatorTokenHoldersStateValueHint = hint.MustNewHint("mitum-sto-operator-tokenHolders-state-value-v0.0.1")
+	OperatorTokenHoldersStateValueHint = hint.MustNewHint("mitum-sto-operator-tokenholders-state-value-v0.0.1")
 	OperatorTokenHoldersSuffix         = ":operator-holders"
 )
 
@@ -455,10 +455,87 @@ func (o OperatorTokenHoldersStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyOperatorTokenHolders(caddr base.Address, stoID currencyextension.ContractID, oaddr base.Address) string {
+func StateKeyOperatorTokenHolders(caddr base.Address, stoID extensioncurrency.ContractID, oaddr base.Address) string {
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, stoID), oaddr.String(), OperatorTokenHoldersSuffix)
 }
 
 func IsStateOperatorTokenHoldersKey(key string) bool {
 	return strings.HasSuffix(key, OperatorTokenHoldersSuffix)
+}
+
+func checkExistsState(
+	key string,
+	getState base.GetStateFunc,
+) error {
+	switch _, found, err := getState(key); {
+	case err != nil:
+		return err
+	case !found:
+		return base.NewBaseOperationProcessReasonError("state, %q does not exist", key)
+	default:
+		return nil
+	}
+}
+
+func checkNotExistsState(
+	key string,
+	getState base.GetStateFunc,
+) error {
+	switch _, found, err := getState(key); {
+	case err != nil:
+		return err
+	case found:
+		return base.NewBaseOperationProcessReasonError("state, %q exists", key)
+	default:
+		return nil
+	}
+}
+
+func existsState(
+	k,
+	name string,
+	getState base.GetStateFunc,
+) (base.State, error) {
+	switch st, found, err := getState(k); {
+	case err != nil:
+		return nil, err
+	case !found:
+		return nil, base.NewBaseOperationProcessReasonError("%s does not exist", name)
+	default:
+		return st, nil
+	}
+}
+
+func notExistsState(
+	k,
+	name string,
+	getState base.GetStateFunc,
+) (base.State, error) {
+	var st base.State
+	switch _, found, err := getState(k); {
+	case err != nil:
+		return nil, err
+	case found:
+		return nil, base.NewBaseOperationProcessReasonError("%s already exists", name)
+	case !found:
+		st = currency.NewBaseState(base.NilHeight, k, nil, nil, nil)
+	}
+	return st, nil
+}
+
+func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFunc) (extensioncurrency.CurrencyPolicy, error) {
+	var policy extensioncurrency.CurrencyPolicy
+	switch i, found, err := getStateFunc(extensioncurrency.StateKeyCurrencyDesign(cid)); {
+	case err != nil:
+		return extensioncurrency.CurrencyPolicy{}, err
+	case !found:
+		return extensioncurrency.CurrencyPolicy{}, base.NewBaseOperationProcessReasonError("currency not found, %v", cid)
+	default:
+		currencydesign, ok := i.Value().(extensioncurrency.CurrencyDesignStateValue) //nolint:forcetypeassert //...
+		if !ok {
+			return extensioncurrency.CurrencyPolicy{}, errors.Errorf("expected CurrencyDesignStateValue, not %T", i.Value())
+		}
+		policy = currencydesign.CurrencyDesign.Policy()
+	}
+	return policy, nil
 }

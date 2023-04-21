@@ -58,10 +58,11 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.TokenHolderPartitionOperatorsStateValueHint, Instance: sto.TokenHolderPartitionOperatorsStateValue{}},
 	{Hint: sto.PartitionBalanceStateValueHint, Instance: sto.PartitionBalanceStateValue{}},
 	{Hint: sto.OperatorTokenHoldersStateValueHint, Instance: sto.OperatorTokenHoldersStateValue{}},
-	{Hint: sto.PartitionBalanceStateValueHint, Instance: sto.PartitionBalanceStateValue{}},
 	{Hint: sto.STODesignHint, Instance: sto.STODesign{}},
 	{Hint: sto.DocumentHint, Instance: sto.Document{}},
 	{Hint: sto.STOPolicyHint, Instance: sto.STOPolicy{}},
+	{Hint: sto.CreateSecurityTokensItemHint, Instance: sto.CreateSecurityTokensItem{}},
+	{Hint: sto.CreateSecurityTokensHint, Instance: sto.CreateSecurityTokens{}},
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
 	{Hint: digest.OperationValueHint, Instance: digest.OperationValue{}},
@@ -90,6 +91,7 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: mitumcurrency.SuffrageInflationFactHint, Instance: mitumcurrency.SuffrageInflationFact{}},
 	{Hint: currency.CreateContractAccountsFactHint, Instance: currency.CreateContractAccountsFact{}},
 	{Hint: currency.WithdrawsFactHint, Instance: currency.WithdrawsFact{}},
+	{Hint: sto.CreateSecurityTokensFactHint, Instance: sto.CreateSecurityTokensFact{}},
 }
 
 func init() {
