@@ -1,13 +1,18 @@
 package sto
 
 import (
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/ProtoconNet/mitum2/util/valuehash"
 )
+
+type STOItem interface {
+	util.Byter
+	util.IsValider
+	Currency() currency.CurrencyID
+}
 
 var (
 	CreateSecurityTokensFactHint = hint.MustNewHint("mitum-sto-create-security-tokens-operation-fact-v0.0.1")
@@ -16,24 +21,13 @@ var (
 
 var MaxCreateSecurityTokensItems uint = 10
 
-type CreateSecurityTokensItem interface {
-	hint.Hinter
-	util.IsValider
-	Bytes() []byte
-	STO() currencyextension.ContractID
-	Granularity() uint64
-	DefaultPartitions() []Partition
-	Controllers() []base.Address
-	Addresses() []base.Address
-}
-
 type CreateSecurityTokensFact struct {
 	base.BaseFact
 	sender base.Address
 	items  []CreateSecurityTokensItem
 }
 
-func NewCreateTokenAccountsFact(token []byte, sender base.Address, items []CreateSecurityTokensItem) CreateSecurityTokensFact {
+func NewCreateSecurityTokensFact(token []byte, sender base.Address, items []CreateSecurityTokensItem) CreateSecurityTokensFact {
 	bf := base.NewBaseFact(CreateSecurityTokensFactHint, token)
 	fact := CreateSecurityTokensFact{
 		BaseFact: bf,
@@ -83,6 +77,23 @@ func (fact CreateSecurityTokensFact) IsValid(b []byte) error {
 
 	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
 		return err
+	}
+
+	items := fact.items
+
+	founds := map[string]struct{}{}
+	for i := range items {
+		if err := items[i].IsValid(nil); err != nil {
+			return err
+		}
+
+		k := StateKeySTO(items[i].contract, items[i].stoID)
+
+		if _, found := founds[k]; found {
+			return util.ErrInvalid.Errorf("duplicated contract-sto found, %s", k)
+		}
+
+		founds[k] = struct{}{}
 	}
 
 	return nil
