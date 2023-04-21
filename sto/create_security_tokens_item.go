@@ -12,6 +12,7 @@ var CreateSecurityTokensItemHint = hint.MustNewHint("mitum-sto-create-security-t
 
 type CreateSecurityTokensItem struct {
 	hint.BaseHinter
+	contract         base.Address                 // contract account
 	stoID            extensioncurrency.ContractID // token id
 	granularity      uint64                       // token granulariry
 	defaultPartition Partition                    // default partitions
@@ -19,9 +20,10 @@ type CreateSecurityTokensItem struct {
 	currency         currency.CurrencyID          // fee
 }
 
-func NewCreateSecurityTokensItem(stoID extensioncurrency.ContractID, granularity uint64, partition Partition, controllers []base.Address, currency currency.CurrencyID) CreateSecurityTokensItem {
+func NewCreateSecurityTokensItem(contract base.Address, stoID extensioncurrency.ContractID, granularity uint64, partition Partition, controllers []base.Address, currency currency.CurrencyID) CreateSecurityTokensItem {
 	return CreateSecurityTokensItem{
 		BaseHinter:       hint.NewBaseHinter(CreateSecurityTokensItemHint),
+		contract:         contract,
 		stoID:            stoID,
 		granularity:      granularity,
 		defaultPartition: partition,
@@ -38,6 +40,7 @@ func (it CreateSecurityTokensItem) Bytes() []byte {
 	}
 
 	return util.ConcatBytesSlice(
+		it.contract.Bytes(),
 		it.stoID.Bytes(),
 		util.Uint64ToBytes(it.granularity),
 		it.defaultPartition.Bytes(),
@@ -47,7 +50,7 @@ func (it CreateSecurityTokensItem) Bytes() []byte {
 }
 
 func (it CreateSecurityTokensItem) IsValid([]byte) error {
-	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.stoID, it.defaultPartition, it.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.stoID, it.defaultPartition, it.currency); err != nil {
 		return err
 	}
 
@@ -71,6 +74,10 @@ func (it CreateSecurityTokensItem) IsValid([]byte) error {
 	return nil
 }
 
+func (it CreateSecurityTokensItem) Contract() base.Address {
+	return it.contract
+}
+
 func (it CreateSecurityTokensItem) STO() extensioncurrency.ContractID {
 	return it.stoID
 }
@@ -87,15 +94,17 @@ func (it CreateSecurityTokensItem) Controllers() []base.Address {
 	return it.controllers
 }
 
+func (it CreateSecurityTokensItem) Currency() currency.CurrencyID {
+	return it.currency
+}
+
 func (it CreateSecurityTokensItem) Addresses() []base.Address {
-	ad := make([]base.Address, len(it.controllers))
+	ad := make([]base.Address, len(it.controllers)+1)
+
+	ad[0] = it.contract
 	for i, con := range it.controllers {
-		ad[i] = con
+		ad[i+1] = con
 	}
 
 	return ad
-}
-
-func (it CreateSecurityTokensItem) Rebuild() CreateSecurityTokensItem {
-	return it
 }

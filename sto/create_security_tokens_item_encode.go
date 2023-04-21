@@ -9,7 +9,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (it *CreateSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, sto string, granularity uint64, partition string, bcs []string, cid string) error {
+func (it *CreateSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto string, granularity uint64, partition string, bcs []string, cid string) error {
 	e := util.StringErrorFunc("failed to unmarshal CreateSecurityTokensItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
@@ -17,6 +17,13 @@ func (it *CreateSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, st
 	it.granularity = granularity
 	it.defaultPartition = Partition(partition)
 	it.currency = currency.CurrencyID(cid)
+
+	switch a, err := base.DecodeAddress(ca, enc); {
+	case err != nil:
+		return e(err, "")
+	default:
+		it.contract = a
+	}
 
 	controllers := make([]base.Address, len(bcs))
 	for i := range bcs {

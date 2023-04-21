@@ -11,6 +11,7 @@ func (it CreateSecurityTokensItem) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":             it.Hint().String(),
+			"contract":          it.contract,
 			"stoid":             it.stoID,
 			"granularity":       it.granularity,
 			"default_partition": it.defaultPartition,
@@ -22,6 +23,7 @@ func (it CreateSecurityTokensItem) MarshalBSON() ([]byte, error) {
 
 type CreateSecurityTokensItemBSONUnmarshaler struct {
 	Hint             string   `bson:"_hint"`
+	Contract         string   `bson:"contract"`
 	STO              string   `bson:"stoid"`
 	Granularity      uint64   `bson:"granularity"`
 	DefaultPartition string   `bson:"default_partition"`
@@ -42,5 +44,5 @@ func (it *CreateSecurityTokensItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) e
 		return e(err, "")
 	}
 
-	return it.unpack(enc, ht, uit.STO, uit.Granularity, uit.DefaultPartition, uit.Controllers, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.STO, uit.Granularity, uit.DefaultPartition, uit.Controllers, uit.Currency)
 }

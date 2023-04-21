@@ -11,6 +11,7 @@ import (
 
 type CreateSecurityTokensItemJSONMarshaler struct {
 	hint.BaseHinter
+	Contract         base.Address                 `json:"contract"`
 	STO              extensioncurrency.ContractID `json:"stoid"`
 	Granularity      uint64                       `json:"granularity"`
 	DefaultPartition Partition                    `json:"default_partition"`
@@ -21,6 +22,7 @@ type CreateSecurityTokensItemJSONMarshaler struct {
 func (it CreateSecurityTokensItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(CreateSecurityTokensItemJSONMarshaler{
 		BaseHinter:       it.BaseHinter,
+		Contract:         it.contract,
 		STO:              it.stoID,
 		Granularity:      it.granularity,
 		DefaultPartition: it.defaultPartition,
@@ -31,6 +33,7 @@ func (it CreateSecurityTokensItem) MarshalJSON() ([]byte, error) {
 
 type CreateSecurityTokensItemJSONUnMarshaler struct {
 	Hint             hint.Hint `json:"_hint"`
+	Contract         string    `json:"contract"`
 	STO              string    `json:"stoid"`
 	Granularity      uint64    `json:"granularity"`
 	DefaultPartition string    `json:"default_partition"`
@@ -46,5 +49,5 @@ func (it *CreateSecurityTokensItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) e
 		return e(err, "")
 	}
 
-	return it.unpack(enc, uit.Hint, uit.STO, uit.Granularity, uit.DefaultPartition, uit.Controllers, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.Granularity, uit.DefaultPartition, uit.Controllers, uit.Currency)
 }

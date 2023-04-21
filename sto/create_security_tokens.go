@@ -8,6 +8,12 @@ import (
 	"github.com/ProtoconNet/mitum2/util/valuehash"
 )
 
+type STOItem interface {
+	util.Byter
+	util.IsValider
+	Currency() currency.CurrencyID
+}
+
 var (
 	CreateSecurityTokensFactHint = hint.MustNewHint("mitum-sto-create-security-tokens-operation-fact-v0.0.1")
 	CreateSecurityTokensHint     = hint.MustNewHint("mitum-sto-create-security-tokenss-operation-v0.0.1")
@@ -71,6 +77,23 @@ func (fact CreateSecurityTokensFact) IsValid(b []byte) error {
 
 	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
 		return err
+	}
+
+	items := fact.items
+
+	founds := map[string]struct{}{}
+	for i := range items {
+		if err := items[i].IsValid(nil); err != nil {
+			return err
+		}
+
+		k := StateKeySTO(items[i].contract, items[i].stoID)
+
+		if _, found := founds[k]; found {
+			return util.ErrInvalid.Errorf("duplicated contract-sto found, %s", k)
+		}
+
+		founds[k] = struct{}{}
 	}
 
 	return nil
