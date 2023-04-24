@@ -1,7 +1,6 @@
 package sto
 
 import (
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
@@ -14,7 +13,7 @@ var RevokeOperatorsItemHint = hint.MustNewHint("mitum-sto-revoke-operators-item-
 type RevokeOperatorsItem struct {
 	hint.BaseHinter
 	contract    base.Address                 // contract account
-	stoID       currencyextension.ContractID // token id
+	stoID       extensioncurrency.ContractID // token id
 	tokenHolder base.Address                 // token tokenHolder
 	operator    base.Address                 // operator account
 	partition   Partition                    // partition
@@ -23,7 +22,7 @@ type RevokeOperatorsItem struct {
 
 func NewRevokeOperatorsItem(
 	contract base.Address,
-	stoID currencyextension.ContractID,
+	stoID extensioncurrency.ContractID,
 	tokenHolder, operator base.Address,
 	partition Partition,
 	currency currency.CurrencyID,

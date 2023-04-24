@@ -1,7 +1,6 @@
 package sto
 
 import (
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
@@ -14,7 +13,7 @@ var TransferSecurityTokensPartitionItemHint = hint.MustNewHint("mitum-sto-transf
 type TransferSecurityTokensPartitionItem struct {
 	hint.BaseHinter
 	contract  base.Address                 // contract accounts
-	stoID     currencyextension.ContractID // token id
+	stoID     extensioncurrency.ContractID // token id
 	receiver  base.Address                 // token holder
 	partition Partition                    // partition
 	amount    currency.Big                 // transfer amount
@@ -23,7 +22,7 @@ type TransferSecurityTokensPartitionItem struct {
 
 func NewTransferSecurityTokensPartitionItem(
 	contract base.Address,
-	stoID currencyextension.ContractID,
+	stoID extensioncurrency.ContractID,
 	receiver base.Address,
 	partition Partition,
 	amount currency.Big,
