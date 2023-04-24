@@ -15,13 +15,6 @@ var (
 
 var MaxRevokeOperatorsItems uint = 10
 
-type RevokeOperatorsItem interface {
-	hint.Hinter
-	util.IsValider
-	Bytes() []byte
-	Addresses() []base.Address
-}
-
 type RevokeOperatorsFact struct {
 	base.BaseFact
 	sender base.Address
@@ -76,17 +69,13 @@ func (fact RevokeOperatorsFact) IsValid(b []byte) error {
 		return util.ErrInvalid.Errorf("items, %d over max, %d", n, MaxRevokeOperatorsItems)
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
+	if err := fact.sender.IsValid(nil); err != nil {
 		return err
 	}
 
-	for i := range fact.items {
-		if err := util.CheckIsValiders(nil, false, fact.items[i]); err != nil {
+	for _, it := range fact.items {
+		if err := it.IsValid(nil); err != nil {
 			return err
-		}
-
-		if fact.sender.Equal(fact.sender) {
-			return util.ErrInvalid.Errorf("target address is same with sender, %q", fact.sender)
 		}
 	}
 

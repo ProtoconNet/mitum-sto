@@ -15,16 +15,6 @@ var (
 
 var MaxTransferSecurityTokensPartitionItems uint = 10
 
-type TransferSecurityTokensPartitionItem interface {
-	hint.Hinter
-	util.IsValider
-	currency.AmountsItem
-	Recipient() base.Address
-	Partition() string
-	Bytes() []byte
-	Addresses() []base.Address
-}
-
 type TransferSecurityTokensPartitionFact struct {
 	base.BaseFact
 	sender base.Address
@@ -79,29 +69,26 @@ func (fact TransferSecurityTokensPartitionFact) IsValid(b []byte) error {
 		return util.ErrInvalid.Errorf("items, %d over max, %d", n, MaxTransferSecurityTokensPartitionItems)
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
+	if err := fact.sender.IsValid(nil); err != nil {
 		return err
 	}
 
-	foundRecipientParition := map[string]struct{}{}
-	for i := range fact.items {
-
-		if err := util.CheckIsValiders(nil, false, fact.items[i]); err != nil {
+	founds := map[string]struct{}{}
+	for _, it := range fact.items {
+		if err := it.IsValid(nil); err != nil {
 			return err
 		}
 
-		it := fact.items[i]
-		k := it.Recipient().String() + it.Partition()
-		if _, found := foundRecipientParition[k]; found {
-			return util.ErrInvalid.Errorf("duplicate Recipient and Partition found, %s", k)
+		k := it.receiver.String() + it.partition.String()
+		if _, found := founds[k]; found {
+			return util.ErrInvalid.Errorf("duplicate receiver-partition found, %s", k)
 		}
 
-		switch a := it.Recipient(); {
-		case fact.sender.Equal(a):
-			return util.ErrInvalid.Errorf("Recipient address is same with sender, %q", fact.sender)
-		default:
-			foundRecipientParition[k] = struct{}{}
+		if fact.sender.Equal(it.receiver) {
+			return util.ErrInvalid.Errorf("receiver address is same with sender, %q", fact.sender)
 		}
+
+		founds[k] = struct{}{}
 	}
 
 	return nil
