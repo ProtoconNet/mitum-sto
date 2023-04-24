@@ -77,7 +77,7 @@ func (fact CreateSecurityTokensFact) IsValid(b []byte) error {
 		return util.ErrInvalid.Errorf("items, %d over max, %d", n, MaxCreateSecurityTokensItems)
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
+	if err := fact.sender.IsValid(nil); err != nil {
 		return err
 	}
 
