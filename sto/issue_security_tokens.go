@@ -13,7 +13,7 @@ import (
 var MaxIssueSecurityTokensItems uint = 10
 var (
 	IssueSecurityTokensFactHint = hint.MustNewHint("mitum-sto-issue-security-tokens-operation-fact-v0.0.1")
-	IssueSecurityTokensHint     = hint.MustNewHint("mitum-sto-issue-security-tokenss-operation-v0.0.1")
+	IssueSecurityTokensHint     = hint.MustNewHint("mitum-sto-issue-security-tokens-operation-v0.0.1")
 )
 
 type IssueSecurityTokensFact struct {
@@ -22,7 +22,7 @@ type IssueSecurityTokensFact struct {
 	items  []IssueSecurityTokensItem
 }
 
-func NewIssueSecurityTokensFact(token []byte, sender, target base.Address, items []IssueSecurityTokensItem) IssueSecurityTokensFact {
+func NewIssueSecurityTokensFact(token []byte, sender base.Address, items []IssueSecurityTokensItem) IssueSecurityTokensFact {
 	bf := base.NewBaseFact(IssueSecurityTokensFactHint, token)
 	fact := IssueSecurityTokensFact{
 		BaseFact: bf,

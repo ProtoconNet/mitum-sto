@@ -8,6 +8,8 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
+var IssueSecurityTokensItemHint = hint.MustNewHint("mitum-sto-issue-security-tokens-item-v0.0.1")
+
 type IssueSecurityTokensItem struct {
 	hint.BaseHinter
 	contract  base.Address                 // contract
@@ -19,15 +21,15 @@ type IssueSecurityTokensItem struct {
 }
 
 func NewIssueSecurityTokensItem(
-	ht hint.Hint,
-	contract, receiver base.Address,
+	contract base.Address,
 	stoID currencyextension.ContractID,
+	receiver base.Address,
 	amount currency.Big,
 	partition Partition,
 	currency currency.CurrencyID,
 ) IssueSecurityTokensItem {
 	return IssueSecurityTokensItem{
-		BaseHinter: hint.NewBaseHinter(ht),
+		BaseHinter: hint.NewBaseHinter(IssueSecurityTokensItemHint),
 		contract:   contract,
 		stoID:      stoID,
 		receiver:   receiver,
