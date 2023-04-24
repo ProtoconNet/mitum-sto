@@ -11,10 +11,11 @@ import (
 
 type AuthorizeOperatorsItemJSONMarshaler struct {
 	hint.BaseHinter
-	STO      extensioncurrency.ContractID `json:"stoid"`
-	Contract base.Address                 `json:"contract"`
-	Operator base.Address                 `json:"operator"`
-	Currency currency.CurrencyID          `json:"currency"`
+	STO       extensioncurrency.ContractID `json:"stoid"`
+	Contract  base.Address                 `json:"contract"`
+	Operator  base.Address                 `json:"operator"`
+	Partition Partition                    `json:"partition"`
+	Currency  currency.CurrencyID          `json:"currency"`
 }
 
 func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
@@ -23,16 +24,18 @@ func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
 		STO:        it.stoID,
 		Contract:   it.contract,
 		Operator:   it.operator,
+		Partition:  it.partition,
 		Currency:   it.currency,
 	})
 }
 
 type AuthorizeOperatorsItemJSONUnMarshaler struct {
-	Hint     hint.Hint `json:"_hint"`
-	STO      string    `json:"stoid"`
-	Contract string    `json:"contract"`
-	Operator string    `json:"operator"`
-	Currency string    `json:"currency"`
+	Hint      hint.Hint `json:"_hint"`
+	STO       string    `json:"stoid"`
+	Contract  string    `json:"contract"`
+	Operator  string    `json:"operator"`
+	Partition string    `json:"partition"`
+	Currency  string    `json:"currency"`
 }
 
 func (it *AuthorizeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
@@ -43,5 +46,5 @@ func (it *AuthorizeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) err
 		return e(err, "")
 	}
 
-	return it.unpack(enc, uit.Hint, uit.STO, uit.Contract, uit.Operator, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.STO, uit.Contract, uit.Operator, uit.Partition, uit.Currency)
 }
