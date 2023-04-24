@@ -21,7 +21,6 @@ type RedeemTokensItem struct {
 }
 
 func NewRedeemTokensItem(
-	ht hint.Hint,
 	contract base.Address,
 	stoID extensioncurrency.ContractID,
 	tokenHolder base.Address,
@@ -30,7 +29,7 @@ func NewRedeemTokensItem(
 	currency currency.CurrencyID,
 ) RedeemTokensItem {
 	return RedeemTokensItem{
-		BaseHinter:  hint.NewBaseHinter(ht),
+		BaseHinter:  hint.NewBaseHinter(RedeemTokensItemHint),
 		contract:    contract,
 		stoID:       stoID,
 		tokenHolder: tokenHolder,
