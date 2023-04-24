@@ -20,7 +20,14 @@ type CreateSecurityTokensItem struct {
 	currency         currency.CurrencyID          // fee
 }
 
-func NewCreateSecurityTokensItem(contract base.Address, stoID extensioncurrency.ContractID, granularity uint64, partition Partition, controllers []base.Address, currency currency.CurrencyID) CreateSecurityTokensItem {
+func NewCreateSecurityTokensItem(
+	contract base.Address,
+	stoID extensioncurrency.ContractID,
+	granularity uint64,
+	partition Partition,
+	controllers []base.Address,
+	currency currency.CurrencyID,
+) CreateSecurityTokensItem {
 	return CreateSecurityTokensItem{
 		BaseHinter:       hint.NewBaseHinter(CreateSecurityTokensItemHint),
 		contract:         contract,
@@ -50,7 +57,13 @@ func (it CreateSecurityTokensItem) Bytes() []byte {
 }
 
 func (it CreateSecurityTokensItem) IsValid([]byte) error {
-	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.stoID, it.defaultPartition, it.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false,
+		it.BaseHinter,
+		it.contract,
+		it.stoID,
+		it.defaultPartition,
+		it.currency,
+	); err != nil {
 		return err
 	}
 

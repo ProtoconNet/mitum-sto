@@ -1,6 +1,8 @@
 package sto
 
 import (
+	"fmt"
+
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -11,18 +13,8 @@ import (
 var MaxIssueSecurityTokensItems uint = 10
 var (
 	IssueSecurityTokensFactHint = hint.MustNewHint("mitum-sto-issue-security-tokens-operation-fact-v0.0.1")
-	IssueSecurityTokensHint     = hint.MustNewHint("mitum-sto-issue-security-tokenss-operation-v0.0.1")
+	IssueSecurityTokensHint     = hint.MustNewHint("mitum-sto-issue-security-tokens-operation-v0.0.1")
 )
-
-type IssueSecurityTokensItem interface {
-	hint.Hinter
-	util.IsValider
-	Bytes() []byte
-	Receiver() (base.Address, error)
-	Amount() currency.Big
-	Partition() Partition
-	Addresses() []base.Address
-}
 
 type IssueSecurityTokensFact struct {
 	base.BaseFact
@@ -30,7 +22,7 @@ type IssueSecurityTokensFact struct {
 	items  []IssueSecurityTokensItem
 }
 
-func NewIssueSecurityTokensFact(token []byte, sender, target base.Address, items []IssueSecurityTokensItem) IssueSecurityTokensFact {
+func NewIssueSecurityTokensFact(token []byte, sender base.Address, items []IssueSecurityTokensItem) IssueSecurityTokensFact {
 	bf := base.NewBaseFact(IssueSecurityTokensFactHint, token)
 	fact := IssueSecurityTokensFact{
 		BaseFact: bf,
@@ -78,10 +70,23 @@ func (fact IssueSecurityTokensFact) IsValid(b []byte) error {
 		return err
 	}
 
-	for i := range fact.items {
-		if err := util.CheckIsValiders(nil, false, fact.items[i]); err != nil {
+	founds := map[string]struct{}{}
+	for _, it := range fact.items {
+		if err := it.IsValid(nil); err != nil {
 			return err
 		}
+
+		if it.contract.Equal(fact.sender) {
+			return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
+		}
+
+		k := fmt.Sprintf("%s-%s-%s", it.contract.String(), it.stoID.String(), it.partition.String())
+
+		if _, found := founds[k]; found {
+			return util.ErrInvalid.Errorf("duplicated contract-sto-partition found, %s", k)
+		}
+
+		founds[k] = struct{}{}
 	}
 
 	return nil
