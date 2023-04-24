@@ -77,10 +77,6 @@ func (fact RevokeOperatorsFact) IsValid(b []byte) error {
 		if err := it.IsValid(nil); err != nil {
 			return err
 		}
-
-		if fact.sender.Equal(it.tokenHolder) {
-			return util.ErrInvalid.Errorf("token holder address is same with sender, %q", fact.sender)
-		}
 	}
 
 	return nil

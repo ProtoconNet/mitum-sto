@@ -11,34 +11,31 @@ import (
 
 type RevokeOperatorsItemJSONMarshaler struct {
 	hint.BaseHinter
-	Contract    base.Address                 `json:"contract"`
-	STO         extensioncurrency.ContractID `json:"stoid"`
-	TokenHolder base.Address                 `json:"token_holder"`
-	Operator    base.Address                 `json:"operator"`
-	Partition   Partition                    `json:"partition"`
-	Currency    currency.CurrencyID          `json:"currency"`
+	Contract  base.Address                 `json:"contract"`
+	STO       extensioncurrency.ContractID `json:"stoid"`
+	Operator  base.Address                 `json:"operator"`
+	Partition Partition                    `json:"partition"`
+	Currency  currency.CurrencyID          `json:"currency"`
 }
 
 func (it RevokeOperatorsItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(RevokeOperatorsItemJSONMarshaler{
-		BaseHinter:  it.BaseHinter,
-		Contract:    it.contract,
-		STO:         it.stoID,
-		TokenHolder: it.tokenHolder,
-		Operator:    it.operator,
-		Partition:   it.partition,
-		Currency:    it.currency,
+		BaseHinter: it.BaseHinter,
+		Contract:   it.contract,
+		STO:        it.stoID,
+		Operator:   it.operator,
+		Partition:  it.partition,
+		Currency:   it.currency,
 	})
 }
 
 type RevokeOperatorsItemJSONUnMarshaler struct {
-	Hint        hint.Hint `json:"_hint"`
-	Contract    string    `json:"contract"`
-	STO         string    `json:"stoid"`
-	TokenHolder string    `json:"token_holder"`
-	Operator    string    `json:"operator"`
-	Partition   string    `json:"partition"`
-	Currency    string    `json:"currency"`
+	Hint      hint.Hint `json:"_hint"`
+	Contract  string    `json:"contract"`
+	STO       string    `json:"stoid"`
+	Operator  string    `json:"operator"`
+	Partition string    `json:"partition"`
+	Currency  string    `json:"currency"`
 }
 
 func (it *RevokeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
@@ -49,5 +46,5 @@ func (it *RevokeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error 
 		return e(err, "")
 	}
 
-	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.TokenHolder, uit.Operator, uit.Partition, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.Operator, uit.Partition, uit.Currency)
 }
