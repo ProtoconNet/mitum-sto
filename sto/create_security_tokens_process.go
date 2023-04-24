@@ -215,12 +215,12 @@ func (opp *CreateSecurityTokensProcessor) Process( // nolint:dupl
 	}
 
 	fitems := fact.Items()
-	items := make([]STOItem, len(fitems))
+	items := make([]CurrencyItem, len(fitems))
 	for i := range fact.Items() {
 		items[i] = fitems[i]
 	}
 
-	required, err := calculateSTOItemsFee(getStateFunc, items)
+	required, err := calculateCurrencyItemsFee(getStateFunc, items)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
@@ -247,7 +247,7 @@ func (opp *CreateSecurityTokensProcessor) Close() error {
 	return nil
 }
 
-func calculateSTOItemsFee(getStateFunc base.GetStateFunc, items []STOItem) (map[currency.CurrencyID][2]currency.Big, error) {
+func calculateCurrencyItemsFee(getStateFunc base.GetStateFunc, items []CurrencyItem) (map[currency.CurrencyID][2]currency.Big, error) {
 	required := map[currency.CurrencyID][2]currency.Big{}
 
 	for _, item := range items {

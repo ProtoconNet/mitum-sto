@@ -58,7 +58,7 @@ func (v *SuffrageInflationItemFlag) IsValid([]byte) error {
 	}
 
 	if !v.amount.Big().OverZero() {
-		return util.ErrInvalid.Errorf("amount should be over zero")
+		return util.ErrInvalid.Errorf("amount must be over zero")
 	}
 
 	return nil

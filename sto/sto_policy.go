@@ -53,7 +53,7 @@ func (po STOPolicy) IsValid([]byte) error {
 	}
 
 	if !po.aggregate.OverZero() {
-		return util.ErrInvalid.Errorf("aggregate not over zero")
+		return util.ErrInvalid.Errorf("aggregate must be over zero")
 	}
 
 	if err := util.CheckIsValiders(nil, false, po.BaseHinter); err != nil {

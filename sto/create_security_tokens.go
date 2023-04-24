@@ -10,7 +10,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/valuehash"
 )
 
-type STOItem interface {
+type CurrencyItem interface {
 	util.Byter
 	util.IsValider
 	Currency() currency.CurrencyID
