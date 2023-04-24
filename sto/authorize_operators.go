@@ -69,24 +69,23 @@ func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
 		return util.ErrInvalid.Errorf("items, %d over max, %d", n, MaxAuthorizeOperatorsItems)
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
+	if err := fact.sender.IsValid(nil); err != nil {
 		return err
 	}
 
-	foundAddrs := map[string]struct{}{}
-	for i := range fact.items {
-		if err := util.CheckIsValiders(nil, false, fact.items[i]); err != nil {
+	founds := map[string]struct{}{}
+	for _, it := range fact.items {
+		if err := it.IsValid(nil); err != nil {
 			return err
 		}
 
-		it := fact.items[i]
 		addr := it.Operator()
 
-		if _, found := foundAddrs[addr.String()]; found {
+		if _, found := founds[addr.String()]; found {
 			return util.ErrInvalid.Errorf("duplicate address found, %s", addr)
 		}
 
-		foundAddrs[addr.String()] = struct{}{}
+		founds[addr.String()] = struct{}{}
 	}
 
 	return nil

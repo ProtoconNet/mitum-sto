@@ -13,16 +13,6 @@ var (
 	RedeemTokensHint     = hint.MustNewHint("mitum-sto-redeem-tokens-operation-v0.0.1")
 )
 
-type RedeemTokensItem interface {
-	hint.Hinter
-	util.IsValider
-	Bytes() []byte
-	Amount() currency.Amount
-	Account() base.Address
-	Partition() Partition
-	Addresses() []base.Address
-}
-
 type RedeemTokensFact struct {
 	base.BaseFact
 	sender base.Address
@@ -71,14 +61,23 @@ func (fact RedeemTokensFact) IsValid(b []byte) error {
 		return util.ErrInvalid.Errorf("empty items")
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender); err != nil {
+	if err := fact.sender.IsValid(nil); err != nil {
 		return err
 	}
 
-	for i := range fact.items {
-		if err := util.CheckIsValiders(nil, false, fact.items[i]); err != nil {
+	founds := map[string]struct{}{}
+	for _, it := range fact.items {
+		if err := it.IsValid(nil); err != nil {
 			return err
 		}
+
+		addr := it.tokenHolder
+
+		if _, found := founds[addr.String()]; found {
+			return util.ErrInvalid.Errorf("duplicate address found, %s", addr)
+		}
+
+		founds[addr.String()] = struct{}{}
 	}
 
 	return nil

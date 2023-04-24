@@ -1,7 +1,7 @@
 package sto
 
 import (
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -13,7 +13,7 @@ var IssueSecurityTokensItemHint = hint.MustNewHint("mitum-sto-issue-security-tok
 type IssueSecurityTokensItem struct {
 	hint.BaseHinter
 	contract  base.Address                 // contract
-	stoID     currencyextension.ContractID // token id
+	stoID     extensioncurrency.ContractID // token id
 	receiver  base.Address                 // token holder
 	amount    currency.Big                 // amount
 	partition Partition                    // partition
@@ -22,7 +22,7 @@ type IssueSecurityTokensItem struct {
 
 func NewIssueSecurityTokensItem(
 	contract base.Address,
-	stoID currencyextension.ContractID,
+	stoID extensioncurrency.ContractID,
 	receiver base.Address,
 	amount currency.Big,
 	partition Partition,
@@ -77,12 +77,12 @@ func (it IssueSecurityTokensItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it IssueSecurityTokensItem) STO() currencyextension.ContractID {
+func (it IssueSecurityTokensItem) STO() extensioncurrency.ContractID {
 	return it.stoID
 }
 
-func (it IssueSecurityTokensItem) Receiver() (base.Address, error) {
-	return it.receiver, nil
+func (it IssueSecurityTokensItem) Receiver() base.Address {
+	return it.receiver
 }
 
 func (it IssueSecurityTokensItem) Amount() currency.Big {

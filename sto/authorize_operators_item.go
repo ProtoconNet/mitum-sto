@@ -61,6 +61,10 @@ func (it AuthorizeOperatorsItem) Operator() base.Address {
 	return it.operator
 }
 
+func (it AuthorizeOperatorsItem) Currency() currency.CurrencyID {
+	return it.currency
+}
+
 func (it AuthorizeOperatorsItem) Addresses() []base.Address {
 	ad := make([]base.Address, 2)
 
