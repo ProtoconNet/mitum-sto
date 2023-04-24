@@ -9,7 +9,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (it *IssueSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, sto, ca, rc, am, p, cid string) error {
+func (it *IssueSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, rc, am, p, cid string) error {
 	e := util.StringErrorFunc("failed to unmarshal IssueSecurityTokensItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)

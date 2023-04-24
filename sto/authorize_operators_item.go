@@ -18,7 +18,7 @@ type AuthorizeOperatorsItem struct {
 	currency currency.CurrencyID // fee
 }
 
-func NewBaseAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract, operator base.Address, currency currency.CurrencyID) AuthorizeOperatorsItem {
+func NewAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract, operator base.Address, currency currency.CurrencyID) AuthorizeOperatorsItem {
 	return AuthorizeOperatorsItem{
 		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorsItemHint),
 		stoID:      stoID,

@@ -10,8 +10,8 @@ import (
 
 type IssueSecurityTokensItem struct {
 	hint.BaseHinter
-	stoID     currencyextension.ContractID // token id
 	contract  base.Address                 // contract
+	stoID     currencyextension.ContractID // token id
 	receiver  base.Address                 // token holder
 	amount    currency.Big                 // amount
 	partition Partition                    // partition
@@ -20,16 +20,16 @@ type IssueSecurityTokensItem struct {
 
 func NewIssueSecurityTokensItem(
 	ht hint.Hint,
-	stoID currencyextension.ContractID,
 	contract, receiver base.Address,
+	stoID currencyextension.ContractID,
 	amount currency.Big,
 	partition Partition,
 	currency currency.CurrencyID,
 ) IssueSecurityTokensItem {
 	return IssueSecurityTokensItem{
 		BaseHinter: hint.NewBaseHinter(ht),
-		stoID:      stoID,
 		contract:   contract,
+		stoID:      stoID,
 		receiver:   receiver,
 		amount:     amount,
 		partition:  partition,
@@ -39,8 +39,8 @@ func NewIssueSecurityTokensItem(
 
 func (it IssueSecurityTokensItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
-		it.stoID.Bytes(),
 		it.contract.Bytes(),
+		it.stoID.Bytes(),
 		it.receiver.Bytes(),
 		it.amount.Bytes(),
 		it.partition.Bytes(),
@@ -51,8 +51,8 @@ func (it IssueSecurityTokensItem) Bytes() []byte {
 func (it IssueSecurityTokensItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		it.BaseHinter,
-		it.stoID,
 		it.contract,
+		it.stoID,
 		it.receiver,
 		it.partition,
 		it.currency,
@@ -71,12 +71,12 @@ func (it IssueSecurityTokensItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it IssueSecurityTokensItem) STO() currencyextension.ContractID {
-	return it.stoID
-}
-
 func (it IssueSecurityTokensItem) Contract() base.Address {
 	return it.contract
+}
+
+func (it IssueSecurityTokensItem) STO() currencyextension.ContractID {
+	return it.stoID
 }
 
 func (it IssueSecurityTokensItem) Receiver() (base.Address, error) {

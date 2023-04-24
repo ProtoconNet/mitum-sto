@@ -11,8 +11,8 @@ import (
 
 type IssueSecurityTokensItemJSONMarshaler struct {
 	hint.BaseHinter
-	STO       extensioncurrency.ContractID `json:"stoid"`
 	Contract  base.Address                 `json:"contract"`
+	STO       extensioncurrency.ContractID `json:"stoid"`
 	Receiver  base.Address                 `json:"receiver"`
 	Amount    string                       `json:"amount"`
 	Partition Partition                    `json:"partition"`
@@ -22,8 +22,8 @@ type IssueSecurityTokensItemJSONMarshaler struct {
 func (it IssueSecurityTokensItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(IssueSecurityTokensItemJSONMarshaler{
 		BaseHinter: it.BaseHinter,
-		STO:        it.stoID,
 		Contract:   it.contract,
+		STO:        it.stoID,
 		Receiver:   it.receiver,
 		Amount:     it.amount.String(),
 		Partition:  it.partition,
@@ -33,8 +33,8 @@ func (it IssueSecurityTokensItem) MarshalJSON() ([]byte, error) {
 
 type IssueSecurityTokensItemJSONUnMarshaler struct {
 	Hint      hint.Hint `json:"_hint"`
-	STO       string    `json:"stoid"`
 	Contract  string    `json:"contract"`
+	STO       string    `json:"stoid"`
 	Receiver  string    `json:"receiver"`
 	Amount    string    `json:"amount"`
 	Partition string    `json:"partition"`
@@ -49,5 +49,5 @@ func (it *IssueSecurityTokensItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) er
 		return e(err, "")
 	}
 
-	return it.unpack(enc, uit.Hint, uit.STO, uit.Contract, uit.Receiver, uit.Amount, uit.Partition, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.Receiver, uit.Amount, uit.Partition, uit.Currency)
 }
