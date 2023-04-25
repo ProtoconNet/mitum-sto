@@ -117,7 +117,7 @@ type RedeemTokens struct {
 }
 
 func NewRedeemTokens(fact RedeemTokensFact) (RedeemTokens, error) {
-	return RedeemTokens{BaseOperation: currency.NewBaseOperation(IssueSecurityTokensHint, fact)}, nil
+	return RedeemTokens{BaseOperation: currency.NewBaseOperation(RedeemTokensHint, fact)}, nil
 }
 
 func (op *RedeemTokens) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

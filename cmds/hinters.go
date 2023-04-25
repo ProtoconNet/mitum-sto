@@ -65,6 +65,7 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.CreateSecurityTokensHint, Instance: sto.CreateSecurityTokens{}},
 	{Hint: sto.IssueSecurityTokensItemHint, Instance: sto.IssueSecurityTokensItem{}},
 	{Hint: sto.IssueSecurityTokensHint, Instance: sto.IssueSecurityTokens{}},
+	{Hint: sto.SetDocumentsHint, Instance: sto.SetDocuments{}},
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
 	{Hint: digest.OperationValueHint, Instance: digest.OperationValue{}},
@@ -95,6 +96,7 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: currency.WithdrawsFactHint, Instance: currency.WithdrawsFact{}},
 	{Hint: sto.CreateSecurityTokensFactHint, Instance: sto.CreateSecurityTokensFact{}},
 	{Hint: sto.IssueSecurityTokensFactHint, Instance: sto.IssueSecurityTokensFact{}},
+	{Hint: sto.SetDocumentsFactHint, Instance: sto.SetDocumentsFact{}},
 }
 
 func init() {

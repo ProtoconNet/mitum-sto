@@ -1,7 +1,7 @@
 package sto
 
 import (
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -11,8 +11,8 @@ import (
 type SetDocumentsFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
 	Owner        base.Address                 `json:"sender"`
-	STOID        currencyextension.ContractID `json:"stoid"`
 	Contract     base.Address                 `json:"contract"`
+	STOID        extensioncurrency.ContractID `json:"stoid"`
 	Title        string                       `json:"title"`
 	Uri          URI                          `json:"uri"`
 	DocumentHash string                       `json:"documenthash"`
@@ -23,8 +23,8 @@ func (fact SetDocumentsFact) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(SetDocumentsFactJSONMarshaler{
 		BaseFactJSONMarshaler: fact.BaseFact.JSONMarshaler(),
 		Owner:                 fact.sender,
-		STOID:                 fact.stoID,
 		Contract:              fact.contract,
+		STOID:                 fact.stoID,
 		Title:                 fact.title,
 		Uri:                   fact.uri,
 		DocumentHash:          fact.documentHash,
@@ -35,8 +35,8 @@ func (fact SetDocumentsFact) MarshalJSON() ([]byte, error) {
 type SetDocumentsFactJSONUnMarshaler struct {
 	base.BaseFactJSONUnmarshaler
 	Owner        string `json:"sender"`
-	STOID        string `json:"stoid"`
 	Contract     string `json:"contract"`
+	STOID        string `json:"stoid"`
 	Title        string `json:"title"`
 	Uri          string `json:"uri"`
 	DocumentHash string `json:"documenthash"`
@@ -53,7 +53,7 @@ func (fact *SetDocumentsFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
 
-	return fact.unpack(enc, uf.Owner, uf.STOID, uf.Contract, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
+	return fact.unpack(enc, uf.Owner, uf.Contract, uf.STOID, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
 }
 
 type SetDocumentsMarshaler struct {
