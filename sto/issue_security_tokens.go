@@ -34,6 +34,10 @@ func NewIssueSecurityTokensFact(token []byte, sender base.Address, items []Issue
 	return fact
 }
 
+func (fact IssueSecurityTokensFact) Hash() util.Hash {
+	return fact.BaseFact.Hash()
+}
+
 func (fact IssueSecurityTokensFact) GenerateHash() util.Hash {
 	return valuehash.NewSHA256(fact.Bytes())
 }
@@ -90,6 +94,18 @@ func (fact IssueSecurityTokensFact) IsValid(b []byte) error {
 	}
 
 	return nil
+}
+
+func (fact IssueSecurityTokensFact) Token() base.Token {
+	return fact.BaseFact.Token()
+}
+
+func (fact IssueSecurityTokensFact) Sender() base.Address {
+	return fact.sender
+}
+
+func (fact IssueSecurityTokensFact) Items() []IssueSecurityTokensItem {
+	return fact.items
 }
 
 func (fact IssueSecurityTokensFact) Addresses() ([]base.Address, error) {

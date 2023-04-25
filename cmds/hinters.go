@@ -63,6 +63,8 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.STOPolicyHint, Instance: sto.STOPolicy{}},
 	{Hint: sto.CreateSecurityTokensItemHint, Instance: sto.CreateSecurityTokensItem{}},
 	{Hint: sto.CreateSecurityTokensHint, Instance: sto.CreateSecurityTokens{}},
+	{Hint: sto.IssueSecurityTokensItemHint, Instance: sto.IssueSecurityTokensItem{}},
+	{Hint: sto.IssueSecurityTokensHint, Instance: sto.IssueSecurityTokens{}},
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
 	{Hint: digest.OperationValueHint, Instance: digest.OperationValue{}},
@@ -92,6 +94,7 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: currency.CreateContractAccountsFactHint, Instance: currency.CreateContractAccountsFact{}},
 	{Hint: currency.WithdrawsFactHint, Instance: currency.WithdrawsFact{}},
 	{Hint: sto.CreateSecurityTokensFactHint, Instance: sto.CreateSecurityTokensFact{}},
+	{Hint: sto.IssueSecurityTokensFactHint, Instance: sto.IssueSecurityTokensFact{}},
 }
 
 func init() {

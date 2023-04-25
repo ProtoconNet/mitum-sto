@@ -37,24 +37,28 @@ type CreateSecurityTokensItemProcessor struct {
 func (ipp *CreateSecurityTokensItemProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) error {
-	item := ipp.item
+	it := ipp.item
 
-	if err := checkExistsState(extensioncurrency.StateKeyContractAccount(item.Contract()), getStateFunc); err != nil {
+	if err := checkExistsState(extensioncurrency.StateKeyContractAccount(it.Contract()), getStateFunc); err != nil {
 		return err
 	}
 
-	if err := checkNotExistsState(StateKeySTODesign(item.Contract(), item.STO()), getStateFunc); err != nil {
+	if err := checkNotExistsState(StateKeySTODesign(it.Contract(), it.STO()), getStateFunc); err != nil {
 		return err
 	}
 
-	if err := checkNotExistsState(StateKeyPartitionBalance(item.Contract(), item.STO(), item.DefaultPartition()), getStateFunc); err != nil {
+	if err := checkNotExistsState(StateKeyPartitionBalance(it.Contract(), it.STO(), it.DefaultPartition()), getStateFunc); err != nil {
 		return err
 	}
 
-	for _, con := range item.Controllers() {
+	for _, con := range it.Controllers() {
 		if err := checkExistsState(currency.StateKeyAccount(con), getStateFunc); err != nil {
 			return err
 		}
+	}
+
+	if err := checkExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
+		return err
 	}
 
 	return nil
@@ -65,28 +69,28 @@ func (ipp *CreateSecurityTokensItemProcessor) Process(
 ) ([]base.StateMergeValue, error) {
 	sts := make([]base.StateMergeValue, 2)
 
-	item := ipp.item
+	it := ipp.item
 
-	partition := item.DefaultPartition()
+	partition := it.DefaultPartition()
 	partitions := []Partition{partition}
 	documents := []Document{}
 
-	policy := NewSTOPolicy(partitions, currency.NewBig(0), item.Controllers(), documents)
+	policy := NewSTOPolicy(partitions, currency.NewBig(0), it.Controllers(), documents)
 	if err := policy.IsValid(nil); err != nil {
 		return nil, err
 	}
 
-	design := NewSTODesign(item.STO(), item.Granularity(), policy)
+	design := NewSTODesign(it.STO(), it.Granularity(), policy)
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
 
 	sts[0] = NewStateMergeValue(
-		StateKeySTODesign(item.Contract(), item.STO()),
+		StateKeySTODesign(it.Contract(), it.STO()),
 		NewSTODesignStateValue(design),
 	)
 	sts[1] = NewStateMergeValue(
-		StateKeyPartitionBalance(item.Contract(), item.STO(), item.DefaultPartition()),
+		StateKeyPartitionBalance(it.Contract(), it.STO(), it.DefaultPartition()),
 		NewPartitionBalanceStateValue(currency.ZeroBig),
 	)
 
@@ -160,7 +164,7 @@ func (opp *CreateSecurityTokensProcessor) PreProcess(
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
-	for _, item := range fact.Items() {
+	for _, it := range fact.Items() {
 		ip := createSecurityTokensItemProcessorPool.Get()
 		ipc, ok := ip.(*CreateSecurityTokensItemProcessor)
 		if !ok {
@@ -169,7 +173,7 @@ func (opp *CreateSecurityTokensProcessor) PreProcess(
 
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
-		ipc.item = item
+		ipc.item = it
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess CreateSecurityTokensItem: %w", err), nil
@@ -194,7 +198,7 @@ func (opp *CreateSecurityTokensProcessor) Process( // nolint:dupl
 
 	var sts []base.StateMergeValue // nolint:prealloc
 
-	for _, item := range fact.Items() {
+	for _, it := range fact.Items() {
 		ip := createSecurityTokensItemProcessorPool.Get()
 		ipc, ok := ip.(*CreateSecurityTokensItemProcessor)
 		if !ok {
@@ -203,7 +207,7 @@ func (opp *CreateSecurityTokensProcessor) Process( // nolint:dupl
 
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
-		ipc.item = item
+		ipc.item = it
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
