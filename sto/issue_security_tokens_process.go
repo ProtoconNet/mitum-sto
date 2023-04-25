@@ -52,6 +52,10 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 		return err
 	}
 
+	if err := checkNotExistsState(extensioncurrency.StateKeyContractAccount(it.Receiver()), getStateFunc); err != nil {
+		return err
+	}
+
 	policy, err := existsSTOPolicy(it.Contract(), it.STO(), getStateFunc)
 	if err != nil {
 		return err
