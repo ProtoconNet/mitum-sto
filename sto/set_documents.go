@@ -1,7 +1,7 @@
 package sto
 
 import (
-	currencyextension "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -10,28 +10,37 @@ import (
 )
 
 var (
-	SetDocumentsFactHint = hint.MustNewHint("mitum-sto-set-document-operation-fact-v0.0.1")
-	SetDocumentsHint     = hint.MustNewHint("mitum-sto-set-document-operation-v0.0.1")
+	SetDocumentsFactHint = hint.MustNewHint("mitum-sto-set-documents-operation-fact-v0.0.1")
+	SetDocumentsHint     = hint.MustNewHint("mitum-sto-set-documents-operation-v0.0.1")
 )
 
 type SetDocumentsFact struct {
 	base.BaseFact
 	sender       base.Address
-	stoID        currencyextension.ContractID // token id
 	contract     base.Address                 // contract account
+	stoID        extensioncurrency.ContractID // token id
 	title        string                       // document title
 	uri          URI                          // document uri
 	documentHash string                       // document hash
 	currency     currency.CurrencyID          // fee
 }
 
-func NewSetDocumentsFact(token []byte, stoID currencyextension.ContractID, sender, contract base.Address, title string, uri URI, hash string, currency currency.CurrencyID) SetDocumentsFact {
+func NewSetDocumentsFact(
+	token []byte,
+	sender base.Address,
+	contract base.Address,
+	stoID extensioncurrency.ContractID,
+	title string,
+	uri URI,
+	hash string,
+	currency currency.CurrencyID,
+) SetDocumentsFact {
 	bf := base.NewBaseFact(SetDocumentsFactHint, token)
 	fact := SetDocumentsFact{
 		BaseFact:     bf,
 		sender:       sender,
-		stoID:        stoID,
 		contract:     contract,
+		stoID:        stoID,
 		title:        title,
 		uri:          uri,
 		documentHash: hash,
@@ -54,8 +63,8 @@ func (fact SetDocumentsFact) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		fact.Token(),
 		fact.sender.Bytes(),
-		fact.stoID.Bytes(),
 		fact.contract.Bytes(),
+		fact.stoID.Bytes(),
 		[]byte(fact.title),
 		fact.uri.Bytes(),
 		[]byte(fact.documentHash),
@@ -85,6 +94,30 @@ func (fact SetDocumentsFact) Token() base.Token {
 
 func (fact SetDocumentsFact) Sender() base.Address {
 	return fact.sender
+}
+
+func (fact SetDocumentsFact) Contract() base.Address {
+	return fact.contract
+}
+
+func (fact SetDocumentsFact) STO() extensioncurrency.ContractID {
+	return fact.stoID
+}
+
+func (fact SetDocumentsFact) Title() string {
+	return fact.title
+}
+
+func (fact SetDocumentsFact) URI() URI {
+	return fact.uri
+}
+
+func (fact SetDocumentsFact) DocumentHash() string {
+	return fact.documentHash
+}
+
+func (fact SetDocumentsFact) Currency() currency.CurrencyID {
+	return fact.currency
 }
 
 func (fact SetDocumentsFact) Addresses() ([]base.Address, error) {

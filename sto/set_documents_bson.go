@@ -15,8 +15,8 @@ func (fact SetDocumentsFact) MarshalBSON() ([]byte, error) {
 		bson.M{
 			"_hint":        fact.Hint().String(),
 			"sender":       fact.sender,
-			"stoid":        fact.stoID,
 			"contract":     fact.contract,
+			"stoid":        fact.stoID,
 			"title":        fact.title,
 			"uri":          fact.uri,
 			"documenthash": fact.documentHash,
@@ -30,8 +30,8 @@ func (fact SetDocumentsFact) MarshalBSON() ([]byte, error) {
 type SetDocumentsFactBSONUnmarshaler struct {
 	Hint         string `bson:"_hint"`
 	Sender       string `bson:"sender"`
-	STOID        string `bson:"stoid"`
 	Contract     string `bson:"contract"`
+	STOID        string `bson:"stoid"`
 	Title        string `bson:"title"`
 	Uri          string `bson:"uri"`
 	DocumentHash string `bson:"documenthash"`
@@ -61,7 +61,7 @@ func (fact *SetDocumentsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
-	return fact.unpack(enc, uf.Sender, uf.STOID, uf.Contract, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
+	return fact.unpack(enc, uf.Sender, uf.Contract, uf.STOID, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
 }
 
 func (op SetDocuments) MarshalBSON() ([]byte, error) {
