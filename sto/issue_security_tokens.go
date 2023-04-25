@@ -34,6 +34,10 @@ func NewIssueSecurityTokensFact(token []byte, sender base.Address, items []Issue
 	return fact
 }
 
+func (fact IssueSecurityTokensFact) Hash() util.Hash {
+	return fact.BaseFact.Hash()
+}
+
 func (fact IssueSecurityTokensFact) GenerateHash() util.Hash {
 	return valuehash.NewSHA256(fact.Bytes())
 }
@@ -80,16 +84,28 @@ func (fact IssueSecurityTokensFact) IsValid(b []byte) error {
 			return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
 		}
 
-		k := fmt.Sprintf("%s-%s-%s", it.contract.String(), it.stoID.String(), it.partition.String())
+		k := fmt.Sprintf("%s-%s", it.contract.String(), it.stoID.String())
 
 		if _, found := founds[k]; found {
-			return util.ErrInvalid.Errorf("duplicated contract-sto-partition found, %s", k)
+			return util.ErrInvalid.Errorf("duplicated contract-sto found, %s", k)
 		}
 
 		founds[k] = struct{}{}
 	}
 
 	return nil
+}
+
+func (fact IssueSecurityTokensFact) Token() base.Token {
+	return fact.BaseFact.Token()
+}
+
+func (fact IssueSecurityTokensFact) Sender() base.Address {
+	return fact.sender
+}
+
+func (fact IssueSecurityTokensFact) Items() []IssueSecurityTokensItem {
+	return fact.items
 }
 
 func (fact IssueSecurityTokensFact) Addresses() ([]base.Address, error) {

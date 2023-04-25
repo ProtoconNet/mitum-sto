@@ -169,6 +169,20 @@ func StateKeyTokenHolderPartitions(caddr base.Address, sid extensioncurrency.Con
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, sid), uaddr.String(), TokenHolderPartitionsSuffix)
 }
 
+func StateTokenHolderPartitionsValue(st base.State) ([]Partition, error) {
+	v := st.Value()
+	if v == nil {
+		return []Partition{}, util.ErrNotFound.Errorf("token holder partitions not found in State")
+	}
+
+	p, ok := v.(TokenHolderPartitionsStateValue)
+	if !ok {
+		return []Partition{}, errors.Errorf("invalid token holder partitions value found, %T", v)
+	}
+
+	return p.Partitions, nil
+}
+
 var (
 	TokenHolderPartitionBalanceStateValueHint = hint.MustNewHint("mitum-sto-tokenholder-partition-balance-state-value-v0.0.1")
 	TokenHolderPartitionBalanceSuffix         = ":holder-partition-balance"
@@ -176,11 +190,11 @@ var (
 
 type TokenHolderPartitionBalanceStateValue struct {
 	hint.BaseHinter
-	Amount    currency.Amount
+	Amount    currency.Big
 	Partition Partition
 }
 
-func NewTokenHolderPartitionBalanceStateValue(amount currency.Amount, partition Partition) TokenHolderPartitionBalanceStateValue {
+func NewTokenHolderPartitionBalanceStateValue(amount currency.Big, partition Partition) TokenHolderPartitionBalanceStateValue {
 	return TokenHolderPartitionBalanceStateValue{
 		BaseHinter: hint.NewBaseHinter(TokenHolderPartitionBalanceStateValueHint),
 		Amount:     amount,
@@ -216,6 +230,20 @@ func StateKeyTokenHolderPartitionBalance(caddr base.Address, stoID extensioncurr
 
 func IsStateTokenHolderPartitionBalanceKey(key string) bool {
 	return strings.HasSuffix(key, TokenHolderPartitionBalanceSuffix)
+}
+
+func StateTokenHolderPartitionBalanceValue(st base.State) (currency.Big, error) {
+	v := st.Value()
+	if v == nil {
+		return currency.Big{}, util.ErrNotFound.Errorf("token holder partition balance not found in State")
+	}
+
+	p, ok := v.(TokenHolderPartitionBalanceStateValue)
+	if !ok {
+		return currency.Big{}, errors.Errorf("invalid token holder partition balance value found, %T", v)
+	}
+
+	return p.Amount, nil
 }
 
 var (
@@ -329,6 +357,20 @@ func StateKeyPartitionBalance(caddr base.Address, stoID extensioncurrency.Contra
 
 func IsStatePartitionBalanceKey(key string) bool {
 	return strings.HasSuffix(key, PartitionBalanceSuffix)
+}
+
+func StatePartitionBalanceValue(st base.State) (currency.Big, error) {
+	v := st.Value()
+	if v == nil {
+		return currency.Big{}, util.ErrNotFound.Errorf("partition balance not found in State")
+	}
+
+	pb, ok := v.(PartitionBalanceStateValue)
+	if !ok {
+		return currency.Big{}, errors.Errorf("invalid partition balance value found, %T", v)
+	}
+
+	return pb.Amount, nil
 }
 
 var (
@@ -536,6 +578,23 @@ func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFun
 			return extensioncurrency.CurrencyPolicy{}, errors.Errorf("expected CurrencyDesignStateValue, not %T", i.Value())
 		}
 		policy = currencydesign.CurrencyDesign.Policy()
+	}
+	return policy, nil
+}
+
+func existsSTOPolicy(addr base.Address, sid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (STOPolicy, error) {
+	var policy STOPolicy
+	switch i, found, err := getStateFunc(StateKeySTODesign(addr, sid)); {
+	case err != nil:
+		return STOPolicy{}, err
+	case !found:
+		return STOPolicy{}, base.NewBaseOperationProcessReasonError("sto not found, %s-%s", addr, sid)
+	default:
+		design, ok := i.Value().(STODesignStateValue) //nolint:forcetypeassert //...
+		if !ok {
+			return STOPolicy{}, errors.Errorf("expected STODesignStateValue, not %T", i.Value())
+		}
+		policy = design.Design.Policy()
 	}
 	return policy, nil
 }

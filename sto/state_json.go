@@ -26,7 +26,7 @@ type STODesignStateValueJSONUnmarshaler struct {
 }
 
 func (de *STODesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode STODesignStateValue")
+	e := util.StringErrorFunc("failed to decode json of STODesignStateValue")
 
 	var u STODesignStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
@@ -61,7 +61,7 @@ type PartitionBalanceStateValueJSONUnmarshaler struct {
 }
 
 func (p *PartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode PartitionBalancetateValue")
+	e := util.StringErrorFunc("failed to decode json of PartitionBalanceStateValue")
 
 	var u PartitionBalanceStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
@@ -74,6 +74,78 @@ func (p *PartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) 
 	}
 
 	p.Amount = big
+
+	return nil
+}
+
+type TokenHolderPartitionsStateValueJSONMarshaler struct {
+	hint.BaseHinter
+	Partitions []Partition `json:"partitions"`
+}
+
+func (p TokenHolderPartitionsStateValue) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(TokenHolderPartitionsStateValueJSONMarshaler{
+		BaseHinter: p.BaseHinter,
+		Partitions: p.Partitions,
+	})
+}
+
+type TokenHolderPartitionsStateValueJSONUnmarshaler struct {
+	Partitions []string `json:"partitions"`
+}
+
+func (p *TokenHolderPartitionsStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of TokenHolderPartitionsStateValue")
+
+	var u TokenHolderPartitionsStateValueJSONUnmarshaler
+	if err := enc.Unmarshal(b, &u); err != nil {
+		return e(err, "")
+	}
+
+	partitions := make([]Partition, len(u.Partitions))
+	for i, s := range u.Partitions {
+		partitions[i] = Partition(s)
+	}
+
+	p.Partitions = partitions
+
+	return nil
+}
+
+type TokenHolderPartitionBalanceStateValueJSONMarshaler struct {
+	hint.BaseHinter
+	Amount    string    `json:"amount"`
+	Partition Partition `json:"partition"`
+}
+
+func (p TokenHolderPartitionBalanceStateValue) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(TokenHolderPartitionBalanceStateValueJSONMarshaler{
+		BaseHinter: p.BaseHinter,
+		Amount:     p.Amount.String(),
+		Partition:  p.Partition,
+	})
+}
+
+type TokenHolderPartitionBalanceStateValueJSONUnmarshaler struct {
+	Amount    string `json:"amount"`
+	Partition string `json:"partition"`
+}
+
+func (p *TokenHolderPartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of TokenHolderPartitionBalanceStateValue")
+
+	var u TokenHolderPartitionBalanceStateValueJSONUnmarshaler
+	if err := enc.Unmarshal(b, &u); err != nil {
+		return e(err, "")
+	}
+
+	big, err := currency.NewBigFromString(u.Amount)
+	if err != nil {
+		return e(err, "")
+	}
+	p.Amount = big
+
+	p.Partition = Partition(u.Partition)
 
 	return nil
 }
