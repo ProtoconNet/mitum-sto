@@ -84,10 +84,10 @@ func (fact IssueSecurityTokensFact) IsValid(b []byte) error {
 			return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
 		}
 
-		k := fmt.Sprintf("%s-%s-%s", it.contract.String(), it.stoID.String(), it.partition.String())
+		k := fmt.Sprintf("%s-%s", it.contract.String(), it.stoID.String())
 
 		if _, found := founds[k]; found {
-			return util.ErrInvalid.Errorf("duplicated contract-sto-partition found, %s", k)
+			return util.ErrInvalid.Errorf("duplicated contract-sto found, %s", k)
 		}
 
 		founds[k] = struct{}{}

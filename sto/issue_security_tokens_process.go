@@ -96,8 +96,24 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 		return nil, err
 	}
 	p := design.Policy()
+	dps := p.Partitions()
 
-	policy := NewSTOPolicy(p.Partitions(), it.Amount().Add(p.Aggregate()), p.Controllers(), p.Documents())
+	var pb currency.Big
+	switch st, found, err := getStateFunc(StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition())); {
+	case err != nil:
+		return nil, err
+	case found:
+		pb, err = StatePartitionBalanceValue(st)
+		if err != nil {
+			return nil, err
+		}
+		pb = pb.Add(it.Amount())
+	default:
+		pb = it.Amount()
+		dps = append(dps, it.Partition())
+	}
+
+	policy := NewSTOPolicy(dps, it.Amount().Add(p.Aggregate()), p.Controllers(), p.Documents())
 	if err := policy.IsValid(nil); err != nil {
 		return nil, err
 	}
@@ -111,21 +127,6 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 		StateKeySTODesign(it.Contract(), it.STO()),
 		NewSTODesignStateValue(design),
 	)
-
-	var pb currency.Big
-	switch st, found, err := getStateFunc(StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition())); {
-	case err != nil:
-		return nil, err
-	case found:
-		pb, err = StatePartitionBalanceValue(st)
-		if err != nil {
-			return nil, err
-		}
-	default:
-		pb = currency.ZeroBig
-	}
-
-	pb = pb.Add(it.Amount())
 
 	sts[1] = NewStateMergeValue(
 		StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition()),
