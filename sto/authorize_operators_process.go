@@ -30,9 +30,11 @@ func (AuthorizeOperators) Process(
 }
 
 type AuthorizeOperatorsItemProcessor struct {
-	h      util.Hash
-	sender base.Address
-	item   AuthorizeOperatorsItem
+	h            util.Hash
+	sender       base.Address
+	item         AuthorizeOperatorsItem
+	operators    *[]base.Address
+	tokenHolders *[]base.Address
 }
 
 func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
@@ -52,36 +54,16 @@ func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
 		return err
 	}
 
-	switch st, found, err := getStateFunc(StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), ipp.sender, it.Partition())); {
-	case err != nil:
-		return err
-	case found:
-		addrs, err := StateTokenHolderPartitionOperatorsValue(st)
-		if err != nil {
-			return err
+	for _, ad := range *ipp.operators {
+		if ad.Equal(it.Operator()) {
+			return errors.Errorf("operator is already in tokenholder operators, %q", ad)
 		}
-		for _, ad := range addrs {
-			if ad.Equal(it.Operator()) {
-				return errors.Errorf("operator is already in token holder operators, %q", ad)
-			}
-		}
-	default:
 	}
 
-	switch st, found, err := getStateFunc(StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())); {
-	case err != nil:
-		return err
-	case found:
-		addrs, err := StateOperatorTokenHoldersValue(st)
-		if err != nil {
-			return err
+	for _, ad := range *ipp.tokenHolders {
+		if ad.Equal(ipp.sender) {
+			return errors.Errorf("sender is already in operator tokenholders, %q", ad)
 		}
-		for _, ad := range addrs {
-			if ad.Equal(ipp.sender) {
-				return errors.Errorf("sender is already in operator token holders, %q", ad)
-			}
-		}
-	default:
 	}
 
 	if err := checkExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
@@ -94,45 +76,16 @@ func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
 func (ipp *AuthorizeOperatorsItemProcessor) Process(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) ([]base.StateMergeValue, error) {
-	sts := make([]base.StateMergeValue, 2)
+	sts := make([]base.StateMergeValue, 1)
 
 	it := ipp.item
 
-	var operators []base.Address
-	switch st, found, err := getStateFunc(StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), ipp.sender, it.Partition())); {
-	case err != nil:
-		return nil, err
-	case found:
-		addrs, err := StateTokenHolderPartitionOperatorsValue(st)
-		if err != nil {
-			return nil, err
-		}
-		operators = append(addrs, it.Operator())
-	default:
-		operators = []base.Address{it.Operator()}
-	}
-
-	var tokenHolders []base.Address
-	switch st, found, err := getStateFunc(StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())); {
-	case err != nil:
-		return nil, err
-	case found:
-		addrs, err := StateOperatorTokenHoldersValue(st)
-		if err != nil {
-			return nil, err
-		}
-		tokenHolders = append(addrs, ipp.sender)
-	default:
-		tokenHolders = []base.Address{ipp.sender}
-	}
+	*ipp.operators = append(*ipp.operators, it.Operator())
+	holders := append(*ipp.tokenHolders, ipp.sender)
 
 	sts[0] = NewStateMergeValue(
-		StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), ipp.sender, it.Partition()),
-		NewTokenHolderPartitionOperatorsStateValue(operators),
-	)
-	sts[1] = NewStateMergeValue(
 		StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator()),
-		NewOperatorTokenHoldersStateValue(tokenHolders),
+		NewOperatorTokenHoldersStateValue(holders),
 	)
 
 	return sts, nil
@@ -142,6 +95,8 @@ func (ipp *AuthorizeOperatorsItemProcessor) Close() error {
 	ipp.h = nil
 	ipp.sender = nil
 	ipp.item = AuthorizeOperatorsItem{}
+	ipp.operators = nil
+	ipp.tokenHolders = nil
 
 	authorizeOperatorsItemProcessorPool.Put(ipp)
 
@@ -205,6 +160,46 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
+	operators := map[string]*[]base.Address{}
+	holders := map[string]*[]base.Address{}
+
+	for _, it := range fact.Items() {
+		var ops, hds []base.Address
+
+		k := StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())
+		if _, found := operators[k]; !found {
+			switch st, found, err := getStateFunc(k); {
+			case err != nil:
+				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s", k), nil
+			case found:
+				ops, err = StateTokenHolderPartitionOperatorsValue(st)
+				if err != nil {
+					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s", k), nil
+				}
+			default:
+				ops = []base.Address{}
+			}
+			operators[k] = &ops
+		}
+
+		k = StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())
+		if _, found := holders[k]; !found {
+			switch st, found, err := getStateFunc(k); {
+			case err != nil:
+				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s", k), nil
+			case found:
+				hds, err = StateOperatorTokenHoldersValue(st)
+				if err != nil {
+					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s", k), nil
+				}
+			default:
+				hds = []base.Address{}
+			}
+
+			holders[k] = &hds
+		}
+	}
+
 	for _, it := range fact.Items() {
 		ip := authorizeOperatorsItemProcessorPool.Get()
 		ipc, ok := ip.(*AuthorizeOperatorsItemProcessor)
@@ -215,6 +210,8 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
+		ipc.operators = operators[StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess AuthorizeOperatorsItem: %w", err), nil
@@ -239,7 +236,48 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 
 	var sts []base.StateMergeValue // nolint:prealloc
 
+	operators := map[string]*[]base.Address{}
+	holders := map[string]*[]base.Address{}
+
 	for _, it := range fact.Items() {
+		var ops, hds []base.Address
+
+		k := StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())
+		if _, found := operators[k]; !found {
+			switch st, found, err := getStateFunc(k); {
+			case err != nil:
+				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s", k), nil
+			case found:
+				ops, err = StateTokenHolderPartitionOperatorsValue(st)
+				if err != nil {
+					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s", k), nil
+				}
+			default:
+				ops = []base.Address{}
+			}
+			operators[k] = &ops
+		}
+
+		k = StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())
+		if _, found := holders[k]; !found {
+			switch st, found, err := getStateFunc(k); {
+			case err != nil:
+				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s", k), nil
+			case found:
+				hds, err = StateOperatorTokenHoldersValue(st)
+				if err != nil {
+					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s", k), nil
+				}
+			default:
+				hds = []base.Address{}
+			}
+
+			holders[k] = &hds
+		}
+	}
+
+	ipcs := make([]*AuthorizeOperatorsItemProcessor, len(fact.items))
+	for i, it := range fact.Items() {
 		ip := authorizeOperatorsItemProcessorPool.Get()
 		ipc, ok := ip.(*AuthorizeOperatorsItemProcessor)
 		if !ok {
@@ -249,6 +287,8 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
+		ipc.operators = operators[StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())]
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
@@ -256,6 +296,17 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 		}
 		sts = append(sts, s...)
 
+		ipcs[i] = ipc
+	}
+
+	for k, v := range operators {
+		sts = append(sts, NewStateMergeValue(
+			k,
+			NewTokenHolderPartitionOperatorsStateValue(*v),
+		))
+	}
+
+	for _, ipc := range ipcs {
 		ipc.Close()
 	}
 

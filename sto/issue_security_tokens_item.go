@@ -14,7 +14,7 @@ type IssueSecurityTokensItem struct {
 	hint.BaseHinter
 	contract  base.Address                 // contract
 	stoID     extensioncurrency.ContractID // token id
-	receiver  base.Address                 // token holder
+	receiver  base.Address                 // tokenholder
 	amount    currency.Big                 // amount
 	partition Partition                    // partition
 	currency  currency.CurrencyID          // fee
