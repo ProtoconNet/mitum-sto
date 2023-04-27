@@ -8,6 +8,7 @@ type OperationCommand struct {
 	Withdraw              WithdrawCommand              `cmd:"" name:"withdraw" help:"withdraw amounts from target contract account"`
 	CreateSecurityTokens  CreateSecurityTokensCommand  `cmd:"" name:"create-security-token" help:"create security token in contract account"`
 	IssueSecurityTokens   IssueSecurityTokensCommand   `cmd:"" name:"issue-security-token" help:"issue security token in partition"`
+	AuthorizeOperators    AuthorizeOperatorsCommand    `cmd:"" name:"authorize-operator" help:"authorize operator"`
 	SetDocuments          SetDocumentsCommand          `cmd:"" name:"set-documents" help:"set sto documents"`
 	CurrencyRegister      CurrencyRegisterCommand      `cmd:"" name:"currency-register" help:"register new currency"`
 	CurrencyPolicyUpdater CurrencyPolicyUpdaterCommand `cmd:"" name:"currency-policy-updater" help:"update currency policy"`
@@ -26,6 +27,7 @@ func NewOperationCommand() OperationCommand {
 		Withdraw:              NewWithdrawCommand(),
 		CreateSecurityTokens:  NewCreateSecurityTokensCommand(),
 		IssueSecurityTokens:   NewIssueSecurityTokensCommand(),
+		AuthorizeOperators:    NewAuthorizeOperatorsCommand(),
 		SetDocuments:          NewSetDocumentsCommand(),
 		CurrencyRegister:      NewCurrencyRegisterCommand(),
 		CurrencyPolicyUpdater: NewCurrencyPolicyUpdaterCommand(),

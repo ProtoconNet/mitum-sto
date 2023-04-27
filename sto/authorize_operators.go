@@ -79,13 +79,15 @@ func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
 			return err
 		}
 
-		addr := it.Operator()
-
-		if _, found := founds[addr.String()]; found {
-			return util.ErrInvalid.Errorf("duplicate address found, %s", addr)
+		if it.contract.Equal(fact.sender) {
+			return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
 		}
 
-		founds[addr.String()] = struct{}{}
+		if _, found := founds[it.Operator().String()]; found {
+			return util.ErrInvalid.Errorf("duplicate operator found, %s", it.Operator())
+		}
+
+		founds[it.operator.String()] = struct{}{}
 	}
 
 	return nil

@@ -172,12 +172,12 @@ func StateKeyTokenHolderPartitions(caddr base.Address, sid extensioncurrency.Con
 func StateTokenHolderPartitionsValue(st base.State) ([]Partition, error) {
 	v := st.Value()
 	if v == nil {
-		return []Partition{}, util.ErrNotFound.Errorf("token holder partitions not found in State")
+		return []Partition{}, util.ErrNotFound.Errorf("tokenholder partitions not found in State")
 	}
 
 	p, ok := v.(TokenHolderPartitionsStateValue)
 	if !ok {
-		return []Partition{}, errors.Errorf("invalid token holder partitions value found, %T", v)
+		return []Partition{}, errors.Errorf("invalid tokenholder partitions value found, %T", v)
 	}
 
 	return p.Partitions, nil
@@ -235,12 +235,12 @@ func IsStateTokenHolderPartitionBalanceKey(key string) bool {
 func StateTokenHolderPartitionBalanceValue(st base.State) (currency.Big, error) {
 	v := st.Value()
 	if v == nil {
-		return currency.Big{}, util.ErrNotFound.Errorf("token holder partition balance not found in State")
+		return currency.Big{}, util.ErrNotFound.Errorf("tokenholder partition balance not found in State")
 	}
 
 	p, ok := v.(TokenHolderPartitionBalanceStateValue)
 	if !ok {
-		return currency.Big{}, errors.Errorf("invalid token holder partition balance value found, %T", v)
+		return currency.Big{}, errors.Errorf("invalid tokenholder partition balance value found, %T", v)
 	}
 
 	return p.Amount, nil
@@ -314,6 +314,20 @@ func StateKeyTokenHolderPartitionOperators(caddr base.Address, stoID extensioncu
 
 func IsStateTokenHolderPartitionOperatorsKey(key string) bool {
 	return strings.HasSuffix(key, TokenHolderPartitionOperatorsSuffix)
+}
+
+func StateTokenHolderPartitionOperatorsValue(st base.State) ([]base.Address, error) {
+	v := st.Value()
+	if v == nil {
+		return []base.Address{}, util.ErrNotFound.Errorf("tokenholder partition operators not found in State")
+	}
+
+	addrs, ok := v.(TokenHolderPartitionOperatorsStateValue)
+	if !ok {
+		return []base.Address{}, errors.Errorf("invalid tokenholder partition operators value found, %T", v)
+	}
+
+	return addrs.Operators, nil
 }
 
 var (
@@ -503,6 +517,20 @@ func StateKeyOperatorTokenHolders(caddr base.Address, stoID extensioncurrency.Co
 
 func IsStateOperatorTokenHoldersKey(key string) bool {
 	return strings.HasSuffix(key, OperatorTokenHoldersSuffix)
+}
+
+func StateOperatorTokenHoldersValue(st base.State) ([]base.Address, error) {
+	v := st.Value()
+	if v == nil {
+		return []base.Address{}, util.ErrNotFound.Errorf("operator tokenholders not found in State")
+	}
+
+	addrs, ok := v.(OperatorTokenHoldersStateValue)
+	if !ok {
+		return []base.Address{}, errors.Errorf("invalid operator tokenholders value found, %T", v)
+	}
+
+	return addrs.TokenHolders, nil
 }
 
 func checkExistsState(

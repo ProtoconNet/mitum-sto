@@ -10,13 +10,13 @@ import (
 func (it RedeemTokensItem) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
-			"_hint":        it.Hint().String(),
-			"contract":     it.contract,
-			"stoid":        it.stoID,
-			"token_holder": it.tokenHolder,
-			"amount":       it.amount.String(),
-			"partition":    it.partition,
-			"currency":     it.currency,
+			"_hint":       it.Hint().String(),
+			"contract":    it.contract,
+			"stoid":       it.stoID,
+			"tokenholder": it.tokenHolder,
+			"amount":      it.amount.String(),
+			"partition":   it.partition,
+			"currency":    it.currency,
 		},
 	)
 }
@@ -25,7 +25,7 @@ type RedeemTokensItemBSONUnmarshaler struct {
 	Hint        string `bson:"_hint"`
 	Contract    string `bson:"contract"`
 	STO         string `bson:"stoid"`
-	TokenHolder string `bson:"token_holder"`
+	TokenHolder string `bson:"tokenholder"`
 	Amount      string `bson:"amount"`
 	Partition   string `bson:"partition"`
 	Currency    string `bson:"currency"`

@@ -13,7 +13,7 @@ type RedeemTokensItemJSONMarshaler struct {
 	hint.BaseHinter
 	Contract    base.Address                 `json:"contract"`
 	STO         extensioncurrency.ContractID `json:"stoid"`
-	TokenHolder base.Address                 `json:"token_holder"`
+	TokenHolder base.Address                 `json:"tokenholder"`
 	Amount      string                       `json:"amount"`
 	Partition   Partition                    `json:"partition"`
 	Currency    currency.CurrencyID          `json:"currency"`
@@ -35,7 +35,7 @@ type RedeemTokensItemJSONUnMarshaler struct {
 	Hint        hint.Hint `json:"_hint"`
 	Contract    string    `json:"contract"`
 	STO         string    `json:"stoid"`
-	TokenHolder string    `json:"token_holder"`
+	TokenHolder string    `json:"tokenholder"`
 	Amount      string    `json:"amount"`
 	Partition   string    `json:"partition"`
 	Currency    string    `json:"currency"`
