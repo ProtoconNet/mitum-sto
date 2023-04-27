@@ -3,6 +3,7 @@ package sto
 import (
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v2/digest/util/bson"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"go.mongodb.org/mongo-driver/bson"
@@ -162,6 +163,90 @@ func (p *TokenHolderPartitionBalanceStateValue) DecodeBSON(b []byte, enc *bsonen
 	p.Amount = big
 
 	p.Partition = Partition(u.Partition)
+
+	return nil
+}
+
+func (ops TokenHolderPartitionOperatorsStateValue) MarshalBSON() ([]byte, error) {
+	return bsonenc.Marshal(
+		bson.M{
+			"_hint":     ops.Hint().String(),
+			"operators": ops.Operators,
+		},
+	)
+}
+
+type TokenHolderPartitionOperatorsStateValueBSONUnmarshaler struct {
+	Hint      string   `bson:"_hint"`
+	Operators []string `bson:"operators"`
+}
+
+func (ops *TokenHolderPartitionOperatorsStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of TokenHolderPartitionOperatorsStateValue")
+
+	var u TokenHolderPartitionOperatorsStateValueBSONUnmarshaler
+	if err := enc.Unmarshal(b, &u); err != nil {
+		return e(err, "")
+	}
+
+	ht, err := hint.ParseHint(u.Hint)
+	if err != nil {
+		return e(err, "")
+	}
+
+	ops.BaseHinter = hint.NewBaseHinter(ht)
+
+	operators := make([]base.Address, len(u.Operators))
+	for i := range u.Operators {
+		a, err := base.DecodeAddress(u.Operators[i], enc)
+		if err != nil {
+			return e(err, "")
+		}
+		operators[i] = a
+	}
+	ops.Operators = operators
+
+	return nil
+}
+
+func (oth OperatorTokenHoldersStateValue) MarshalBSON() ([]byte, error) {
+	return bsonenc.Marshal(
+		bson.M{
+			"_hint":        oth.Hint().String(),
+			"tokenholders": oth.TokenHolders,
+		},
+	)
+}
+
+type OperatorTokenHoldersStateValueBSONUnmarshaler struct {
+	Hint         string   `bson:"_hint"`
+	TokenHolders []string `bson:"tokenholders"`
+}
+
+func (oth *OperatorTokenHoldersStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of OperatorTokenHoldersStateValue")
+
+	var u OperatorTokenHoldersStateValueBSONUnmarshaler
+	if err := enc.Unmarshal(b, &u); err != nil {
+		return e(err, "")
+	}
+
+	ht, err := hint.ParseHint(u.Hint)
+	if err != nil {
+		return e(err, "")
+	}
+
+	oth.BaseHinter = hint.NewBaseHinter(ht)
+
+	holders := make([]base.Address, len(u.TokenHolders))
+	for i := range u.TokenHolders {
+		a, err := base.DecodeAddress(u.TokenHolders[i], enc)
+		if err != nil {
+			return e(err, "")
+		}
+		holders[i] = a
+	}
+	oth.TokenHolders = holders
 
 	return nil
 }

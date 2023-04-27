@@ -12,18 +12,24 @@ var AuthorizeOperatorsItemHint = hint.MustNewHint("mitum-sto-authorize-operators
 
 type AuthorizeOperatorsItem struct {
 	hint.BaseHinter
-	stoID     extensioncurrency.ContractID // token id
 	contract  base.Address                 // contract address
+	stoID     extensioncurrency.ContractID // token id
 	operator  base.Address                 // initial controllers
 	partition Partition                    // partition
 	currency  currency.CurrencyID          // fee
 }
 
-func NewAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract, operator base.Address, partition Partition, currency currency.CurrencyID) AuthorizeOperatorsItem {
+func NewAuthorizeOperatorsItem(
+	contract base.Address,
+	stoID extensioncurrency.ContractID,
+	operator base.Address,
+	partition Partition,
+	currency currency.CurrencyID,
+) AuthorizeOperatorsItem {
 	return AuthorizeOperatorsItem{
 		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorsItemHint),
-		stoID:      stoID,
 		contract:   contract,
+		stoID:      stoID,
 		operator:   operator,
 		partition:  partition,
 		currency:   currency,
@@ -32,8 +38,8 @@ func NewAuthorizeOperatorsItem(stoID extensioncurrency.ContractID, contract, ope
 
 func (it AuthorizeOperatorsItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
-		it.stoID.Bytes(),
 		it.contract.Bytes(),
+		it.stoID.Bytes(),
 		it.operator.Bytes(),
 		it.partition.Bytes(),
 		it.currency.Bytes(),
@@ -46,7 +52,7 @@ func (it AuthorizeOperatorsItem) IsValid([]byte) error {
 	}
 
 	if it.contract.Equal(it.operator) {
-		return util.ErrInvalid.Errorf("contract and operation address are same, %q == %q", it.contract, it.operator)
+		return util.ErrInvalid.Errorf("contract address is same with operator, %q", it.contract)
 	}
 
 	return nil
@@ -79,8 +85,4 @@ func (it AuthorizeOperatorsItem) Addresses() []base.Address {
 	ad[1] = it.operator
 
 	return ad
-}
-
-func (it AuthorizeOperatorsItem) Rebuild() AuthorizeOperatorsItem {
-	return it
 }

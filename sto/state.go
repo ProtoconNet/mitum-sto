@@ -316,6 +316,20 @@ func IsStateTokenHolderPartitionOperatorsKey(key string) bool {
 	return strings.HasSuffix(key, TokenHolderPartitionOperatorsSuffix)
 }
 
+func StateTokenHolderPartitionOperatorsValue(st base.State) ([]base.Address, error) {
+	v := st.Value()
+	if v == nil {
+		return []base.Address{}, util.ErrNotFound.Errorf("token holder partition operators not found in State")
+	}
+
+	addrs, ok := v.(TokenHolderPartitionOperatorsStateValue)
+	if !ok {
+		return []base.Address{}, errors.Errorf("invalid token holder partition operators value found, %T", v)
+	}
+
+	return addrs.Operators, nil
+}
+
 var (
 	PartitionBalanceStateValueHint = hint.MustNewHint("mitum-sto-partition-balance-state-value-v0.0.1")
 	PartitionBalanceSuffix         = ":partition-balance"
@@ -503,6 +517,20 @@ func StateKeyOperatorTokenHolders(caddr base.Address, stoID extensioncurrency.Co
 
 func IsStateOperatorTokenHoldersKey(key string) bool {
 	return strings.HasSuffix(key, OperatorTokenHoldersSuffix)
+}
+
+func StateOperatorTokenHoldersValue(st base.State) ([]base.Address, error) {
+	v := st.Value()
+	if v == nil {
+		return []base.Address{}, util.ErrNotFound.Errorf("operator token holders not found in State")
+	}
+
+	addrs, ok := v.(OperatorTokenHoldersStateValue)
+	if !ok {
+		return []base.Address{}, errors.Errorf("invalid operator token holders value found, %T", v)
+	}
+
+	return addrs.TokenHolders, nil
 }
 
 func checkExistsState(

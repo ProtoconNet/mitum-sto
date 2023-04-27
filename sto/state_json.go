@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -146,6 +147,80 @@ func (p *TokenHolderPartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonen
 	p.Amount = big
 
 	p.Partition = Partition(u.Partition)
+
+	return nil
+}
+
+type TokenHolderPartitionOperatorsStateValueJSONMarshaler struct {
+	hint.BaseHinter
+	Operators []base.Address `json:"operators"`
+}
+
+func (ops TokenHolderPartitionOperatorsStateValue) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(TokenHolderPartitionOperatorsStateValueJSONMarshaler{
+		BaseHinter: ops.BaseHinter,
+		Operators:  ops.Operators,
+	})
+}
+
+type TokenHolderPartitionOperatorsStateValueJSONUnmarshaler struct {
+	Operators []string `json:"operators"`
+}
+
+func (ops *TokenHolderPartitionOperatorsStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of TokenHolderPartitionOperatorsStateValue")
+
+	var u TokenHolderPartitionOperatorsStateValueJSONUnmarshaler
+	if err := enc.Unmarshal(b, &u); err != nil {
+		return e(err, "")
+	}
+
+	operators := make([]base.Address, len(u.Operators))
+	for i := range u.Operators {
+		a, err := base.DecodeAddress(u.Operators[i], enc)
+		if err != nil {
+			return e(err, "")
+		}
+		operators[i] = a
+	}
+	ops.Operators = operators
+
+	return nil
+}
+
+type OperatorTokenHoldersStateValueJSONMarshaler struct {
+	hint.BaseHinter
+	TokenHolders []base.Address `json:"tokenholders"`
+}
+
+func (oth OperatorTokenHoldersStateValue) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(OperatorTokenHoldersStateValueJSONMarshaler{
+		BaseHinter:   oth.BaseHinter,
+		TokenHolders: oth.TokenHolders,
+	})
+}
+
+type OperatorTokenHoldersStateValueJSONUnmarshaler struct {
+	TokenHolders []string `json:"tokenholders"`
+}
+
+func (oth *OperatorTokenHoldersStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of OperatorTokenHoldersStateValue")
+
+	var u OperatorTokenHoldersStateValueJSONUnmarshaler
+	if err := enc.Unmarshal(b, &u); err != nil {
+		return e(err, "")
+	}
+
+	holders := make([]base.Address, len(u.TokenHolders))
+	for i := range u.TokenHolders {
+		a, err := base.DecodeAddress(u.TokenHolders[i], enc)
+		if err != nil {
+			return e(err, "")
+		}
+		holders[i] = a
+	}
+	oth.TokenHolders = holders
 
 	return nil
 }

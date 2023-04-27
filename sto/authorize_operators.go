@@ -1,6 +1,8 @@
 package sto
 
 import (
+	"fmt"
+
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -79,13 +81,16 @@ func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
 			return err
 		}
 
-		addr := it.Operator()
-
-		if _, found := founds[addr.String()]; found {
-			return util.ErrInvalid.Errorf("duplicate address found, %s", addr)
+		if it.contract.Equal(fact.sender) {
+			return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
 		}
 
-		founds[addr.String()] = struct{}{}
+		k := fmt.Sprintf("%s-%s-%s", it.contract, it.stoID, it.partition)
+		if _, found := founds[k]; found {
+			return util.ErrInvalid.Errorf("duplicate contract-sto-partition found, %s", k)
+		}
+
+		founds[k] = struct{}{}
 	}
 
 	return nil

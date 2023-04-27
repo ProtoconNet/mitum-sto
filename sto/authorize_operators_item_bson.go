@@ -11,8 +11,8 @@ func (it AuthorizeOperatorsItem) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":     it.Hint().String(),
-			"stoid":     it.stoID,
 			"contract":  it.contract,
+			"stoid":     it.stoID,
 			"operator":  it.operator,
 			"partition": it.partition,
 			"currency":  it.currency,
@@ -22,8 +22,8 @@ func (it AuthorizeOperatorsItem) MarshalBSON() ([]byte, error) {
 
 type AuthorizeOperatorsItemBSONUnmarshaler struct {
 	Hint      string `bson:"_hint"`
-	STO       string `bson:"stoid"`
 	Contract  string `bson:"contract"`
+	STO       string `bson:"stoid"`
 	Operator  string `bson:"operator"`
 	Partition string `bson:"partition"`
 	Currency  string `bson:"currency"`
@@ -42,5 +42,5 @@ func (it *AuthorizeOperatorsItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) err
 		return e(err, "")
 	}
 
-	return it.unpack(enc, ht, uit.STO, uit.Contract, uit.Operator, uit.Partition, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.STO, uit.Operator, uit.Partition, uit.Currency)
 }
