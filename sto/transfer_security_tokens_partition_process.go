@@ -33,8 +33,8 @@ type TransferSecurityTokensPartitionItemProcessor struct {
 	h          util.Hash
 	sender     base.Address
 	item       TransferSecurityTokensPartitionItem
-	partitions *map[string][]Partition
-	balances   *map[string]currency.Big
+	partitions map[string][]Partition
+	balances   map[string]currency.Big
 }
 
 func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
@@ -58,7 +58,7 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
 		return err
 	}
 
-	partitions := (*ipp.partitions)[StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.TokenHolder())]
+	partitions := ipp.partitions[StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.TokenHolder())]
 
 	for i, p := range partitions {
 		if p == it.Partition() {
@@ -128,11 +128,11 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 	receiverPartitionsKey := StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.Receiver())
 	receiverBalanceKey := StateKeyTokenHolderPartitionBalance(it.Contract(), it.STO(), it.Receiver(), it.Partition())
 
-	balance := (*ipp.balances)[balanceKey]
-	partitions := (*ipp.partitions)[partitionsKey]
+	balance := ipp.balances[balanceKey]
+	partitions := ipp.partitions[partitionsKey]
 
-	receiverBalance := (*ipp.balances)[receiverBalanceKey]
-	receiverPartitions := (*ipp.partitions)[receiverPartitionsKey]
+	receiverBalance := ipp.balances[receiverBalanceKey]
+	receiverPartitions := ipp.partitions[receiverPartitionsKey]
 
 	balance = balance.Sub(it.Amount())
 	receiverBalance = receiverBalance.Add(it.Amount())
@@ -158,10 +158,10 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 		}
 	}
 
-	(*ipp.partitions)[partitionsKey] = partitions
-	(*ipp.partitions)[receiverPartitionsKey] = receiverPartitions
-	(*ipp.balances)[balanceKey] = balance
-	(*ipp.balances)[receiverBalanceKey] = receiverBalance
+	ipp.partitions[partitionsKey] = partitions
+	ipp.partitions[receiverPartitionsKey] = receiverPartitions
+	ipp.balances[balanceKey] = balance
+	ipp.balances[receiverBalanceKey] = receiverBalance
 
 	return []base.StateMergeValue{}, nil
 }
@@ -260,7 +260,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.partitions = &partitions
+		ipc.partitions = partitions
 		ipc.balances = nil
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
@@ -368,8 +368,8 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.partitions = &partitions
-		ipc.balances = &balances
+		ipc.partitions = partitions
+		ipc.balances = balances
 
 		_, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
