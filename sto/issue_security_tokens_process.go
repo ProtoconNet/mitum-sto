@@ -2,6 +2,7 @@ package sto
 
 import (
 	"context"
+	"math/big"
 	"sync"
 
 	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
@@ -44,10 +45,6 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 		return err
 	}
 
-	if err := checkExistsState(StateKeySTODesign(it.Contract(), it.STO()), getStateFunc); err != nil {
-		return err
-	}
-
 	if err := checkExistsState(currency.StateKeyAccount(it.Receiver()), getStateFunc); err != nil {
 		return err
 	}
@@ -56,10 +53,17 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 		return err
 	}
 
-	policy, err := existsSTOPolicy(it.Contract(), it.STO(), getStateFunc)
+	st, err := existsState(StateKeySTODesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
 	if err != nil {
 		return err
 	}
+
+	design, err := StateSTODesignValue(st)
+	if err != nil {
+		return err
+	}
+
+	policy := design.Policy()
 
 	controllers := policy.Controllers()
 	if len(controllers) == 0 {
@@ -74,6 +78,13 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 		if i == len(controllers)-1 {
 			return errors.Errorf("sender is not controller of sto, %q, %s-%s", ipp.sender, it.Contract(), it.STO())
 		}
+	}
+
+	gn := new(big.Int)
+	gn.SetUint64(design.Granularity())
+
+	if mod := currency.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); currency.NewBigFromBigInt(mod).OverZero() {
+		return errors.Errorf("amount unit does not comply with sto granularity rule, %q, %q", it.Amount(), design.Granularity())
 	}
 
 	if err := checkExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
