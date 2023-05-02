@@ -11,34 +11,37 @@ import (
 
 type TransferSecurityTokensPartitionItemJSONMarshaler struct {
 	hint.BaseHinter
-	Contract  base.Address                 `json:"contract"`
-	STO       extensioncurrency.ContractID `json:"stoid"`
-	Receiver  base.Address                 `json:"receiver"`
-	Partition Partition                    `json:"partition"`
-	Amount    string                       `json:"amount"`
-	Currency  currency.CurrencyID          `json:"currency"`
+	Contract    base.Address                 `json:"contract"`
+	STO         extensioncurrency.ContractID `json:"stoid"`
+	TokenHolder base.Address                 `json:"tokenholder"`
+	Receiver    base.Address                 `json:"receiver"`
+	Partition   Partition                    `json:"partition"`
+	Amount      string                       `json:"amount"`
+	Currency    currency.CurrencyID          `json:"currency"`
 }
 
 func (it TransferSecurityTokensPartitionItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(TransferSecurityTokensPartitionItemJSONMarshaler{
-		BaseHinter: it.BaseHinter,
-		Contract:   it.contract,
-		STO:        it.stoID,
-		Receiver:   it.receiver,
-		Partition:  it.partition,
-		Amount:     it.amount.String(),
-		Currency:   it.currency,
+		BaseHinter:  it.BaseHinter,
+		Contract:    it.contract,
+		STO:         it.stoID,
+		TokenHolder: it.tokenholder,
+		Receiver:    it.receiver,
+		Partition:   it.partition,
+		Amount:      it.amount.String(),
+		Currency:    it.currency,
 	})
 }
 
 type TransferSecurityTokensPartitionItemJSONUnMarshaler struct {
-	Hint      hint.Hint `json:"_hint"`
-	Contract  string    `json:"contract"`
-	STO       string    `json:"stoid"`
-	Receiver  string    `json:"receiver"`
-	Partition string    `json:"partition"`
-	Amount    string    `json:"amount"`
-	Currency  string    `json:"currency"`
+	Hint        hint.Hint `json:"_hint"`
+	Contract    string    `json:"contract"`
+	STO         string    `json:"stoid"`
+	TokenHolder string    `json:"tokenholder"`
+	Receiver    string    `json:"receiver"`
+	Partition   string    `json:"partition"`
+	Amount      string    `json:"amount"`
+	Currency    string    `json:"currency"`
 }
 
 func (it *TransferSecurityTokensPartitionItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
@@ -49,5 +52,5 @@ func (it *TransferSecurityTokensPartitionItem) DecodeJSON(b []byte, enc *jsonenc
 		return e(err, "")
 	}
 
-	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.Receiver, uit.Partition, uit.Amount, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.TokenHolder, uit.Receiver, uit.Partition, uit.Amount, uit.Currency)
 }

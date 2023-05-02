@@ -626,3 +626,37 @@ func existsSTOPolicy(addr base.Address, sid extensioncurrency.ContractID, getSta
 	}
 	return policy, nil
 }
+
+func existsTokenHolderPartitions(ca base.Address, sid extensioncurrency.ContractID, holder base.Address, getStateFunc base.GetStateFunc) ([]Partition, error) {
+	var partitions []Partition
+	switch i, found, err := getStateFunc(StateKeyTokenHolderPartitions(ca, sid, holder)); {
+	case err != nil:
+		return nil, err
+	case !found:
+		return nil, base.NewBaseOperationProcessReasonError("tokenholder partitions not found, %s-%s-%s", ca, sid, holder)
+	default:
+		pts, ok := i.Value().(TokenHolderPartitionsStateValue) //nolint:forcetypeassert //...
+		if !ok {
+			return nil, errors.Errorf("expected TokenHolderPartitionsStateValue, not %T", i.Value())
+		}
+		partitions = pts.Partitions
+	}
+	return partitions, nil
+}
+
+func existsTokenHolderPartitionBalance(ca base.Address, sid extensioncurrency.ContractID, holder base.Address, p Partition, getStateFunc base.GetStateFunc) (currency.Big, error) {
+	var balance currency.Big
+	switch i, found, err := getStateFunc(StateKeyTokenHolderPartitionBalance(ca, sid, holder, p)); {
+	case err != nil:
+		return currency.Big{}, err
+	case !found:
+		return currency.Big{}, base.NewBaseOperationProcessReasonError("tokenholder partition balance not found, %s-%s-%s-%s", ca, sid, p, holder)
+	default:
+		b, ok := i.Value().(TokenHolderPartitionBalanceStateValue) //nolint:forcetypeassert //...
+		if !ok {
+			return currency.Big{}, errors.Errorf("expected TokenHolderPartitionBalanceStateValue, not %T", i.Value())
+		}
+		balance = b.Amount
+	}
+	return balance, nil
+}

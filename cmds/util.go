@@ -173,6 +173,7 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	opr.SetProcessor(currency.WithdrawsHint, currency.NewWithdrawsProcessor())
 	opr.SetProcessor(sto.CreateSecurityTokensHint, sto.NewCreateSecurityTokensProcessor())
 	opr.SetProcessor(sto.IssueSecurityTokensHint, sto.NewIssueSecurityTokensProcessor())
+	opr.SetProcessor(sto.TransferSecurityTokensPartitionHint, sto.NewTransferSecurityTokensPartitionProcessor())
 	opr.SetProcessor(sto.AuthorizeOperatorsHint, sto.NewAuthorizeOperatorsProcessor())
 	opr.SetProcessor(sto.RevokeOperatorsHint, sto.NewRevokeOperatorsProcessor())
 	opr.SetProcessor(sto.SetDocumentsHint, sto.NewSetDocumentsProcessor())
@@ -259,6 +260,15 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	})
 
 	_ = set.Add(sto.IssueSecurityTokensHint, func(height base.Height) (base.OperationProcessor, error) {
+		return opr.New(
+			height,
+			db.State,
+			nil,
+			nil,
+		)
+	})
+
+	_ = set.Add(sto.TransferSecurityTokensPartitionHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
 			height,
 			db.State,

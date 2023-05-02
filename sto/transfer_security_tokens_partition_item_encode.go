@@ -9,7 +9,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, rc, p, am, cid string) error {
+func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, th, rc, p, am, cid string) error {
 	e := util.StringErrorFunc("failed to unmarshal TransferSecurityTokensPartitionItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
@@ -22,6 +22,13 @@ func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hi
 		return e(err, "")
 	default:
 		it.contract = a
+	}
+
+	switch a, err := base.DecodeAddress(th, enc); {
+	case err != nil:
+		return e(err, "")
+	default:
+		it.tokenholder = a
 	}
 
 	switch a, err := base.DecodeAddress(rc, enc); {

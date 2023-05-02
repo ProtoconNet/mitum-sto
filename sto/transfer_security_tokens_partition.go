@@ -79,13 +79,9 @@ func (fact TransferSecurityTokensPartitionFact) IsValid(b []byte) error {
 			return err
 		}
 
-		k := it.receiver.String() + it.partition.String()
+		k := it.tokenholder.String() + it.receiver.String() + it.partition.String()
 		if _, found := founds[k]; found {
-			return util.ErrInvalid.Errorf("duplicate receiver-partition found, %s", k)
-		}
-
-		if fact.sender.Equal(it.receiver) {
-			return util.ErrInvalid.Errorf("receiver address is same with sender, %q", fact.sender)
+			return util.ErrInvalid.Errorf("duplicate tokenholder-receiver-partition found, %s", k)
 		}
 
 		founds[k] = struct{}{}
