@@ -67,6 +67,8 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.IssueSecurityTokensHint, Instance: sto.IssueSecurityTokens{}},
 	{Hint: sto.AuthorizeOperatorsItemHint, Instance: sto.AuthorizeOperatorsItem{}},
 	{Hint: sto.AuthorizeOperatorsHint, Instance: sto.AuthorizeOperators{}},
+	{Hint: sto.RevokeOperatorsItemHint, Instance: sto.AuthorizeOperatorsItem{}},
+	{Hint: sto.RevokeOperatorsHint, Instance: sto.AuthorizeOperators{}},
 	{Hint: sto.SetDocumentsHint, Instance: sto.SetDocuments{}},
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
@@ -99,6 +101,7 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: sto.CreateSecurityTokensFactHint, Instance: sto.CreateSecurityTokensFact{}},
 	{Hint: sto.IssueSecurityTokensFactHint, Instance: sto.IssueSecurityTokensFact{}},
 	{Hint: sto.AuthorizeOperatorsFactHint, Instance: sto.AuthorizeOperatorsFact{}},
+	{Hint: sto.RevokeOperatorsFactHint, Instance: sto.RevokeOperatorsFact{}},
 	{Hint: sto.SetDocumentsFactHint, Instance: sto.SetDocumentsFact{}},
 }
 
