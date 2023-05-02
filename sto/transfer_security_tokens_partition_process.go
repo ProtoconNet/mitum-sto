@@ -50,6 +50,14 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
 		return err
 	}
 
+	if err := checkExistsState(currency.StateKeyAccount(it.TokenHolder()), getStateFunc); err != nil {
+		return err
+	}
+
+	if err := checkNotExistsState(extensioncurrency.StateKeyContractAccount(it.TokenHolder()), getStateFunc); err != nil {
+		return err
+	}
+
 	if err := checkExistsState(currency.StateKeyAccount(it.Receiver()), getStateFunc); err != nil {
 		return err
 	}
