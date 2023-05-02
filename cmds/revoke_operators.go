@@ -9,7 +9,7 @@ import (
 	"github.com/ProtoconNet/mitum2/base"
 )
 
-type AuthorizeOperatorsCommand struct {
+type RevokeOperatorsCommand struct {
 	baseCommand
 	OperationFlags
 	Sender    AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
@@ -23,14 +23,14 @@ type AuthorizeOperatorsCommand struct {
 	operator  base.Address
 }
 
-func NewAuthorizeOperatorsCommand() AuthorizeOperatorsCommand {
+func NewRevokeOperatorsCommand() RevokeOperatorsCommand {
 	cmd := NewbaseCommand()
-	return AuthorizeOperatorsCommand{
+	return RevokeOperatorsCommand{
 		baseCommand: *cmd,
 	}
 }
 
-func (cmd *AuthorizeOperatorsCommand) Run(pctx context.Context) error {
+func (cmd *RevokeOperatorsCommand) Run(pctx context.Context) error {
 	if _, err := cmd.prepare(pctx); err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (cmd *AuthorizeOperatorsCommand) Run(pctx context.Context) error {
 	return nil
 }
 
-func (cmd *AuthorizeOperatorsCommand) parseFlags() error {
+func (cmd *RevokeOperatorsCommand) parseFlags() error {
 	if err := cmd.OperationFlags.IsValid(nil); err != nil {
 		return err
 	}
@@ -78,10 +78,10 @@ func (cmd *AuthorizeOperatorsCommand) parseFlags() error {
 	return nil
 }
 
-func (cmd *AuthorizeOperatorsCommand) createOperation() (base.Operation, error) { // nolint:dupl
-	var items []sto.AuthorizeOperatorsItem
+func (cmd *RevokeOperatorsCommand) createOperation() (base.Operation, error) { // nolint:dupl
+	var items []sto.RevokeOperatorsItem
 
-	item := sto.NewAuthorizeOperatorsItem(
+	item := sto.NewRevokeOperatorsItem(
 		cmd.contract,
 		cmd.STO.ID,
 		cmd.operator,
@@ -93,15 +93,15 @@ func (cmd *AuthorizeOperatorsCommand) createOperation() (base.Operation, error) 
 	}
 	items = append(items, item)
 
-	fact := sto.NewAuthorizeOperatorsFact([]byte(cmd.Token), cmd.sender, items)
+	fact := sto.NewRevokeOperatorsFact([]byte(cmd.Token), cmd.sender, items)
 
-	op, err := sto.NewAuthorizeOperators(fact)
+	op, err := sto.NewRevokeOperators(fact)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to authorize operators operation")
+		return nil, errors.Wrap(err, "failed to revoke operators operation")
 	}
 	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to authorize operators operation")
+		return nil, errors.Wrap(err, "failed to revoke operators operation")
 	}
 
 	return op, nil

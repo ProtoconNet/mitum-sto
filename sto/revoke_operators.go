@@ -73,10 +73,21 @@ func (fact RevokeOperatorsFact) IsValid(b []byte) error {
 		return err
 	}
 
+	founds := map[string]struct{}{}
 	for _, it := range fact.items {
 		if err := it.IsValid(nil); err != nil {
 			return err
 		}
+
+		if it.contract.Equal(fact.sender) {
+			return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
+		}
+
+		if _, found := founds[it.Operator().String()]; found {
+			return util.ErrInvalid.Errorf("duplicate operator found, %s", it.Operator())
+		}
+
+		founds[it.operator.String()] = struct{}{}
 	}
 
 	return nil

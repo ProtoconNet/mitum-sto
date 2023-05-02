@@ -9,6 +9,7 @@ type OperationCommand struct {
 	CreateSecurityTokens  CreateSecurityTokensCommand  `cmd:"" name:"create-security-token" help:"create security token in contract account"`
 	IssueSecurityTokens   IssueSecurityTokensCommand   `cmd:"" name:"issue-security-token" help:"issue security token in partition"`
 	AuthorizeOperators    AuthorizeOperatorsCommand    `cmd:"" name:"authorize-operator" help:"authorize operator"`
+	RevokeOperators       RevokeOperatorsCommand       `cmd:"" name:"revoke-operator" help:"revoke operator"`
 	SetDocuments          SetDocumentsCommand          `cmd:"" name:"set-documents" help:"set sto documents"`
 	CurrencyRegister      CurrencyRegisterCommand      `cmd:"" name:"currency-register" help:"register new currency"`
 	CurrencyPolicyUpdater CurrencyPolicyUpdaterCommand `cmd:"" name:"currency-policy-updater" help:"update currency policy"`
@@ -28,6 +29,7 @@ func NewOperationCommand() OperationCommand {
 		CreateSecurityTokens:  NewCreateSecurityTokensCommand(),
 		IssueSecurityTokens:   NewIssueSecurityTokensCommand(),
 		AuthorizeOperators:    NewAuthorizeOperatorsCommand(),
+		RevokeOperators:       NewRevokeOperatorsCommand(),
 		SetDocuments:          NewSetDocumentsCommand(),
 		CurrencyRegister:      NewCurrencyRegisterCommand(),
 		CurrencyPolicyUpdater: NewCurrencyPolicyUpdaterCommand(),
