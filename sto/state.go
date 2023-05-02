@@ -511,8 +511,8 @@ func (o OperatorTokenHoldersStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyOperatorTokenHolders(caddr base.Address, stoID extensioncurrency.ContractID, oaddr base.Address) string {
-	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, stoID), oaddr.String(), OperatorTokenHoldersSuffix)
+func StateKeyOperatorTokenHolders(caddr base.Address, stoID extensioncurrency.ContractID, oaddr base.Address, partition Partition) string {
+	return fmt.Sprintf("%s-%s-%s%s", StateKeySTOPrefix(caddr, stoID), oaddr.String(), partition.String(), OperatorTokenHoldersSuffix)
 }
 
 func IsStateOperatorTokenHoldersKey(key string) bool {

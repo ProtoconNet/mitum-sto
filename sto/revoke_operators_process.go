@@ -118,7 +118,7 @@ func (ipp *RevokeOperatorsItemProcessor) Process(
 	}
 
 	sts[0] = NewStateMergeValue(
-		StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator()),
+		StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition()),
 		NewOperatorTokenHoldersStateValue(holders),
 	)
 
@@ -216,7 +216,7 @@ func (opp *RevokeOperatorsProcessor) PreProcess(
 			operators[k] = &ops
 		}
 
-		k = StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())
+		k = StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -244,7 +244,7 @@ func (opp *RevokeOperatorsProcessor) PreProcess(
 		ipc.sender = fact.Sender()
 		ipc.item = it
 		ipc.operators = operators[StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())]
+		ipc.tokenHolders = holders[StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess RevokeOperatorsItem: %w", err), nil
@@ -291,7 +291,7 @@ func (opp *RevokeOperatorsProcessor) Process( // nolint:dupl
 			operators[k] = &ops
 		}
 
-		k = StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())
+		k = StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -321,7 +321,7 @@ func (opp *RevokeOperatorsProcessor) Process( // nolint:dupl
 		ipc.sender = fact.Sender()
 		ipc.item = it
 		ipc.operators = operators[StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator())]
+		ipc.tokenHolders = holders[StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())]
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
