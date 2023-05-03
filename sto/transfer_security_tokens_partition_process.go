@@ -156,6 +156,8 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 	balance = balance.Sub(it.Amount())
 	receiverBalance = receiverBalance.Add(it.Amount())
 
+	sts := []base.StateMergeValue{}
+
 	if !balance.OverZero() {
 		for i, p := range partitions {
 			if p == it.Partition() {
@@ -164,6 +166,49 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 				}
 				partitions = partitions[:len(partitions)-1]
 			}
+		}
+
+		opk := StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), it.TokenHolder(), it.Partition())
+
+		st, err := existsState(opk, "key of tokenholder partition operators", getStateFunc)
+		if err != nil {
+			return nil, err
+		}
+
+		operators, err := StateTokenHolderPartitionOperatorsValue(st)
+		if err != nil {
+			return nil, err
+		}
+
+		sts = append(sts, NewStateMergeValue(
+			opk, NewTokenHolderPartitionOperatorsStateValue([]base.Address{}),
+		))
+
+		for _, op := range operators {
+			thk := StateKeyOperatorTokenHolders(it.Contract(), it.STO(), op, it.Partition())
+
+			st, err := existsState(thk, "key of operator tokenholders", getStateFunc)
+			if err != nil {
+				return nil, err
+			}
+
+			holders, err := StateOperatorTokenHoldersValue(st)
+			if err != nil {
+				return nil, err
+			}
+
+			for i, th := range holders {
+				if th.Equal(it.TokenHolder()) {
+					if i < len(holders)-1 {
+						copy(holders[i:], holders[i+1:])
+					}
+					holders = holders[:len(holders)-1]
+				}
+			}
+
+			sts = append(sts, NewStateMergeValue(
+				thk, NewOperatorTokenHoldersStateValue(holders),
+			))
 		}
 	}
 
@@ -182,7 +227,7 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 	ipp.balances[balanceKey] = balance
 	ipp.balances[receiverBalanceKey] = receiverBalance
 
-	return []base.StateMergeValue{}, nil
+	return sts, nil
 }
 
 func (ipp *TransferSecurityTokensPartitionItemProcessor) Close() error {
@@ -390,11 +435,11 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 		ipc.partitions = partitions
 		ipc.balances = balances
 
-		_, err := ipc.Process(ctx, op, getStateFunc)
+		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to process TransferSecurityTokensPartitionItem: %w", err), nil
 		}
-		// sts = append(sts, s...)
+		sts = append(sts, s...)
 
 		ipcs[i] = ipc
 	}

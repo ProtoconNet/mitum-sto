@@ -185,6 +185,8 @@ func (ipp *RedeemTokensItemProcessor) Process(
 		return nil, err
 	}
 
+	sts := []base.StateMergeValue{}
+
 	balance = balance.Sub(it.Amount())
 	if !balance.OverZero() {
 		for i, p := range tokenholderPartitions {
@@ -195,17 +197,59 @@ func (ipp *RedeemTokensItemProcessor) Process(
 				tokenholderPartitions = tokenholderPartitions[:len(tokenholderPartitions)-1]
 			}
 		}
+
+		opk := StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), it.TokenHolder(), it.Partition())
+
+		st, err := existsState(opk, "key of tokenholder partition operators", getStateFunc)
+		if err != nil {
+			return nil, err
+		}
+
+		operators, err := StateTokenHolderPartitionOperatorsValue(st)
+		if err != nil {
+			return nil, err
+		}
+
+		sts = append(sts, NewStateMergeValue(
+			opk, NewTokenHolderPartitionOperatorsStateValue([]base.Address{}),
+		))
+
+		for _, op := range operators {
+			thk := StateKeyOperatorTokenHolders(it.Contract(), it.STO(), op, it.Partition())
+
+			st, err := existsState(thk, "key of operator tokenholders", getStateFunc)
+			if err != nil {
+				return nil, err
+			}
+
+			holders, err := StateOperatorTokenHoldersValue(st)
+			if err != nil {
+				return nil, err
+			}
+
+			for i, th := range holders {
+				if th.Equal(it.TokenHolder()) {
+					if i < len(holders)-1 {
+						copy(holders[i:], holders[i+1:])
+					}
+					holders = holders[:len(holders)-1]
+				}
+			}
+
+			sts = append(sts, NewStateMergeValue(
+				thk, NewOperatorTokenHoldersStateValue(holders),
+			))
+		}
 	}
 
-	sts := make([]base.StateMergeValue, 2)
-	sts[0] = NewStateMergeValue(
+	sts = append(sts, NewStateMergeValue(
 		StateKeyTokenHolderPartitionBalance(it.Contract(), it.STO(), it.TokenHolder(), it.Partition()),
 		NewTokenHolderPartitionBalanceStateValue(balance, it.Partition()),
-	)
-	sts[1] = NewStateMergeValue(
+	))
+	sts = append(sts, NewStateMergeValue(
 		StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.TokenHolder()),
 		NewTokenHolderPartitionsStateValue(tokenholderPartitions),
-	)
+	))
 
 	return sts, nil
 }
