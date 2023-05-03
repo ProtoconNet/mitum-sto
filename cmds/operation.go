@@ -9,6 +9,7 @@ type OperationCommand struct {
 	CreateSecurityTokens            CreateSecurityTokensCommand            `cmd:"" name:"create-security-token" help:"create security token in contract account"`
 	IssueSecurityTokens             IssueSecurityTokensCommand             `cmd:"" name:"issue-security-token" help:"issue security token in partition"`
 	TransferSecurityTokensPartition TransferSecurityTokensPartitionCommand `cmd:"transfer-security-token" help:"transfer security tokens by partition"`
+	RedeemTokens                    RedeemTokensCommand                    `cmd:"redeem-tokens" help:"redeem tokens from tokenholder"`
 	AuthorizeOperators              AuthorizeOperatorsCommand              `cmd:"" name:"authorize-operator" help:"authorize operator"`
 	RevokeOperators                 RevokeOperatorsCommand                 `cmd:"" name:"revoke-operator" help:"revoke operator"`
 	SetDocuments                    SetDocumentsCommand                    `cmd:"" name:"set-documents" help:"set sto documents"`
@@ -30,6 +31,7 @@ func NewOperationCommand() OperationCommand {
 		CreateSecurityTokens:            NewCreateSecurityTokensCommand(),
 		IssueSecurityTokens:             NewIssueSecurityTokensCommand(),
 		TransferSecurityTokensPartition: NewTransferSecurityTokensPartitionCommand(),
+		RedeemTokens:                    NewRedeemTokensCommand(),
 		AuthorizeOperators:              NewAuthorizeOperatorsCommand(),
 		RevokeOperators:                 NewRevokeOperatorsCommand(),
 		SetDocuments:                    NewSetDocumentsCommand(),

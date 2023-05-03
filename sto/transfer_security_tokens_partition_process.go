@@ -159,7 +159,7 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 	if !balance.OverZero() {
 		for i, p := range partitions {
 			if p == it.Partition() {
-				if i == len(partitions)-1 {
+				if i < len(partitions)-1 {
 					copy(partitions[i:], partitions[i+1:])
 				}
 				partitions = partitions[:len(partitions)-1]
@@ -462,7 +462,7 @@ func checkEnoughTokenHolderBalance(getStateFunc base.GetStateFunc, items []Trans
 
 		balance, err := existsTokenHolderPartitionBalance(it.Contract(), it.STO(), it.TokenHolder(), it.Partition(), getStateFunc)
 		if err != nil {
-			return errors.Errorf("tokenholder partition balance doesn't exist, %q", k)
+			return err
 		}
 
 		balances[k] = balance
@@ -471,7 +471,7 @@ func checkEnoughTokenHolderBalance(getStateFunc base.GetStateFunc, items []Trans
 
 	for k, balance := range balances {
 		if balance.Compare(amounts[k]) < 0 {
-			return errors.Errorf("tokenholder partition balance not over total amounts, %q", k)
+			return errors.Errorf("tokenholder partition balance not over total amounts, %q, %q < %q", k, balance, amounts[k])
 		}
 	}
 
