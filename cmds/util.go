@@ -163,7 +163,7 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 
 	set := hint.NewCompatibleSet()
 
-	opr := currency.NewOperationProcessor()
+	opr := sto.NewOperationProcessor()
 	opr.SetProcessor(mitumcurrency.CreateAccountsHint, currency.NewCreateAccountsProcessor())
 	opr.SetProcessor(mitumcurrency.KeyUpdaterHint, currency.NewKeyUpdaterProcessor())
 	opr.SetProcessor(mitumcurrency.TransfersHint, currency.NewTransfersProcessor())
