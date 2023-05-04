@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ProtoconNet/mitum-currency-extension/v2/digest"
+	currencycmds "github.com/ProtoconNet/mitum-currency/v2/cmds"
 	"github.com/ProtoconNet/mitum2/base"
 	isaacnetwork "github.com/ProtoconNet/mitum2/isaac/network"
 	"github.com/ProtoconNet/mitum2/launch"
@@ -37,7 +38,7 @@ func ProcessStartDigestAPI(ctx context.Context) (context.Context, error) {
 }
 
 func ProcessDigestAPI(ctx context.Context) (context.Context, error) {
-	var design DigestDesign
+	var design currencycmds.DigestDesign
 	if err := mitumutil.LoadFromContext(ctx, ContextValueDigestDesign, &design); err != nil {
 		return ctx, err
 	}

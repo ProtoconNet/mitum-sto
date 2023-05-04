@@ -20,10 +20,10 @@ type OperationCommand struct {
 	SetDocuments                    SetDocumentsCommand                                `cmd:"" name:"set-documents" help:"set sto documents"`
 	CurrencyRegister                currencycmds.CurrencyRegisterCommand               `cmd:"" name:"currency-register" help:"register new currency"`
 	CurrencyPolicyUpdater           currencycmds.CurrencyPolicyUpdaterCommand          `cmd:"" name:"currency-policy-updater" help:"update currency policy"`
-	SuffrageInflation               SuffrageInflationCommand                           `cmd:"" name:"suffrage-inflation" help:"suffrage inflation operation"`
-	SuffrageCandidate               SuffrageCandidateCommand                           `cmd:"" name:"suffrage-candidate" help:"suffrage candidate operation"`
-	SuffrageJoin                    SuffrageJoinCommand                                `cmd:"" name:"suffrage-join" help:"suffrage join operation"`
-	SuffrageDisjoin                 SuffrageDisjoinCommand                             `cmd:"" name:"suffrage-disjoin" help:"suffrage disjoin operation"` // revive:disable-line:line-length-limit
+	SuffrageInflation               currencycmds.SuffrageInflationCommand              `cmd:"" name:"suffrage-inflation" help:"suffrage inflation operation"`
+	SuffrageCandidate               currencycmds.SuffrageCandidateCommand              `cmd:"" name:"suffrage-candidate" help:"suffrage candidate operation"`
+	SuffrageJoin                    currencycmds.SuffrageJoinCommand                   `cmd:"" name:"suffrage-join" help:"suffrage join operation"`
+	SuffrageDisjoin                 currencycmds.SuffrageDisjoinCommand                `cmd:"" name:"suffrage-disjoin" help:"suffrage disjoin operation"` // revive:disable-line:line-length-limit
 }
 
 func NewOperationCommand() OperationCommand {
@@ -42,9 +42,9 @@ func NewOperationCommand() OperationCommand {
 		SetDocuments:                    NewSetDocumentsCommand(),
 		CurrencyRegister:                currencycmds.NewCurrencyRegisterCommand(),
 		CurrencyPolicyUpdater:           currencycmds.NewCurrencyPolicyUpdaterCommand(),
-		SuffrageInflation:               NewSuffrageInflationCommand(),
-		SuffrageCandidate:               NewSuffrageCandidateCommand(),
-		SuffrageJoin:                    NewSuffrageJoinCommand(),
-		SuffrageDisjoin:                 NewSuffrageDisjoinCommand(),
+		SuffrageInflation:               currencycmds.NewSuffrageInflationCommand(),
+		SuffrageCandidate:               currencycmds.NewSuffrageCandidateCommand(),
+		SuffrageJoin:                    currencycmds.NewSuffrageJoinCommand(),
+		SuffrageDisjoin:                 currencycmds.NewSuffrageDisjoinCommand(),
 	}
 }

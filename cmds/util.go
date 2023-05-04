@@ -16,6 +16,7 @@ import (
 	"os"
 	"time"
 
+	currencycmds "github.com/ProtoconNet/mitum-currency-extension/v2/cmds"
 	"github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	mongodbstorage "github.com/ProtoconNet/mitum-currency-extension/v2/digest/mongodb"
 	mitumcurrency "github.com/ProtoconNet/mitum-currency/v2/currency"
@@ -395,7 +396,7 @@ func PGenerateGenesis(ctx context.Context) (context.Context, error) {
 		return ctx, e(err, "")
 	}
 
-	g := NewGenesisBlockGenerator(
+	g := currencycmds.NewGenesisBlockGenerator(
 		local,
 		params.NetworkID(),
 		enc,
@@ -448,11 +449,11 @@ func PLoadDigestDesign(ctx context.Context) (context.Context, error) {
 		return ctx, e(err, "")
 	}
 
-	var digestDesign DigestDesign
+	var digestDesign currencycmds.DigestDesign
 
 	switch flag.Scheme() {
 	case "file":
-		switch d, _, err := DigestDesignFromFile(flag.URL().Path, enc); {
+		switch d, _, err := currencycmds.DigestDesignFromFile(flag.URL().Path, enc); {
 		case err != nil:
 			return ctx, e(err, "")
 		default:
@@ -760,12 +761,12 @@ func IsSupportedProposalOperationFactHintFunc() func(hint.Hint) bool {
 }
 
 func ProcessDatabase(ctx context.Context) (context.Context, error) {
-	var l DigestDesign
+	var l currencycmds.DigestDesign
 	if err := util.LoadFromContext(ctx, ContextValueDigestDesign, &l); err != nil {
 		return ctx, err
 	}
 
-	if (l == DigestDesign{}) {
+	if (l == currencycmds.DigestDesign{}) {
 		return ctx, nil
 	}
 	conf := l.Database()
@@ -778,7 +779,7 @@ func ProcessDatabase(ctx context.Context) (context.Context, error) {
 	}
 }
 
-func processMongodbDatabase(ctx context.Context, l DigestDesign) (context.Context, error) {
+func processMongodbDatabase(ctx context.Context, l currencycmds.DigestDesign) (context.Context, error) {
 	conf := l.Database()
 
 	/*

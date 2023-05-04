@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ProtoconNet/mitum-currency-extension/v2/digest"
+	currencycmds "github.com/ProtoconNet/mitum-currency/v2/cmds"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
 	isaacnetwork "github.com/ProtoconNet/mitum2/isaac/network"
@@ -327,7 +328,7 @@ func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context,
 		launch.LocalParamsContextKey, &params,
 	)
 
-	var design DigestDesign
+	var design currencycmds.DigestDesign
 	if err := util.LoadFromContext(ctx, ContextValueDigestDesign, &design); err != nil {
 		if errors.Is(err, util.ErrNotFound) {
 			return ctx, nil
@@ -336,7 +337,7 @@ func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context,
 		return nil, err
 	}
 
-	if (design == DigestDesign{}) {
+	if (design == currencycmds.DigestDesign{}) {
 		return ctx, nil
 	}
 
@@ -363,7 +364,7 @@ func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context,
 	return ctx, nil
 }
 
-func (cmd *RunCommand) loadCache(_ context.Context, design DigestDesign) (digest.Cache, error) {
+func (cmd *RunCommand) loadCache(_ context.Context, design currencycmds.DigestDesign) (digest.Cache, error) {
 	c, err := digest.NewCacheFromURI(design.Cache().String())
 	if err != nil {
 		cmd.log.Err(err).Str("cache", design.Cache().String()).Msg("failed to connect cache server")
@@ -378,7 +379,7 @@ func (cmd *RunCommand) setDigestHandlers(
 	ctx context.Context,
 	local base.LocalNode,
 	params base.LocalParams,
-	design DigestDesign,
+	design currencycmds.DigestDesign,
 	cache digest.Cache,
 ) (*digest.Handlers, error) {
 	var st *digest.Database
