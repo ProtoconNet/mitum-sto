@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	currencycmds "github.com/ProtoconNet/mitum-currency/v2/cmds"
 	"github.com/ProtoconNet/mitum-sto/cmds"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/launch"
@@ -25,13 +26,13 @@ var (
 //revive:disable:nested-structs
 type CLI struct { //nolint:govet //...
 	launch.BaseFlags
-	Import    cmds.ImportCommand    `cmd:"" help:"import from block data"`
-	Init      cmds.INITCommand      `cmd:"" help:"init node"`
-	Run       cmds.RunCommand       `cmd:"" help:"run node"`
-	Operation cmds.OperationCommand `cmd:"" help:"create operation"`
-	Network   cmds.NetworkCommand   `cmd:"" help:"network"`
-	Key       cmds.KeyCommand       `cmd:"" help:"key"`
-	Version   struct{}              `cmd:"" help:"version"`
+	Import    currencycmds.ImportCommand  `cmd:"" help:"import from block data"`
+	Init      cmds.INITCommand            `cmd:"" help:"init node"`
+	Run       cmds.RunCommand             `cmd:"" help:"run node"`
+	Operation cmds.OperationCommand       `cmd:"" help:"create operation"`
+	Network   currencycmds.NetworkCommand `cmd:"" help:"network"`
+	Key       currencycmds.KeyCommand     `cmd:"" help:"key"`
+	Version   struct{}                    `cmd:"" help:"version"`
 }
 
 var flagDefaults = kong.Vars{
@@ -47,12 +48,12 @@ var flagDefaults = kong.Vars{
 
 func main() {
 	cli := CLI{
-		Import:    cmds.NewImportCommand(),
+		Import:    currencycmds.NewImportCommand(),
 		Init:      cmds.NewINITCommand(),
 		Run:       cmds.NewRunCommand(),
 		Operation: cmds.NewOperationCommand(),
-		Network:   cmds.NewNetworkCommand(),
-		Key:       cmds.NewKeyCommand(),
+		Network:   currencycmds.NewNetworkCommand(),
+		Key:       currencycmds.NewKeyCommand(),
 	}
 
 	kctx := kong.Parse(&cli, flagDefaults)

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	mongodbstorage "github.com/ProtoconNet/mitum-currency-extension/v2/digest/mongodb"
+	currencycmds "github.com/ProtoconNet/mitum-currency/v2/cmds"
 	isaacdatabase "github.com/ProtoconNet/mitum2/isaac/database"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util"
@@ -15,12 +16,12 @@ import (
 const ProcessNameDigestDatabase = "digest_database"
 
 func ProcessDigestDatabase(ctx context.Context) (context.Context, error) {
-	var design DigestDesign
+	var design currencycmds.DigestDesign
 	if err := util.LoadFromContext(ctx, ContextValueDigestDesign, &design); err != nil {
 		return ctx, err
 	}
 
-	if (design == DigestDesign{}) {
+	if (design == currencycmds.DigestDesign{}) {
 		return ctx, nil
 	}
 
