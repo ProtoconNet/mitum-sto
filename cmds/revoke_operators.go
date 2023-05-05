@@ -69,7 +69,7 @@ func (cmd *RevokeOperatorsCommand) parseFlags() error {
 	}
 	cmd.contract = contract
 
-	operator, err := cmd.Contract.Encode(enc)
+	operator, err := cmd.Operator.Encode(enc)
 	if err != nil {
 		return errors.Wrapf(err, "invalid operator account format, %q", cmd.Operator.String())
 	}
