@@ -20,7 +20,7 @@ func (fact SetDocumentsFact) MarshalBSON() ([]byte, error) {
 			"title":        fact.title,
 			"uri":          fact.uri,
 			"documenthash": fact.documentHash,
-			"currencyid":   fact.currency,
+			"currency":     fact.currency,
 			"hash":         fact.BaseFact.Hash().String(),
 			"token":        fact.BaseFact.Token(),
 		},
@@ -35,7 +35,7 @@ type SetDocumentsFactBSONUnmarshaler struct {
 	Title        string `bson:"title"`
 	Uri          string `bson:"uri"`
 	DocumentHash string `bson:"documenthash"`
-	Currency     string `bson:"currencyid"`
+	Currency     string `bson:"currency"`
 }
 
 func (fact *SetDocumentsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {

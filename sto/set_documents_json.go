@@ -16,7 +16,7 @@ type SetDocumentsFactJSONMarshaler struct {
 	Title        string                       `json:"title"`
 	Uri          URI                          `json:"uri"`
 	DocumentHash string                       `json:"documenthash"`
-	Currency     currency.CurrencyID          `json:"currencyid"`
+	Currency     currency.CurrencyID          `json:"currency"`
 }
 
 func (fact SetDocumentsFact) MarshalJSON() ([]byte, error) {
@@ -40,7 +40,7 @@ type SetDocumentsFactJSONUnMarshaler struct {
 	Title        string `json:"title"`
 	Uri          string `json:"uri"`
 	DocumentHash string `json:"documenthash"`
-	Currency     string `json:"currencyid"`
+	Currency     string `json:"currency"`
 }
 
 func (fact *SetDocumentsFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
