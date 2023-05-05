@@ -18,7 +18,7 @@ type CreateSecurityTokensCommand struct {
 	Granularity uint64         `arg:"" name:"granularity" help:"granularity" required:"true"`
 	Partition   PartitionFlag  `arg:"" name:"default-partition" help:"default partition" required:"true"`
 	Currency    CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
-	Controllers []AddressFlag  `name:"controllers" help:"controllers"`
+	Controller  AddressFlag    `name:"controller" help:"controller"`
 	sender      base.Address
 	contract    base.Address
 	controllers []base.Address
@@ -70,15 +70,13 @@ func (cmd *CreateSecurityTokensCommand) parseFlags() error {
 	}
 	cmd.contract = contract
 
-	controllers := make([]base.Address, len(cmd.Controllers))
-	for i, con := range cmd.Controllers {
-		controller, err := con.Encode(enc)
+	if cmd.Controller.s != "" {
+		controller, err := cmd.Controller.Encode(enc)
 		if err != nil {
-			return errors.Wrapf(err, "invalid controller format, %q", con.String())
+			return errors.Wrapf(err, "invalid controller format, %q", controller)
 		}
-		controllers[i] = controller
+		cmd.controllers = []base.Address{controller}
 	}
-	cmd.controllers = controllers
 
 	return nil
 }
