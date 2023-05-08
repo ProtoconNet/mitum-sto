@@ -11,35 +11,35 @@ import (
 	"github.com/pkg/errors"
 )
 
-var setDocumentsProcessorPool = sync.Pool{
+var setDocumentProcessorPool = sync.Pool{
 	New: func() interface{} {
-		return new(SetDocumentsProcessor)
+		return new(SetDocumentProcessor)
 	},
 }
 
-func (SetDocuments) Process(
+func (SetDocument) Process(
 	ctx context.Context, getStateFunc base.GetStateFunc,
 ) ([]base.StateMergeValue, base.OperationProcessReasonError, error) {
 	return nil, nil, nil
 }
 
-type SetDocumentsProcessor struct {
+type SetDocumentProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewSetDocumentsProcessor() extensioncurrency.GetNewProcessor {
+func NewSetDocumentProcessor() extensioncurrency.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new SetDocumentsProcessor")
+		e := util.StringErrorFunc("failed to create new SetDocumentProcessor")
 
-		nopp := setDocumentsProcessorPool.Get()
-		opp, ok := nopp.(*SetDocumentsProcessor)
+		nopp := setDocumentProcessorPool.Get()
+		opp, ok := nopp.(*SetDocumentProcessor)
 		if !ok {
-			return nil, errors.Errorf("expected SetDocumentsProcessor, not %T", nopp)
+			return nil, errors.Errorf("expected SetDocumentProcessor, not %T", nopp)
 		}
 
 		b, err := base.NewBaseOperationProcessor(
@@ -54,14 +54,14 @@ func NewSetDocumentsProcessor() extensioncurrency.GetNewProcessor {
 	}
 }
 
-func (opp *SetDocumentsProcessor) PreProcess(
+func (opp *SetDocumentProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess SetDocuments")
+	e := util.StringErrorFunc("failed to preprocess SetDocument")
 
-	fact, ok := op.Fact().(SetDocumentsFact)
+	fact, ok := op.Fact().(SetDocumentFact)
 	if !ok {
-		return ctx, nil, e(nil, "not SetDocumentsFact, %T", op.Fact())
+		return ctx, nil, e(nil, "not SetDocumentFact, %T", op.Fact())
 	}
 
 	if err := fact.IsValid(nil); err != nil {
@@ -103,15 +103,15 @@ func (opp *SetDocumentsProcessor) PreProcess(
 	return ctx, nil, nil
 }
 
-func (opp *SetDocumentsProcessor) Process(
+func (opp *SetDocumentProcessor) Process(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process SetDocuments")
+	e := util.StringErrorFunc("failed to process SetDocument")
 
-	fact, ok := op.Fact().(SetDocumentsFact)
+	fact, ok := op.Fact().(SetDocumentFact)
 	if !ok {
-		return nil, nil, e(nil, "expected SetDocumentsFact, not %T", op.Fact())
+		return nil, nil, e(nil, "expected SetDocumentFact, not %T", op.Fact())
 	}
 
 	doc := NewDocument(fact.STO(), fact.Title(), fact.DocumentHash(), fact.URI())
@@ -182,8 +182,8 @@ func (opp *SetDocumentsProcessor) Process(
 	return sts, nil, nil
 }
 
-func (opp *SetDocumentsProcessor) Close() error {
-	setDocumentsProcessorPool.Put(opp)
+func (opp *SetDocumentProcessor) Close() error {
+	setDocumentProcessorPool.Put(opp)
 
 	return nil
 }

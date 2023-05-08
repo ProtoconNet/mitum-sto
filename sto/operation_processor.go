@@ -262,10 +262,10 @@ func (opr *OperationProcessor) checkDuplication(op base.Operation) error {
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case SetDocuments:
-		fact, ok := t.Fact().(SetDocumentsFact)
+	case SetDocument:
+		fact, ok := t.Fact().(SetDocumentFact)
 		if !ok {
-			return errors.Errorf("expected SetDocumentsFact, not %T", t.Fact())
+			return errors.Errorf("expected SetDocumentFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
@@ -358,7 +358,7 @@ func (opr *OperationProcessor) getNewProcessor(op base.Operation) (base.Operatio
 		IssueSecurityTokens,
 		RedeemTokens,
 		RevokeOperators,
-		SetDocuments,
+		SetDocument,
 		TransferSecurityTokensPartition:
 		return nil, false, errors.Errorf("%T needs SetProcessor", t)
 	default:

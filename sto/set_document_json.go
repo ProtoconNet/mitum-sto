@@ -8,7 +8,7 @@ import (
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
 )
 
-type SetDocumentsFactJSONMarshaler struct {
+type SetDocumentFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
 	Owner        base.Address                 `json:"sender"`
 	Contract     base.Address                 `json:"contract"`
@@ -19,8 +19,8 @@ type SetDocumentsFactJSONMarshaler struct {
 	Currency     currency.CurrencyID          `json:"currency"`
 }
 
-func (fact SetDocumentsFact) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(SetDocumentsFactJSONMarshaler{
+func (fact SetDocumentFact) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(SetDocumentFactJSONMarshaler{
 		BaseFactJSONMarshaler: fact.BaseFact.JSONMarshaler(),
 		Owner:                 fact.sender,
 		Contract:              fact.contract,
@@ -32,7 +32,7 @@ func (fact SetDocumentsFact) MarshalJSON() ([]byte, error) {
 	})
 }
 
-type SetDocumentsFactJSONUnMarshaler struct {
+type SetDocumentFactJSONUnMarshaler struct {
 	base.BaseFactJSONUnmarshaler
 	Owner        string `json:"sender"`
 	Contract     string `json:"contract"`
@@ -43,10 +43,10 @@ type SetDocumentsFactJSONUnMarshaler struct {
 	Currency     string `json:"currency"`
 }
 
-func (fact *SetDocumentsFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of SetDocumentsFact")
+func (fact *SetDocumentFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of SetDocumentFact")
 
-	var uf SetDocumentsFactJSONUnMarshaler
+	var uf SetDocumentFactJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uf); err != nil {
 		return e(err, "")
 	}
@@ -56,18 +56,18 @@ func (fact *SetDocumentsFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 	return fact.unpack(enc, uf.Owner, uf.Contract, uf.STOID, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
 }
 
-type SetDocumentsMarshaler struct {
+type SetDocumentMarshaler struct {
 	currency.BaseOperationJSONMarshaler
 }
 
-func (op SetDocuments) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(SetDocumentsMarshaler{
+func (op SetDocument) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(SetDocumentMarshaler{
 		BaseOperationJSONMarshaler: op.BaseOperation.JSONMarshaler(),
 	})
 }
 
-func (op *SetDocuments) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of SetDocuments")
+func (op *SetDocument) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of SetDocument")
 
 	var ubo currency.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
