@@ -3,14 +3,15 @@ module github.com/ProtoconNet/mitum-sto
 go 1.19
 
 require (
-	github.com/ProtoconNet/mitum-currency-extension/v2 v2.0.0-20230504092403-1846733cda2d
-	github.com/ProtoconNet/mitum-currency/v2 v2.0.0-20230427075405-153227854156
+	github.com/ProtoconNet/mitum-currency-extension/v2 v2.0.0-20230509022445-e3cefd28984e
+	github.com/ProtoconNet/mitum-currency/v2 v2.0.0-20230508143724-e411584507ab
 	github.com/ProtoconNet/mitum2 v0.0.0-20230327234451-801228e1e81f
 	github.com/alecthomas/kong v0.7.1
 	github.com/arl/statsviz v0.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.0
 	go.mongodb.org/mongo-driver v1.11.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -118,5 +119,4 @@ require (
 	google.golang.org/grpc v1.52.3 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
