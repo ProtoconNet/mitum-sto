@@ -10,7 +10,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/valuehash"
 )
 
-func (fact SetDocumentsFact) MarshalBSON() ([]byte, error) {
+func (fact SetDocumentFact) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":        fact.Hint().String(),
@@ -20,14 +20,14 @@ func (fact SetDocumentsFact) MarshalBSON() ([]byte, error) {
 			"title":        fact.title,
 			"uri":          fact.uri,
 			"documenthash": fact.documentHash,
-			"currencyid":   fact.currency,
+			"currency":     fact.currency,
 			"hash":         fact.BaseFact.Hash().String(),
 			"token":        fact.BaseFact.Token(),
 		},
 	)
 }
 
-type SetDocumentsFactBSONUnmarshaler struct {
+type SetDocumentFactBSONUnmarshaler struct {
 	Hint         string `bson:"_hint"`
 	Sender       string `bson:"sender"`
 	Contract     string `bson:"contract"`
@@ -35,11 +35,11 @@ type SetDocumentsFactBSONUnmarshaler struct {
 	Title        string `bson:"title"`
 	Uri          string `bson:"uri"`
 	DocumentHash string `bson:"documenthash"`
-	Currency     string `bson:"currencyid"`
+	Currency     string `bson:"currency"`
 }
 
-func (fact *SetDocumentsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of SetDocumentsFact")
+func (fact *SetDocumentFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of SetDocumentFact")
 
 	var ubf currency.BaseFactBSONUnmarshaler
 
@@ -50,7 +50,7 @@ func (fact *SetDocumentsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(ubf.Hash))
 	fact.BaseFact.SetToken(ubf.Token)
 
-	var uf SetDocumentsFactBSONUnmarshaler
+	var uf SetDocumentFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
 		return e(err, "")
 	}
@@ -64,7 +64,7 @@ func (fact *SetDocumentsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	return fact.unpack(enc, uf.Sender, uf.Contract, uf.STOID, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
 }
 
-func (op SetDocuments) MarshalBSON() ([]byte, error) {
+func (op SetDocument) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint": op.Hint().String(),
@@ -74,8 +74,8 @@ func (op SetDocuments) MarshalBSON() ([]byte, error) {
 		})
 }
 
-func (op *SetDocuments) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of SetDocuments")
+func (op *SetDocument) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of SetDocument")
 
 	var ubo currency.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {

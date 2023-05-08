@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	SetDocumentsFactHint = hint.MustNewHint("mitum-sto-set-documents-operation-fact-v0.0.1")
-	SetDocumentsHint     = hint.MustNewHint("mitum-sto-set-documents-operation-v0.0.1")
+	SetDocumentFactHint = hint.MustNewHint("mitum-sto-set-document-operation-fact-v0.0.1")
+	SetDocumentHint     = hint.MustNewHint("mitum-sto-set-document-operation-v0.0.1")
 )
 
-type SetDocumentsFact struct {
+type SetDocumentFact struct {
 	base.BaseFact
 	sender       base.Address
 	contract     base.Address                 // contract account
@@ -25,7 +25,7 @@ type SetDocumentsFact struct {
 	currency     currency.CurrencyID          // fee
 }
 
-func NewSetDocumentsFact(
+func NewSetDocumentFact(
 	token []byte,
 	sender base.Address,
 	contract base.Address,
@@ -34,9 +34,9 @@ func NewSetDocumentsFact(
 	uri URI,
 	hash string,
 	currency currency.CurrencyID,
-) SetDocumentsFact {
-	bf := base.NewBaseFact(SetDocumentsFactHint, token)
-	fact := SetDocumentsFact{
+) SetDocumentFact {
+	bf := base.NewBaseFact(SetDocumentFactHint, token)
+	fact := SetDocumentFact{
 		BaseFact:     bf,
 		sender:       sender,
 		contract:     contract,
@@ -51,15 +51,15 @@ func NewSetDocumentsFact(
 	return fact
 }
 
-func (fact SetDocumentsFact) Hash() util.Hash {
+func (fact SetDocumentFact) Hash() util.Hash {
 	return fact.BaseFact.Hash()
 }
 
-func (fact SetDocumentsFact) GenerateHash() util.Hash {
+func (fact SetDocumentFact) GenerateHash() util.Hash {
 	return valuehash.NewSHA256(fact.Bytes())
 }
 
-func (fact SetDocumentsFact) Bytes() []byte {
+func (fact SetDocumentFact) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		fact.Token(),
 		fact.sender.Bytes(),
@@ -72,7 +72,7 @@ func (fact SetDocumentsFact) Bytes() []byte {
 	)
 }
 
-func (fact SetDocumentsFact) IsValid(b []byte) error {
+func (fact SetDocumentFact) IsValid(b []byte) error {
 	if err := fact.BaseHinter.IsValid(nil); err != nil {
 		return err
 	}
@@ -88,39 +88,39 @@ func (fact SetDocumentsFact) IsValid(b []byte) error {
 	return nil
 }
 
-func (fact SetDocumentsFact) Token() base.Token {
+func (fact SetDocumentFact) Token() base.Token {
 	return fact.BaseFact.Token()
 }
 
-func (fact SetDocumentsFact) Sender() base.Address {
+func (fact SetDocumentFact) Sender() base.Address {
 	return fact.sender
 }
 
-func (fact SetDocumentsFact) Contract() base.Address {
+func (fact SetDocumentFact) Contract() base.Address {
 	return fact.contract
 }
 
-func (fact SetDocumentsFact) STO() extensioncurrency.ContractID {
+func (fact SetDocumentFact) STO() extensioncurrency.ContractID {
 	return fact.stoID
 }
 
-func (fact SetDocumentsFact) Title() string {
+func (fact SetDocumentFact) Title() string {
 	return fact.title
 }
 
-func (fact SetDocumentsFact) URI() URI {
+func (fact SetDocumentFact) URI() URI {
 	return fact.uri
 }
 
-func (fact SetDocumentsFact) DocumentHash() string {
+func (fact SetDocumentFact) DocumentHash() string {
 	return fact.documentHash
 }
 
-func (fact SetDocumentsFact) Currency() currency.CurrencyID {
+func (fact SetDocumentFact) Currency() currency.CurrencyID {
 	return fact.currency
 }
 
-func (fact SetDocumentsFact) Addresses() ([]base.Address, error) {
+func (fact SetDocumentFact) Addresses() ([]base.Address, error) {
 	as := make([]base.Address, 2)
 
 	as[0] = fact.sender
@@ -129,15 +129,15 @@ func (fact SetDocumentsFact) Addresses() ([]base.Address, error) {
 	return as, nil
 }
 
-type SetDocuments struct {
+type SetDocument struct {
 	currency.BaseOperation
 }
 
-func NewSetDocuments(fact SetDocumentsFact) (SetDocuments, error) {
-	return SetDocuments{BaseOperation: currency.NewBaseOperation(SetDocumentsHint, fact)}, nil
+func NewSetDocument(fact SetDocumentFact) (SetDocument, error) {
+	return SetDocument{BaseOperation: currency.NewBaseOperation(SetDocumentHint, fact)}, nil
 }
 
-func (op *SetDocuments) HashSign(priv base.Privatekey, networkID base.NetworkID) error {
+func (op *SetDocument) HashSign(priv base.Privatekey, networkID base.NetworkID) error {
 	err := op.Sign(priv, networkID)
 	if err != nil {
 		return err

@@ -8,8 +8,8 @@ import (
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
-func (fact *SetDocumentsFact) unpack(enc encoder.Encoder, sa, ca, stoid, title, uri, dochash, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal SetDocumentsFact")
+func (fact *SetDocumentFact) unpack(enc encoder.Encoder, sa, ca, stoid, title, uri, dochash, cid string) error {
+	e := util.StringErrorFunc("failed to unmarshal SetDocumentFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:

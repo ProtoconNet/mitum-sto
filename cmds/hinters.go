@@ -75,7 +75,7 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.AuthorizeOperatorsHint, Instance: sto.AuthorizeOperators{}},
 	{Hint: sto.RevokeOperatorsItemHint, Instance: sto.AuthorizeOperatorsItem{}},
 	{Hint: sto.RevokeOperatorsHint, Instance: sto.AuthorizeOperators{}},
-	{Hint: sto.SetDocumentsHint, Instance: sto.SetDocuments{}},
+	{Hint: sto.SetDocumentHint, Instance: sto.SetDocument{}},
 
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
@@ -115,7 +115,7 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: sto.RedeemTokensFactHint, Instance: sto.RedeemTokensFact{}},
 	{Hint: sto.AuthorizeOperatorsFactHint, Instance: sto.AuthorizeOperatorsFact{}},
 	{Hint: sto.RevokeOperatorsFactHint, Instance: sto.RevokeOperatorsFact{}},
-	{Hint: sto.SetDocumentsFactHint, Instance: sto.SetDocumentsFact{}},
+	{Hint: sto.SetDocumentFactHint, Instance: sto.SetDocumentFact{}},
 }
 
 func init() {

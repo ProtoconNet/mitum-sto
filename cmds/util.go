@@ -178,7 +178,7 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	opr.SetProcessor(sto.RedeemTokensHint, sto.NewRedeemTokensProcessor())
 	opr.SetProcessor(sto.AuthorizeOperatorsHint, sto.NewAuthorizeOperatorsProcessor())
 	opr.SetProcessor(sto.RevokeOperatorsHint, sto.NewRevokeOperatorsProcessor())
-	opr.SetProcessor(sto.SetDocumentsHint, sto.NewSetDocumentsProcessor())
+	opr.SetProcessor(sto.SetDocumentHint, sto.NewSetDocumentProcessor())
 
 	_ = set.Add(mitumcurrency.CreateAccountsHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
@@ -306,7 +306,7 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 		)
 	})
 
-	_ = set.Add(sto.SetDocumentsHint, func(height base.Height) (base.OperationProcessor, error) {
+	_ = set.Add(sto.SetDocumentHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
 			height,
 			db.State,
