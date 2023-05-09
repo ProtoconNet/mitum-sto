@@ -461,7 +461,7 @@ type OperatorTokenHoldersStateValue struct {
 
 func NewOperatorTokenHoldersStateValue(tokenHolders []base.Address) OperatorTokenHoldersStateValue {
 	return OperatorTokenHoldersStateValue{
-		BaseHinter:   hint.NewBaseHinter(TokenHolderPartitionOperatorsStateValueHint),
+		BaseHinter:   hint.NewBaseHinter(OperatorTokenHoldersStateValueHint),
 		TokenHolders: tokenHolders,
 	}
 }
@@ -473,7 +473,7 @@ func (o OperatorTokenHoldersStateValue) Hint() hint.Hint {
 func (o OperatorTokenHoldersStateValue) IsValid([]byte) error {
 	e := util.ErrInvalid.Errorf("invalid OperatorTokenHoldersStateValue")
 
-	if err := o.BaseHinter.IsValid(TokenHolderPartitionOperatorsStateValueHint.Type().Bytes()); err != nil {
+	if err := o.BaseHinter.IsValid(OperatorTokenHoldersStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
 	}
 
