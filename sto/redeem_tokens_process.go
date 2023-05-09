@@ -316,7 +316,7 @@ func (opp *RedeemTokensProcessor) PreProcess(
 	}
 
 	if err := checkNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot issue security tokens, %q", fact.Sender()), nil
+		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot issue security tokens, %q: %w", fact.Sender(), err), nil
 	}
 
 	if err := checkFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
@@ -331,12 +331,12 @@ func (opp *RedeemTokensProcessor) PreProcess(
 		if _, found := stos[k]; !found {
 			st, err := existsState(k, "key of sto design", getStateFunc)
 			if err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("sto design doesn't exist, %q", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("sto design doesn't exist, %q: %w", k, err), nil
 			}
 
 			design, err := StateSTODesignValue(st)
 			if err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("failed to get sto design value, %q", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to get sto design value, %q: %w", k, err), nil
 			}
 
 			stos[k] = &design
@@ -390,12 +390,12 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 		if _, found := stos[k]; !found {
 			st, err := existsState(k, "key of sto design", getStateFunc)
 			if err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("sto design doesn't exist, %q", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("sto design doesn't exist, %q: %w", k, err), nil
 			}
 
 			design, err := StateSTODesignValue(st)
 			if err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("failed to get sto design value, %q", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to get sto design value, %q: %w", k, err), nil
 			}
 
 			stos[k] = &design
