@@ -54,6 +54,30 @@ func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
 		return err
 	}
 
+	partitions, err := existsTokenHolderPartitions(it.Contract(), it.STO(), ipp.sender, getStateFunc)
+	if err != nil {
+		return err
+	}
+
+	for i, p := range partitions {
+		if p == it.Partition() {
+			break
+		}
+
+		if i == len(partitions)-1 {
+			return errors.Errorf("partition not in tokenholder partition list, %s-%s, %s", ipp.sender, it.Contract(), it.STO(), it.Partition())
+		}
+	}
+
+	balance, err := existsTokenHolderPartitionBalance(it.Contract(), it.STO(), ipp.sender, it.Partition(), getStateFunc)
+	if err != nil {
+		return err
+	}
+
+	if !balance.OverZero() {
+		return errors.Errorf("zero tokenholder partition balance, %s-%s-%s", ipp.sender, it.Contract(), it.STO(), it.Partition())
+	}
+
 	for _, ad := range *ipp.operators {
 		if ad.Equal(it.Operator()) {
 			return errors.Errorf("operator is already in tokenholder operators, %q", ad)
