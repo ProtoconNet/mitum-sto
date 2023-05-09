@@ -14,11 +14,13 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"path/filepath"
 	"time"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency-extension/v2/cmds"
+	extensioncurrencycmds "github.com/ProtoconNet/mitum-currency-extension/v2/cmds"
 	"github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	mongodbstorage "github.com/ProtoconNet/mitum-currency-extension/v2/digest/mongodb"
+	currencycmds "github.com/ProtoconNet/mitum-currency/v2/cmds"
 	mitumcurrency "github.com/ProtoconNet/mitum-currency/v2/currency"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v2/digest/util/bson"
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v2/isaac"
@@ -40,6 +42,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/logging"
 	"github.com/ProtoconNet/mitum2/util/ps"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -396,7 +399,7 @@ func PGenerateGenesis(ctx context.Context) (context.Context, error) {
 		return ctx, e(err, "")
 	}
 
-	g := currencycmds.NewGenesisBlockGenerator(
+	g := extensioncurrencycmds.NewGenesisBlockGenerator(
 		local,
 		params.NetworkID(),
 		enc,
@@ -449,36 +452,32 @@ func PLoadDigestDesign(ctx context.Context) (context.Context, error) {
 		return ctx, e(err, "")
 	}
 
-	var digestDesign currencycmds.DigestDesign
-
 	switch flag.Scheme() {
 	case "file":
-		switch d, _, err := currencycmds.DigestDesignFromFile(flag.URL().Path, enc); {
-		case err != nil:
+		b, err := os.ReadFile(filepath.Clean(flag.URL().Path))
+		if err != nil {
 			return ctx, e(err, "")
-		default:
-			digestDesign = d
+		}
+		var m struct {
+			Digest *currencycmds.DigestDesign
 		}
 
-		if i, err := digestDesign.Set(ctx); err != nil {
+		if err := yaml.Unmarshal(b, &m); err != nil {
+			return ctx, err
+		} else if m.Digest == nil {
+			return ctx, nil
+		} else if i, err := m.Digest.Set(ctx); err != nil {
 			return ctx, err
 		} else {
 			ctx = i
 		}
 
-		ctx = context.WithValue(ctx, ContextValueDigestDesign, digestDesign)
+		ctx = context.WithValue(ctx, ContextValueDigestDesign, *m.Digest)
 
-		// switch di, _, err := DigestDesignFromFile(flag.URL().Path, enc); {
-		// case err != nil:
-		// 	return ctx, e(err, "")
-		// default:
-		// 	digestDesign = d.DigestDesign
-		// }
+		log.Log().Debug().Object("design", *m.Digest).Msg("digest design loaded")
 	default:
 		return ctx, e(nil, "unknown digest design uri, %q", flag.URL())
 	}
-
-	log.Log().Debug().Object("design", digestDesign).Msg("digest design loaded")
 
 	return ctx, nil
 }
