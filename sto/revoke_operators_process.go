@@ -54,14 +54,22 @@ func (ipp *RevokeOperatorsItemProcessor) PreProcess(
 		return err
 	}
 
+	if len(*ipp.operators) == 0 {
+		return errors.Errorf("empty tokenholder operators, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), ipp.sender)
+	}
+
 	for i, ad := range *ipp.operators {
 		if ad.Equal(it.Operator()) {
 			break
 		}
 
 		if i == len(*ipp.operators)-1 {
-			return errors.Errorf("operator not in tokenholder operators, %q", it.Operator())
+			return errors.Errorf("operator not in tokenholder operators, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), ipp.sender, it.Operator())
 		}
+	}
+
+	if len(*ipp.tokenHolders) == 0 {
+		return errors.Errorf("empty operator tokenholders, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), it.Operator())
 	}
 
 	for i, ad := range *ipp.tokenHolders {
@@ -70,7 +78,7 @@ func (ipp *RevokeOperatorsItemProcessor) PreProcess(
 		}
 
 		if i == len(*ipp.tokenHolders)-1 {
-			return errors.Errorf("sender not in operator tokenholders, %q", ipp.sender)
+			return errors.Errorf("sender not in operator tokenholders, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), it.Operator(), ipp.sender)
 		}
 	}
 
@@ -88,6 +96,10 @@ func (ipp *RevokeOperatorsItemProcessor) Process(
 
 	it := ipp.item
 
+	if len(*ipp.operators) == 0 {
+		return nil, errors.Errorf("empty tokenholder operators, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), ipp.sender)
+	}
+
 	for i, ad := range *ipp.operators {
 		if ad.Equal(it.Operator()) {
 			if i < len(*ipp.operators)-1 {
@@ -98,11 +110,15 @@ func (ipp *RevokeOperatorsItemProcessor) Process(
 		}
 
 		if i == len(*ipp.operators)-1 {
-			return nil, errors.Errorf("operator not in tokenholder operators, %q", it.Operator())
+			return nil, errors.Errorf("operator not in tokenholder operators, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), ipp.sender, it.Operator())
 		}
 	}
 
 	holders := *ipp.tokenHolders
+	if len(holders) == 0 {
+		return nil, errors.Errorf("empty operator tokenholders, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), it.Operator())
+	}
+
 	for i, ad := range holders {
 		if ad.Equal(ipp.sender) {
 			if i < len(holders)-1 {
@@ -113,7 +129,7 @@ func (ipp *RevokeOperatorsItemProcessor) Process(
 		}
 
 		if i == len(holders)-1 {
-			return nil, errors.Errorf("sender not in operator tokenholders, %q", ipp.sender)
+			return nil, errors.Errorf("sender not in operator tokenholders, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), it.Operator(), ipp.sender)
 		}
 	}
 

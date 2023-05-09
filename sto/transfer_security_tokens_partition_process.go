@@ -64,6 +64,9 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
 	}
 
 	partitions := ipp.partitions[StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.TokenHolder())]
+	if len(partitions) == 0 {
+		return errors.Errorf("empty tokenholder partitions, %s-%s-%s", it.Contract(), it.STO(), it.TokenHolder())
+	}
 
 	for i, p := range partitions {
 		if p == it.Partition() {
@@ -71,7 +74,7 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
 		}
 
 		if i == len(partitions)-1 {
-			return errors.Errorf("partitio not in tokenholder partitions, %q", it.Partition())
+			return errors.Errorf("partition not in tokenholder partitions, %s-%s-%s, %q", it.Contract(), it.STO(), it.TokenHolder(), it.Partition())
 		}
 	}
 
@@ -170,14 +173,17 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 
 		opk := StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), it.TokenHolder(), it.Partition())
 
-		st, err := existsState(opk, "key of tokenholder partition operators", getStateFunc)
-		if err != nil {
+		var operators []base.Address
+		switch st, found, err := getStateFunc(opk); {
+		case err != nil:
 			return nil, err
-		}
-
-		operators, err := StateTokenHolderPartitionOperatorsValue(st)
-		if err != nil {
-			return nil, err
+		case found:
+			operators, err = StateTokenHolderPartitionOperatorsValue(st)
+			if err != nil {
+				return nil, err
+			}
+		default:
+			operators = []base.Address{}
 		}
 
 		sts = append(sts, NewStateMergeValue(
@@ -212,13 +218,17 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) Process(
 		}
 	}
 
-	for i, p := range receiverPartitions {
-		if p == it.Partition() {
-			break
-		}
+	if len(receiverPartitions) == 0 {
+		receiverPartitions = append(receiverPartitions, it.Partition())
+	} else {
+		for i, p := range receiverPartitions {
+			if p == it.Partition() {
+				break
+			}
 
-		if i == len(receiverPartitions)-1 {
-			receiverPartitions = append(receiverPartitions, it.Partition())
+			if i == len(receiverPartitions)-1 {
+				receiverPartitions = append(receiverPartitions, it.Partition())
+			}
 		}
 	}
 

@@ -100,6 +100,10 @@ func (ipp *RedeemTokensItemProcessor) PreProcess(
 		return err
 	}
 
+	if len(partitions) == 0 {
+		return errors.Errorf("empty tokenholder partitions, %s-%s-%s", it.Contract(), it.STO(), it.TokenHolder())
+	}
+
 	for i, p := range partitions {
 		if p == it.Partition() {
 			break
