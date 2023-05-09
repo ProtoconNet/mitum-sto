@@ -17,7 +17,7 @@ func (de *STODesign) unpack(enc encoder.Encoder, ht hint.Hint, sto string, gra u
 	if hinter, err := enc.Decode(bpo); err != nil {
 		return e(err, "")
 	} else if po, ok := hinter.(STOPolicy); !ok {
-		return util.ErrWrongType.Errorf("expected STOPolicy, not %T", hinter)
+		return e(util.ErrWrongType.Errorf("expected STOPolicy, not %T", hinter), "")
 	} else {
 		de.policy = po
 	}

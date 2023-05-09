@@ -40,7 +40,7 @@ func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hi
 
 	amount, err := currency.NewBigFromString(am)
 	if err != nil {
-		return err
+		return e(err, "")
 	}
 	it.amount = amount
 

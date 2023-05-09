@@ -44,7 +44,7 @@ func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big 
 	for i := range hds {
 		doc, ok := hds[i].(Document)
 		if !ok {
-			return util.ErrWrongType.Errorf("expected Document, not %T", hds[i])
+			return e(util.ErrWrongType.Errorf("expected Document, not %T", hds[i]), "")
 		}
 
 		documents[i] = doc
