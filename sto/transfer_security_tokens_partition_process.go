@@ -292,7 +292,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) PreProcess(
 	}
 
 	if err := checkNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot issue security tokens, %q", fact.Sender()), nil
+		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot issue security tokens, %q: %w", fact.Sender(), err), nil
 	}
 
 	if err := checkFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {

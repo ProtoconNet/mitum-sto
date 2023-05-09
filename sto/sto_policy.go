@@ -52,10 +52,6 @@ func (po STOPolicy) IsValid([]byte) error {
 		return util.ErrInvalid.Errorf("empty partitions")
 	}
 
-	if !po.aggregate.OverZero() {
-		return util.ErrInvalid.Errorf("aggregate must be over zero")
-	}
-
 	if err := util.CheckIsValiders(nil, false, po.BaseHinter); err != nil {
 		return util.ErrInvalid.Errorf("invalid currency policy: %w", err)
 	}

@@ -153,7 +153,7 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 	}
 
 	if err := checkNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot set its operators, %q", fact.Sender()), nil
+		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot set its operators, %q: %w", fact.Sender(), err), nil
 	}
 
 	if err := checkFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
@@ -170,11 +170,11 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s: %w", k, err), nil
 			case found:
 				ops, err = StateTokenHolderPartitionOperatorsValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s", k), nil
+					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s: %w", k, err), nil
 				}
 			default:
 				ops = []base.Address{}
@@ -186,11 +186,11 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s: %w", k, err), nil
 			case found:
 				hds, err = StateOperatorTokenHoldersValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s", k), nil
+					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s: %w", k, err), nil
 				}
 			default:
 				hds = []base.Address{}
@@ -246,11 +246,11 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s: %w", k, err), nil
 			case found:
 				ops, err = StateTokenHolderPartitionOperatorsValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s", k), nil
+					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s: %w", k, err), nil
 				}
 			default:
 				ops = []base.Address{}
@@ -262,11 +262,11 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s: %w", k, err), nil
 			case found:
 				hds, err = StateOperatorTokenHoldersValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s", k), nil
+					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s: %w", k, err), nil
 				}
 			default:
 				hds = []base.Address{}

@@ -76,11 +76,8 @@ func (ipp *CreateSecurityTokensItemProcessor) Process(
 	documents := []Document{}
 
 	policy := NewSTOPolicy(partitions, currency.NewBig(0), it.Controllers(), documents)
-	if err := policy.IsValid(nil); err != nil {
-		return nil, err
-	}
-
 	design := NewSTODesign(it.STO(), it.Granularity(), policy)
+
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
@@ -157,7 +154,7 @@ func (opp *CreateSecurityTokensProcessor) PreProcess(
 	}
 
 	if err := checkNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot create security tokens, %q", fact.Sender()), nil
+		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot create security tokens, %q: %w", fact.Sender(), err), nil
 	}
 
 	if err := checkFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {

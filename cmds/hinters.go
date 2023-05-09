@@ -73,8 +73,8 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.RedeemTokensHint, Instance: sto.RedeemTokens{}},
 	{Hint: sto.AuthorizeOperatorsItemHint, Instance: sto.AuthorizeOperatorsItem{}},
 	{Hint: sto.AuthorizeOperatorsHint, Instance: sto.AuthorizeOperators{}},
-	{Hint: sto.RevokeOperatorsItemHint, Instance: sto.AuthorizeOperatorsItem{}},
-	{Hint: sto.RevokeOperatorsHint, Instance: sto.AuthorizeOperators{}},
+	{Hint: sto.RevokeOperatorsItemHint, Instance: sto.RevokeOperatorsItem{}},
+	{Hint: sto.RevokeOperatorsHint, Instance: sto.RevokeOperators{}},
 	{Hint: sto.SetDocumentHint, Instance: sto.SetDocument{}},
 
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
