@@ -76,11 +76,8 @@ func (ipp *CreateSecurityTokensItemProcessor) Process(
 	documents := []Document{}
 
 	policy := NewSTOPolicy(partitions, currency.NewBig(0), it.Controllers(), documents)
-	if err := policy.IsValid(nil); err != nil {
-		return nil, err
-	}
-
 	design := NewSTODesign(it.STO(), it.Granularity(), policy)
+
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
