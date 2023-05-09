@@ -36,7 +36,7 @@ func (de *STODesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error 
 
 	var design STODesign
 
-	if err := de.DecodeJSON(u.STO, enc); err != nil {
+	if err := design.DecodeJSON(u.STO, enc); err != nil {
 		return e(err, "")
 	}
 
