@@ -47,7 +47,7 @@ func (k Design) Bytes() []byte {
 	)
 }
 
-func (k Design) STO() extensioncurrency.ContractID {
+func (k Design) KYC() extensioncurrency.ContractID {
 	return k.kycID
 }
 
