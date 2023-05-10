@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	STOPrefix               = "sto:"
-	STODesignStateValueHint = hint.MustNewHint("mitum-sto-design-state-value-v0.0.1")
-	STODesignSuffix         = ":design"
+	STOPrefix            = "sto:"
+	DesignStateValueHint = hint.MustNewHint("mitum-sto-design-state-value-v0.0.1")
+	DesignSuffix         = ":design"
 )
 
 type StateValueMerger struct {
@@ -56,7 +56,7 @@ type STODesignStateValue struct {
 
 func NewSTODesignStateValue(design STODesign) STODesignStateValue {
 	return STODesignStateValue{
-		BaseHinter: hint.NewBaseHinter(STODesignStateValueHint),
+		BaseHinter: hint.NewBaseHinter(DesignStateValueHint),
 		Design:     design,
 	}
 }
@@ -68,7 +68,7 @@ func (sd STODesignStateValue) Hint() hint.Hint {
 func (sd STODesignStateValue) IsValid([]byte) error {
 	e := util.ErrInvalid.Errorf("invalid STODesignStateValue")
 
-	if err := sd.BaseHinter.IsValid(STODesignStateValueHint.Type().Bytes()); err != nil {
+	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
 	}
 
@@ -98,12 +98,12 @@ func StateSTODesignValue(st base.State) (STODesign, error) {
 }
 
 func IsStateSTODesignKey(key string) bool {
-	return strings.HasSuffix(key, STODesignSuffix)
+	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, DesignSuffix)
 }
 
 // sto:address-stoID:design
 func StateKeySTODesign(addr base.Address, sid extensioncurrency.ContractID) string {
-	return fmt.Sprintf("%s%s", StateKeySTOPrefix(addr, sid), STODesignSuffix)
+	return fmt.Sprintf("%s%s", StateKeySTOPrefix(addr, sid), DesignSuffix)
 }
 
 var MaxOperatorInOperators = 10
@@ -162,7 +162,7 @@ func (sv TokenHolderPartitionsStateValue) HashBytes() []byte {
 }
 
 func IsStateTokenHolderPartitionsKey(key string) bool {
-	return strings.HasSuffix(key, TokenHolderPartitionsSuffix)
+	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, TokenHolderPartitionsSuffix)
 }
 
 func StateKeyTokenHolderPartitions(caddr base.Address, sid extensioncurrency.ContractID, uaddr base.Address) string {
@@ -229,7 +229,7 @@ func StateKeyTokenHolderPartitionBalance(caddr base.Address, stoID extensioncurr
 }
 
 func IsStateTokenHolderPartitionBalanceKey(key string) bool {
-	return strings.HasSuffix(key, TokenHolderPartitionBalanceSuffix)
+	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, TokenHolderPartitionBalanceSuffix)
 }
 
 func StateTokenHolderPartitionBalanceValue(st base.State) (currency.Big, error) {
@@ -313,7 +313,7 @@ func StateKeyTokenHolderPartitionOperators(caddr base.Address, stoID extensioncu
 }
 
 func IsStateTokenHolderPartitionOperatorsKey(key string) bool {
-	return strings.HasSuffix(key, TokenHolderPartitionOperatorsSuffix)
+	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, TokenHolderPartitionOperatorsSuffix)
 }
 
 func StateTokenHolderPartitionOperatorsValue(st base.State) ([]base.Address, error) {
@@ -370,7 +370,7 @@ func StateKeyPartitionBalance(caddr base.Address, stoID extensioncurrency.Contra
 }
 
 func IsStatePartitionBalanceKey(key string) bool {
-	return strings.HasSuffix(key, PartitionBalanceSuffix)
+	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, PartitionBalanceSuffix)
 }
 
 func StatePartitionBalanceValue(st base.State) (currency.Big, error) {
@@ -446,7 +446,7 @@ func StateKeyPartitionControllers(caddr base.Address, stoID extensioncurrency.Co
 }
 
 func IsStatePartitionControllersKey(key string) bool {
-	return strings.HasSuffix(key, PartitionControllersSuffix)
+	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, PartitionControllersSuffix)
 }
 
 var (
@@ -516,7 +516,7 @@ func StateKeyOperatorTokenHolders(caddr base.Address, stoID extensioncurrency.Co
 }
 
 func IsStateOperatorTokenHoldersKey(key string) bool {
-	return strings.HasSuffix(key, OperatorTokenHoldersSuffix)
+	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, OperatorTokenHoldersSuffix)
 }
 
 func StateOperatorTokenHoldersValue(st base.State) ([]base.Address, error) {
