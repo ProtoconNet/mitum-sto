@@ -54,7 +54,7 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: currency.ContractAccountStateValueHint, Instance: currency.ContractAccountStateValue{}},
 	{Hint: currency.CurrencyDesignStateValueHint, Instance: currency.CurrencyDesignStateValue{}},
 
-	{Hint: sto.STODesignStateValueHint, Instance: sto.STODesignStateValue{}},
+	{Hint: sto.DesignStateValueHint, Instance: sto.STODesignStateValue{}},
 	{Hint: sto.TokenHolderPartitionsStateValueHint, Instance: sto.TokenHolderPartitionsStateValue{}},
 	{Hint: sto.TokenHolderPartitionBalanceStateValueHint, Instance: sto.TokenHolderPartitionBalanceStateValue{}},
 	{Hint: sto.TokenHolderPartitionOperatorsStateValueHint, Instance: sto.TokenHolderPartitionOperatorsStateValue{}},
