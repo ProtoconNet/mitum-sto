@@ -18,6 +18,7 @@ type OperationCommand struct {
 	AuthorizeOperators              AuthorizeOperatorsCommand                          `cmd:"" name:"authorize-operator" help:"authorize operator"`
 	RevokeOperators                 RevokeOperatorsCommand                             `cmd:"" name:"revoke-operator" help:"revoke operator"`
 	SetDocument                     SetDocumentCommand                                 `cmd:"" name:"set-document" help:"set sto documents"`
+	CreateKYCService                CreateKYCServiceCommand                            `cmd:"" name:"create-kyc-service" help:"create kyc service to contract account"`
 	CurrencyRegister                currencycmds.CurrencyRegisterCommand               `cmd:"" name:"currency-register" help:"register new currency"`
 	CurrencyPolicyUpdater           currencycmds.CurrencyPolicyUpdaterCommand          `cmd:"" name:"currency-policy-updater" help:"update currency policy"`
 	SuffrageInflation               currencycmds.SuffrageInflationCommand              `cmd:"" name:"suffrage-inflation" help:"suffrage inflation operation"`
@@ -40,6 +41,7 @@ func NewOperationCommand() OperationCommand {
 		AuthorizeOperators:              NewAuthorizeOperatorsCommand(),
 		RevokeOperators:                 NewRevokeOperatorsCommand(),
 		SetDocument:                     NewSetDocumentCommand(),
+		CreateKYCService:                NewCreateKYCServiceCommand(),
 		CurrencyRegister:                currencycmds.NewCurrencyRegisterCommand(),
 		CurrencyPolicyUpdater:           currencycmds.NewCurrencyPolicyUpdaterCommand(),
 		SuffrageInflation:               currencycmds.NewSuffrageInflationCommand(),

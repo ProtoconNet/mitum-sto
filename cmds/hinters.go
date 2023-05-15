@@ -6,6 +6,7 @@ import (
 	mitumcurrency "github.com/ProtoconNet/mitum-currency/v2/currency"
 	digestisaac "github.com/ProtoconNet/mitum-currency/v2/digest/isaac"
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v2/isaac"
+	"github.com/ProtoconNet/mitum-sto/kyc"
 	"github.com/ProtoconNet/mitum-sto/sto"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -76,6 +77,7 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.RevokeOperatorsItemHint, Instance: sto.RevokeOperatorsItem{}},
 	{Hint: sto.RevokeOperatorsHint, Instance: sto.RevokeOperators{}},
 	{Hint: sto.SetDocumentHint, Instance: sto.SetDocument{}},
+	{Hint: kyc.CreateKYCServiceHint, Instance: kyc.CreateKYCService{}},
 
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
@@ -116,6 +118,7 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: sto.AuthorizeOperatorsFactHint, Instance: sto.AuthorizeOperatorsFact{}},
 	{Hint: sto.RevokeOperatorsFactHint, Instance: sto.RevokeOperatorsFact{}},
 	{Hint: sto.SetDocumentFactHint, Instance: sto.SetDocumentFact{}},
+	{Hint: kyc.CreateKYCServiceFactHint, Instance: kyc.CreateKYCServiceFact{}},
 }
 
 func init() {
