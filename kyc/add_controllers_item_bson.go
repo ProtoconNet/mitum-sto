@@ -22,7 +22,7 @@ func (it AddControllersItem) MarshalBSON() ([]byte, error) {
 type AddControllersItemBSONUnmarshaler struct {
 	Hint       string `bson:"_hint"`
 	Contract   string `bson:"contract"`
-	STO        string `bson:"kycid"`
+	KYC        string `bson:"kycid"`
 	Controller string `bson:"controller"`
 	Currency   string `bson:"currency"`
 }
@@ -40,5 +40,5 @@ func (it *AddControllersItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 		return e(err, "")
 	}
 
-	return it.unpack(enc, ht, uit.Contract, uit.STO, uit.Controller, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.KYC, uit.Controller, uit.Currency)
 }
