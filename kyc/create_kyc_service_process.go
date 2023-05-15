@@ -74,7 +74,7 @@ func (opp *CreateKYCServiceProcessor) PreProcess(
 
 	st, err := existsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), "key of contract account", getStateFunc)
 	if err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("contract account cannot update sto documents, %q: %w", fact.Sender(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("contract account cannot create kyc service, %q: %w", fact.Sender(), err), nil
 	}
 
 	ca, err := extensioncurrency.StateContractAccountValue(st)
