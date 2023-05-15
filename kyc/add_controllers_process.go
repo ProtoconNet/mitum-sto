@@ -143,7 +143,7 @@ func (opp *AddControllersProcessor) PreProcess(
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
-	controllers := map[string]*[]base.Address{}
+	controllers := map[string]map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
 		policy, err := existsKYCPolicy(it.Contract(), it.KYC(), getStateFunc)
@@ -151,7 +151,7 @@ func (opp *AddControllersProcessor) PreProcess(
 			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[StateKeyDesign(it.Contract(), it.KYC())] = &cons
+		controllers[StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -164,7 +164,7 @@ func (opp *AddControllersProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[StateKeyDesign(it.Contract(), it.KYC())]
+		ipc.controllers = controllers[StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to preprocess AddControllersItem: %w", err), nil
@@ -200,8 +200,7 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 		controllers[StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
 	}
 
-	ipcs := make([]*AddControllersItemProcessor, len(fact.items))
-	for i, it := range fact.Items() {
+	for _, it := range fact.Items() {
 		ip := addControllersItemProcessorPool.Get()
 		ipc, ok := ip.(*AddControllersItemProcessor)
 		if !ok {
@@ -218,7 +217,7 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 			return nil, base.NewBaseOperationProcessReasonError("failed to process AddControllersItem: %w", err), nil
 		}
 
-		ipcs[i] = ipc
+		ipc.Close()
 	}
 
 	for k, m := range controllers {
@@ -234,10 +233,6 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 				NewDesignStateValue(design),
 			))
 		}
-	}
-
-	for _, ipc := range ipcs {
-		ipc.Close()
 	}
 
 	fitems := fact.Items()
