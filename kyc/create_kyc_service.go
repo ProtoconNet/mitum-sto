@@ -87,10 +87,6 @@ func (fact CreateKYCServiceFact) IsValid(b []byte) error {
 		return util.ErrInvalid.Errorf("contract address is same with sender, %q", fact.sender)
 	}
 
-	if len(fact.controllers) == 0 {
-		return util.ErrInvalid.Errorf("empty controllers")
-	}
-
 	founds := map[string]struct{}{}
 	for _, con := range fact.controllers {
 		if err := con.IsValid(nil); err != nil {
