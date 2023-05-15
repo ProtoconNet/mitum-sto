@@ -24,6 +24,7 @@ import (
 	mitumcurrency "github.com/ProtoconNet/mitum-currency/v2/currency"
 	bsonenc "github.com/ProtoconNet/mitum-currency/v2/digest/util/bson"
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v2/isaac"
+	"github.com/ProtoconNet/mitum-sto/kyc"
 	"github.com/ProtoconNet/mitum-sto/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
@@ -182,6 +183,7 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	opr.SetProcessor(sto.AuthorizeOperatorsHint, sto.NewAuthorizeOperatorsProcessor())
 	opr.SetProcessor(sto.RevokeOperatorsHint, sto.NewRevokeOperatorsProcessor())
 	opr.SetProcessor(sto.SetDocumentHint, sto.NewSetDocumentProcessor())
+	opr.SetProcessor(kyc.CreateKYCServiceHint, kyc.NewCreateKYCServiceProcessor())
 
 	_ = set.Add(mitumcurrency.CreateAccountsHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
@@ -310,6 +312,15 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	})
 
 	_ = set.Add(sto.SetDocumentHint, func(height base.Height) (base.OperationProcessor, error) {
+		return opr.New(
+			height,
+			db.State,
+			nil,
+			nil,
+		)
+	})
+
+	_ = set.Add(kyc.CreateKYCServiceHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
 			height,
 			db.State,

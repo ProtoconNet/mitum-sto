@@ -18,12 +18,13 @@ type OperationCommand struct {
 	AuthorizeOperators              AuthorizeOperatorsCommand                          `cmd:"" name:"authorize-operator" help:"authorize operator"`
 	RevokeOperators                 RevokeOperatorsCommand                             `cmd:"" name:"revoke-operator" help:"revoke operator"`
 	SetDocument                     SetDocumentCommand                                 `cmd:"" name:"set-document" help:"set sto documents"`
-	CurrencyRegister                currencycmds.CurrencyRegisterCommand               `cmd:"" name:"currency-register" help:"register new currency"`
-	CurrencyPolicyUpdater           currencycmds.CurrencyPolicyUpdaterCommand          `cmd:"" name:"currency-policy-updater" help:"update currency policy"`
-	SuffrageInflation               currencycmds.SuffrageInflationCommand              `cmd:"" name:"suffrage-inflation" help:"suffrage inflation operation"`
-	SuffrageCandidate               currencycmds.SuffrageCandidateCommand              `cmd:"" name:"suffrage-candidate" help:"suffrage candidate operation"`
-	SuffrageJoin                    currencycmds.SuffrageJoinCommand                   `cmd:"" name:"suffrage-join" help:"suffrage join operation"`
-	SuffrageDisjoin                 currencycmds.SuffrageDisjoinCommand                `cmd:"" name:"suffrage-disjoin" help:"suffrage disjoin operation"` // revive:disable-line:line-length-limit
+	CreateKYCService                CreateKYCServiceCommand
+	CurrencyRegister                currencycmds.CurrencyRegisterCommand      `cmd:"" name:"currency-register" help:"register new currency"`
+	CurrencyPolicyUpdater           currencycmds.CurrencyPolicyUpdaterCommand `cmd:"" name:"currency-policy-updater" help:"update currency policy"`
+	SuffrageInflation               currencycmds.SuffrageInflationCommand     `cmd:"" name:"suffrage-inflation" help:"suffrage inflation operation"`
+	SuffrageCandidate               currencycmds.SuffrageCandidateCommand     `cmd:"" name:"suffrage-candidate" help:"suffrage candidate operation"`
+	SuffrageJoin                    currencycmds.SuffrageJoinCommand          `cmd:"" name:"suffrage-join" help:"suffrage join operation"`
+	SuffrageDisjoin                 currencycmds.SuffrageDisjoinCommand       `cmd:"" name:"suffrage-disjoin" help:"suffrage disjoin operation"` // revive:disable-line:line-length-limit
 }
 
 func NewOperationCommand() OperationCommand {
@@ -40,6 +41,7 @@ func NewOperationCommand() OperationCommand {
 		AuthorizeOperators:              NewAuthorizeOperatorsCommand(),
 		RevokeOperators:                 NewRevokeOperatorsCommand(),
 		SetDocument:                     NewSetDocumentCommand(),
+		CreateKYCService:                NewCreateKYCServiceCommand(),
 		CurrencyRegister:                currencycmds.NewCurrencyRegisterCommand(),
 		CurrencyPolicyUpdater:           currencycmds.NewCurrencyPolicyUpdaterCommand(),
 		SuffrageInflation:               currencycmds.NewSuffrageInflationCommand(),
