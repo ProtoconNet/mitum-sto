@@ -80,6 +80,8 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: kyc.CreateKYCServiceHint, Instance: kyc.CreateKYCService{}},
 	{Hint: kyc.AddControllersItemHint, Instance: kyc.AddControllersItem{}},
 	{Hint: kyc.AddControllersHint, Instance: kyc.AddControllers{}},
+	{Hint: kyc.RemoveControllersItemHint, Instance: kyc.RemoveControllersItem{}},
+	{Hint: kyc.RemoveControllersHint, Instance: kyc.RemoveControllers{}},
 
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
@@ -122,6 +124,7 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: sto.SetDocumentFactHint, Instance: sto.SetDocumentFact{}},
 	{Hint: kyc.CreateKYCServiceFactHint, Instance: kyc.CreateKYCServiceFact{}},
 	{Hint: kyc.AddControllersFactHint, Instance: kyc.AddControllersFact{}},
+	{Hint: kyc.RemoveControllersFactHint, Instance: kyc.RemoveControllers{}},
 }
 
 func init() {
