@@ -186,6 +186,8 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	opr.SetProcessor(kyc.CreateKYCServiceHint, kyc.NewCreateKYCServiceProcessor())
 	opr.SetProcessor(kyc.AddControllersHint, kyc.NewAddControllersProcessor())
 	opr.SetProcessor(kyc.RemoveControllersHint, kyc.NewRemoveControllersProcessor())
+	opr.SetProcessor(kyc.AddCustomersHint, kyc.NewAddCustomersProcessor())
+	opr.SetProcessor(kyc.UpdateCustomersHint, kyc.NewUpdateCustomersProcessor())
 
 	_ = set.Add(mitumcurrency.CreateAccountsHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
@@ -332,6 +334,24 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 	})
 
 	_ = set.Add(kyc.RemoveControllersHint, func(height base.Height) (base.OperationProcessor, error) {
+		return opr.New(
+			height,
+			db.State,
+			nil,
+			nil,
+		)
+	})
+
+	_ = set.Add(kyc.AddCustomersHint, func(height base.Height) (base.OperationProcessor, error) {
+		return opr.New(
+			height,
+			db.State,
+			nil,
+			nil,
+		)
+	})
+
+	_ = set.Add(kyc.UpdateCustomersHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
 			height,
 			db.State,
