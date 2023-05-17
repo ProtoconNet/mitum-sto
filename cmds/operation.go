@@ -21,6 +21,8 @@ type OperationCommand struct {
 	CreateKYCService                CreateKYCServiceCommand                            `cmd:"" name:"create-kyc-service" help:"create kyc service to contract account"`
 	AddControllers                  AddControllersCommand                              `cmd:"" name:"add-controllers" help:"add controllers to kyc service"`
 	RemoveControllers               RemoveControllersCommand                           `cmd:"" name:"remove-controllers" help:"remove controllers from key service"`
+	AddCustomers                    AddCustomersCommand                                `cmd:"" name:"add-customers" help:"add customer status to kyc service"`
+	UpdateCustomers                 UpdateCustomersCommand                             `cmd:"" name:"update-customers" help:"update registered customer status"`
 	CurrencyRegister                currencycmds.CurrencyRegisterCommand               `cmd:"" name:"currency-register" help:"register new currency"`
 	CurrencyPolicyUpdater           currencycmds.CurrencyPolicyUpdaterCommand          `cmd:"" name:"currency-policy-updater" help:"update currency policy"`
 	SuffrageInflation               currencycmds.SuffrageInflationCommand              `cmd:"" name:"suffrage-inflation" help:"suffrage inflation operation"`
@@ -46,6 +48,8 @@ func NewOperationCommand() OperationCommand {
 		CreateKYCService:                NewCreateKYCServiceCommand(),
 		AddControllers:                  NewAddControllersCommand(),
 		RemoveControllers:               NewRemoveControllersCommand(),
+		AddCustomers:                    NewAddCustomersCommand(),
+		UpdateCustomers:                 NewUpdateCustomersCommand(),
 		CurrencyRegister:                currencycmds.NewCurrencyRegisterCommand(),
 		CurrencyPolicyUpdater:           currencycmds.NewCurrencyPolicyUpdaterCommand(),
 		SuffrageInflation:               currencycmds.NewSuffrageInflationCommand(),

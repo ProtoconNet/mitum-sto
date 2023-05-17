@@ -82,6 +82,10 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: kyc.AddControllersHint, Instance: kyc.AddControllers{}},
 	{Hint: kyc.RemoveControllersItemHint, Instance: kyc.RemoveControllersItem{}},
 	{Hint: kyc.RemoveControllersHint, Instance: kyc.RemoveControllers{}},
+	{Hint: kyc.AddCustomersItemHint, Instance: kyc.AddCustomersItem{}},
+	{Hint: kyc.AddCustomersHint, Instance: kyc.AddCustomers{}},
+	{Hint: kyc.UpdateCustomersItemHint, Instance: kyc.UpdateCustomersItem{}},
+	{Hint: kyc.UpdateCustomersHint, Instance: kyc.UpdateCustomers{}},
 
 	{Hint: digestisaac.ManifestHint, Instance: digestisaac.Manifest{}},
 	{Hint: digest.AccountValueHint, Instance: digest.AccountValue{}},
@@ -122,9 +126,12 @@ var supportedProposalOperationFactHinters = []encoder.DecodeDetail{
 	{Hint: sto.AuthorizeOperatorsFactHint, Instance: sto.AuthorizeOperatorsFact{}},
 	{Hint: sto.RevokeOperatorsFactHint, Instance: sto.RevokeOperatorsFact{}},
 	{Hint: sto.SetDocumentFactHint, Instance: sto.SetDocumentFact{}},
+
 	{Hint: kyc.CreateKYCServiceFactHint, Instance: kyc.CreateKYCServiceFact{}},
 	{Hint: kyc.AddControllersFactHint, Instance: kyc.AddControllersFact{}},
 	{Hint: kyc.RemoveControllersFactHint, Instance: kyc.RemoveControllers{}},
+	{Hint: kyc.AddCustomersFactHint, Instance: kyc.AddCustomersFact{}},
+	{Hint: kyc.UpdateCustomersFactHint, Instance: kyc.UpdateCustomersFact{}},
 }
 
 func init() {
