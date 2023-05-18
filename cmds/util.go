@@ -333,6 +333,15 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 		)
 	})
 
+	_ = set.Add(kyc.AddControllersHint, func(height base.Height) (base.OperationProcessor, error) {
+		return opr.New(
+			height,
+			db.State,
+			nil,
+			nil,
+		)
+	})
+
 	_ = set.Add(kyc.RemoveControllersHint, func(height base.Height) (base.OperationProcessor, error) {
 		return opr.New(
 			height,
