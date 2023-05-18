@@ -77,6 +77,11 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.RevokeOperatorsItemHint, Instance: sto.RevokeOperatorsItem{}},
 	{Hint: sto.RevokeOperatorsHint, Instance: sto.RevokeOperators{}},
 	{Hint: sto.SetDocumentHint, Instance: sto.SetDocument{}},
+
+	{Hint: kyc.KYCDesignHint, Instance: kyc.KYCDesign{}},
+	{Hint: kyc.KYCDesignStateValueHint, Instance: kyc.KYCDesignStateValue{}},
+	{Hint: kyc.KYCPolicyHint, Instance: kyc.KYCPolicy{}},
+	{Hint: kyc.CustomerStateValueHint, Instance: kyc.CustomerStateValue{}},
 	{Hint: kyc.CreateKYCServiceHint, Instance: kyc.CreateKYCService{}},
 	{Hint: kyc.AddControllersItemHint, Instance: kyc.AddControllersItem{}},
 	{Hint: kyc.AddControllersHint, Instance: kyc.AddControllers{}},

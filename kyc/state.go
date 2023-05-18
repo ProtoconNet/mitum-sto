@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	KYCPrefix            = "kyc:"
-	DesignStateValueHint = hint.MustNewHint("mitum-kyc-design-state-value-v0.0.1")
-	DesignSuffix         = ":design"
-	CustomerSuffix       = ":customer"
+	KYCPrefix               = "kyc:"
+	KYCDesignStateValueHint = hint.MustNewHint("mitum-kyc-design-state-value-v0.0.1")
+	KYCDesignSuffix         = ":design"
+	CustomerSuffix          = ":customer"
 )
 
 type StateValueMerger struct {
@@ -48,26 +48,26 @@ func StateKeyKYCPrefix(addr base.Address, kycID extensioncurrency.ContractID) st
 	return fmt.Sprintf("%s%s:%s", KYCPrefix, addr.String(), kycID)
 }
 
-type DesignStateValue struct {
+type KYCDesignStateValue struct {
 	hint.BaseHinter
-	Design Design
+	Design KYCDesign
 }
 
-func NewDesignStateValue(design Design) DesignStateValue {
-	return DesignStateValue{
-		BaseHinter: hint.NewBaseHinter(DesignStateValueHint),
+func NewKYCDesignStateValue(design KYCDesign) KYCDesignStateValue {
+	return KYCDesignStateValue{
+		BaseHinter: hint.NewBaseHinter(KYCDesignStateValueHint),
 		Design:     design,
 	}
 }
 
-func (sd DesignStateValue) Hint() hint.Hint {
+func (sd KYCDesignStateValue) Hint() hint.Hint {
 	return sd.BaseHinter.Hint()
 }
 
-func (sd DesignStateValue) IsValid([]byte) error {
-	e := util.ErrInvalid.Errorf("invalid STODesignStateValue")
+func (sd KYCDesignStateValue) IsValid([]byte) error {
+	e := util.ErrInvalid.Errorf("invalid STOKYCDesignStateValue")
 
-	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
+	if err := sd.BaseHinter.IsValid(KYCDesignStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
 	}
 
@@ -78,31 +78,31 @@ func (sd DesignStateValue) IsValid([]byte) error {
 	return nil
 }
 
-func (sd DesignStateValue) HashBytes() []byte {
+func (sd KYCDesignStateValue) HashBytes() []byte {
 	return sd.Design.Bytes()
 }
 
-func StateDesignValue(st base.State) (Design, error) {
+func StateKYCDesignValue(st base.State) (KYCDesign, error) {
 	v := st.Value()
 	if v == nil {
-		return Design{}, util.ErrNotFound.Errorf("kyc design not found in State")
+		return KYCDesign{}, util.ErrNotFound.Errorf("kyc design not found in State")
 	}
 
-	d, ok := v.(DesignStateValue)
+	d, ok := v.(KYCDesignStateValue)
 	if !ok {
-		return Design{}, errors.Errorf("invalid kyc design value found, %T", v)
+		return KYCDesign{}, errors.Errorf("invalid kyc design value found, %T", v)
 	}
 
 	return d.Design, nil
 }
 
-func IsStateDesignKey(key string) bool {
-	return strings.HasPrefix(key, KYCPrefix) && strings.HasSuffix(key, DesignSuffix)
+func IsStateKYCDesignKey(key string) bool {
+	return strings.HasPrefix(key, KYCPrefix) && strings.HasSuffix(key, KYCDesignSuffix)
 }
 
 // kyc:{address}:{kycID}:design
-func StateKeyDesign(addr base.Address, sid extensioncurrency.ContractID) string {
-	return fmt.Sprintf("%s%s", StateKeyKYCPrefix(addr, sid), DesignSuffix)
+func StateKeyKYCDesign(addr base.Address, sid extensioncurrency.ContractID) string {
+	return fmt.Sprintf("%s%s", StateKeyKYCPrefix(addr, sid), KYCDesignSuffix)
 }
 
 type Status bool
@@ -128,7 +128,7 @@ func (sd CustomerStateValue) Hint() hint.Hint {
 func (sd CustomerStateValue) IsValid([]byte) error {
 	e := util.ErrInvalid.Errorf("invalid kyc CustomerStateValue")
 
-	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
+	if err := sd.BaseHinter.IsValid(KYCDesignStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
 	}
 
@@ -245,15 +245,15 @@ func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFun
 
 func existsKYCPolicy(addr base.Address, kycid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (KYCPolicy, error) {
 	var policy KYCPolicy
-	switch i, found, err := getStateFunc(StateKeyDesign(addr, kycid)); {
+	switch i, found, err := getStateFunc(StateKeyKYCDesign(addr, kycid)); {
 	case err != nil:
 		return KYCPolicy{}, err
 	case !found:
 		return KYCPolicy{}, base.NewBaseOperationProcessReasonError("kyc not found, %s-%s", addr, kycid)
 	default:
-		design, ok := i.Value().(DesignStateValue) //nolint:forcetypeassert //...
+		design, ok := i.Value().(KYCDesignStateValue) //nolint:forcetypeassert //...
 		if !ok {
-			return KYCPolicy{}, errors.Errorf("expected DesignStateValue, not %T", i.Value())
+			return KYCPolicy{}, errors.Errorf("expected KYCDesignStateValue, not %T", i.Value())
 		}
 		policy = design.Design.Policy()
 	}
