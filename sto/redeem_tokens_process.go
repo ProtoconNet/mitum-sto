@@ -151,7 +151,7 @@ func (ipp *RedeemTokensItemProcessor) Process(
 	aggr := policy.Aggregate().Sub(it.Amount())
 
 	if (*ipp.partitionBalance).OverZero() {
-		policy = NewSTOPolicy(policy.Partitions(), aggr, policy.Controllers(), policy.Documents())
+		policy = NewPolicy(policy.Partitions(), aggr, policy.Controllers(), policy.Documents())
 		if err := policy.IsValid(nil); err != nil {
 			return nil, err
 		}
@@ -166,7 +166,7 @@ func (ipp *RedeemTokensItemProcessor) Process(
 			}
 		}
 
-		policy = NewSTOPolicy(partitions, aggr, policy.Controllers(), policy.Documents())
+		policy = NewPolicy(partitions, aggr, policy.Controllers(), policy.Documents())
 		if err := policy.IsValid(nil); err != nil {
 			return nil, err
 		}

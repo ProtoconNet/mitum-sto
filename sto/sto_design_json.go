@@ -13,7 +13,7 @@ type DesignJSONMarshaler struct {
 	hint.BaseHinter
 	STO         extensioncurrency.ContractID `json:"stoid"`
 	Granularity uint64                       `json:"granularity"`
-	Policy      STOPolicy                    `json:"policy"`
+	Policy      Policy                       `json:"policy"`
 }
 
 func (de Design) MarshalJSON() ([]byte, error) {

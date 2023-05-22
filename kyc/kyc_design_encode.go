@@ -15,8 +15,8 @@ func (de *Design) unpack(enc encoder.Encoder, ht hint.Hint, kyc string, bpo []by
 
 	if hinter, err := enc.Decode(bpo); err != nil {
 		return e(err, "")
-	} else if po, ok := hinter.(KYCPolicy); !ok {
-		return e(util.ErrWrongType.Errorf("expected KYCPolicy, not %T", hinter), "")
+	} else if po, ok := hinter.(Policy); !ok {
+		return e(util.ErrWrongType.Errorf("expected Policy, not %T", hinter), "")
 	} else {
 		de.policy = po
 	}

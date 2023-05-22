@@ -9,7 +9,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-type STOPolicyJSONMarshaler struct {
+type PolicyJSONMarshaler struct {
 	hint.BaseHinter
 	Partitions  []Partition    `json:"partitions"`
 	Aggregate   string         `json:"aggregate"`
@@ -17,8 +17,8 @@ type STOPolicyJSONMarshaler struct {
 	Documents   []Document     `json:"documents"`
 }
 
-func (po STOPolicy) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(STOPolicyJSONMarshaler{
+func (po Policy) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(PolicyJSONMarshaler{
 		BaseHinter:  po.BaseHinter,
 		Partitions:  po.partitions,
 		Aggregate:   po.aggregate.String(),
@@ -27,7 +27,7 @@ func (po STOPolicy) MarshalJSON() ([]byte, error) {
 	})
 }
 
-type STOPolicyJSONUnmarshaler struct {
+type PolicyJSONUnmarshaler struct {
 	Hint        hint.Hint       `json:"_hint"`
 	Partitions  []string        `json:"partitions"`
 	Aggregate   string          `json:"aggregate"`
@@ -35,10 +35,10 @@ type STOPolicyJSONUnmarshaler struct {
 	Documents   json.RawMessage `json:"documents"`
 }
 
-func (po *STOPolicy) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of STOPolicy")
+func (po *Policy) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of Policy")
 
-	var upo STOPolicyJSONUnmarshaler
+	var upo PolicyJSONUnmarshaler
 	if err := enc.Unmarshal(b, &upo); err != nil {
 		return e(err, "")
 	}

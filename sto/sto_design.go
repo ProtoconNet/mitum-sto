@@ -14,10 +14,10 @@ type Design struct {
 	hint.BaseHinter
 	stoID       extensioncurrency.ContractID
 	granularity uint64
-	policy      STOPolicy
+	policy      Policy
 }
 
-func NewDesign(stoID extensioncurrency.ContractID, granularity uint64, policy STOPolicy) Design {
+func NewDesign(stoID extensioncurrency.ContractID, granularity uint64, policy Policy) Design {
 	return Design{
 		BaseHinter:  hint.NewBaseHinter(DesignHint),
 		stoID:       stoID,
@@ -58,11 +58,11 @@ func (s Design) Granularity() uint64 {
 	return s.granularity
 }
 
-func (s Design) Policy() STOPolicy {
+func (s Design) Policy() Policy {
 	return s.policy
 }
 
-func (s Design) SetPolicy(po STOPolicy) Design {
+func (s Design) SetPolicy(po Policy) Design {
 	s.policy = po
 
 	return s

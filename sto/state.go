@@ -610,17 +610,17 @@ func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFun
 	return policy, nil
 }
 
-func existsSTOPolicy(addr base.Address, sid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (STOPolicy, error) {
-	var policy STOPolicy
+func existsPolicy(addr base.Address, sid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (Policy, error) {
+	var policy Policy
 	switch i, found, err := getStateFunc(StateKeyDesign(addr, sid)); {
 	case err != nil:
-		return STOPolicy{}, err
+		return Policy{}, err
 	case !found:
-		return STOPolicy{}, base.NewBaseOperationProcessReasonError("sto not found, %s-%s", addr, sid)
+		return Policy{}, base.NewBaseOperationProcessReasonError("sto not found, %s-%s", addr, sid)
 	default:
 		design, ok := i.Value().(DesignStateValue) //nolint:forcetypeassert //...
 		if !ok {
-			return STOPolicy{}, errors.Errorf("expected DesignStateValue, not %T", i.Value())
+			return Policy{}, errors.Errorf("expected DesignStateValue, not %T", i.Value())
 		}
 		policy = design.Design.Policy()
 	}

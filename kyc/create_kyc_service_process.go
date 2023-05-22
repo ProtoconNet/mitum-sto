@@ -108,7 +108,7 @@ func (opp *CreateKYCServiceProcessor) Process(
 		return nil, nil, e(nil, "expected CreateKYCServiceFact, not %T", op.Fact())
 	}
 
-	policy := NewKYCPolicy(fact.Controllers())
+	policy := NewPolicy(fact.Controllers())
 	if err := policy.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid kyc policy, %s-%s: %w", fact.Contract(), fact.KYC(), err), nil
 	}

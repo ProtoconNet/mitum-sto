@@ -146,7 +146,7 @@ func (opp *AddControllersProcessor) PreProcess(
 	controllers := map[string]map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := existsKYCPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := existsPolicy(it.Contract(), it.KYC(), getStateFunc)
 		if err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
 		}
@@ -192,7 +192,7 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 	controllers := map[string]map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := existsKYCPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := existsPolicy(it.Contract(), it.KYC(), getStateFunc)
 		if err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
 		}
@@ -222,7 +222,7 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 
 	for k, m := range controllers {
 		for id, cons := range m {
-			policy := NewKYCPolicy(*cons)
+			policy := NewPolicy(*cons)
 			design := NewDesign(extensioncurrency.ContractID(id), policy)
 			if err := design.IsValid(nil); err != nil {
 				return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil

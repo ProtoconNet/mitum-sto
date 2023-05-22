@@ -8,10 +8,10 @@ import (
 )
 
 var (
-	STOPolicyHint = hint.MustNewHint("mitum-sto-policy-v0.0.1")
+	PolicyHint = hint.MustNewHint("mitum-sto-policy-v0.0.1")
 )
 
-type STOPolicy struct {
+type Policy struct {
 	hint.BaseHinter
 	partitions  []Partition
 	aggregate   currency.Big
@@ -19,9 +19,9 @@ type STOPolicy struct {
 	documents   []Document
 }
 
-func NewSTOPolicy(partitions []Partition, aggregate currency.Big, controllers []base.Address, documents []Document) STOPolicy {
-	return STOPolicy{
-		BaseHinter:  hint.NewBaseHinter(STOPolicyHint),
+func NewPolicy(partitions []Partition, aggregate currency.Big, controllers []base.Address, documents []Document) Policy {
+	return Policy{
+		BaseHinter:  hint.NewBaseHinter(PolicyHint),
 		partitions:  partitions,
 		aggregate:   aggregate,
 		controllers: controllers,
@@ -29,7 +29,7 @@ func NewSTOPolicy(partitions []Partition, aggregate currency.Big, controllers []
 	}
 }
 
-func (po STOPolicy) Bytes() []byte {
+func (po Policy) Bytes() []byte {
 	bs := make([][]byte, len(po.partitions)+len(po.controllers)+len(po.documents))
 	for i, p := range po.partitions {
 		bs[i] = p.Bytes()
@@ -47,7 +47,7 @@ func (po STOPolicy) Bytes() []byte {
 	)
 }
 
-func (po STOPolicy) IsValid([]byte) error {
+func (po Policy) IsValid([]byte) error {
 	if len(po.partitions) == 0 {
 		return util.ErrInvalid.Errorf("empty partitions")
 	}
@@ -75,18 +75,18 @@ func (po STOPolicy) IsValid([]byte) error {
 	return nil
 }
 
-func (po STOPolicy) Partitions() []Partition {
+func (po Policy) Partitions() []Partition {
 	return po.partitions
 }
 
-func (po STOPolicy) Aggregate() currency.Big {
+func (po Policy) Aggregate() currency.Big {
 	return po.aggregate
 }
 
-func (po STOPolicy) Controllers() []base.Address {
+func (po Policy) Controllers() []base.Address {
 	return po.controllers
 }
 
-func (po STOPolicy) Documents() []Document {
+func (po Policy) Documents() []Document {
 	return po.documents
 }

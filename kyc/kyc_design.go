@@ -13,10 +13,10 @@ var (
 type Design struct {
 	hint.BaseHinter
 	kycID  extensioncurrency.ContractID
-	policy KYCPolicy
+	policy Policy
 }
 
-func NewDesign(kycID extensioncurrency.ContractID, policy KYCPolicy) Design {
+func NewDesign(kycID extensioncurrency.ContractID, policy Policy) Design {
 	return Design{
 		BaseHinter: hint.NewBaseHinter(DesignHint),
 		kycID:      kycID,
@@ -51,11 +51,11 @@ func (k Design) KYC() extensioncurrency.ContractID {
 	return k.kycID
 }
 
-func (k Design) Policy() KYCPolicy {
+func (k Design) Policy() Policy {
 	return k.policy
 }
 
-func (k Design) SetPolicy(po KYCPolicy) Design {
+func (k Design) SetPolicy(po Policy) Design {
 	k.policy = po
 
 	return k
