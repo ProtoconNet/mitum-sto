@@ -1,4 +1,4 @@
-package sto
+package kyc
 
 import (
 	"encoding/json"
@@ -11,25 +11,22 @@ import (
 
 type DesignJSONMarshaler struct {
 	hint.BaseHinter
-	STO         extensioncurrency.ContractID `json:"stoid"`
-	Granularity uint64                       `json:"granularity"`
-	Policy      STOPolicy                    `json:"policy"`
+	KYC    extensioncurrency.ContractID `json:"kycid"`
+	Policy KYCPolicy                    `json:"policy"`
 }
 
 func (de Design) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(DesignJSONMarshaler{
-		BaseHinter:  de.BaseHinter,
-		STO:         de.stoID,
-		Granularity: de.granularity,
-		Policy:      de.policy,
+		BaseHinter: de.BaseHinter,
+		KYC:        de.kycID,
+		Policy:     de.policy,
 	})
 }
 
 type DesignJSONUnmarshaler struct {
-	Hint        hint.Hint       `json:"_hint"`
-	STO         string          `json:"stoid"`
-	Granularity uint64          `json:"granularity"`
-	Policy      json.RawMessage `json:"policy"`
+	Hint   hint.Hint       `json:"_hint"`
+	KYC    string          `json:"kycid"`
+	Policy json.RawMessage `json:"policy"`
 }
 
 func (de *Design) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
@@ -40,5 +37,5 @@ func (de *Design) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 		return e(err, "")
 	}
 
-	return de.unpack(enc, ud.Hint, ud.STO, ud.Granularity, ud.Policy)
+	return de.unpack(enc, ud.Hint, ud.KYC, ud.Policy)
 }

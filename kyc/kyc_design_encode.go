@@ -1,4 +1,4 @@
-package sto
+package kyc
 
 import (
 	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
@@ -7,17 +7,16 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (de *Design) unpack(enc encoder.Encoder, ht hint.Hint, sto string, gra uint64, bpo []byte) error {
+func (de *Design) unpack(enc encoder.Encoder, ht hint.Hint, kyc string, bpo []byte) error {
 	e := util.StringErrorFunc("failed to decode bson of Design")
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
-	de.stoID = extensioncurrency.ContractID(sto)
-	de.granularity = gra
+	de.kycID = extensioncurrency.ContractID(kyc)
 
 	if hinter, err := enc.Decode(bpo); err != nil {
 		return e(err, "")
-	} else if po, ok := hinter.(STOPolicy); !ok {
-		return e(util.ErrWrongType.Errorf("expected STOPolicy, not %T", hinter), "")
+	} else if po, ok := hinter.(KYCPolicy); !ok {
+		return e(util.ErrWrongType.Errorf("expected KYCPolicy, not %T", hinter), "")
 	} else {
 		de.policy = po
 	}

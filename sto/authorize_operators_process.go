@@ -46,7 +46,7 @@ func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
 		return err
 	}
 
-	if err := checkExistsState(StateKeySTODesign(it.Contract(), it.STO()), getStateFunc); err != nil {
+	if err := checkExistsState(StateKeyDesign(it.Contract(), it.STO()), getStateFunc); err != nil {
 		return err
 	}
 

@@ -53,12 +53,12 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 		return err
 	}
 
-	st, err := existsState(StateKeySTODesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
+	st, err := existsState(StateKeyDesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
 	if err != nil {
 		return err
 	}
 
-	design, err := StateSTODesignValue(st)
+	design, err := StateDesignValue(st)
 	if err != nil {
 		return err
 	}
@@ -101,12 +101,12 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 
 	it := ipp.item
 
-	st, err := existsState(StateKeySTODesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
+	st, err := existsState(StateKeyDesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
 	if err != nil {
 		return nil, err
 	}
 
-	design, err := StateSTODesignValue(st)
+	design, err := StateDesignValue(st)
 	if err != nil {
 		return nil, err
 	}
@@ -133,14 +133,14 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 		return nil, err
 	}
 
-	design = NewSTODesign(design.STO(), design.Granularity(), policy)
+	design = NewDesign(design.STO(), design.Granularity(), policy)
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
 
 	sts[0] = NewStateMergeValue(
-		StateKeySTODesign(it.Contract(), it.STO()),
-		NewSTODesignStateValue(design),
+		StateKeyDesign(it.Contract(), it.STO()),
+		NewDesignStateValue(design),
 	)
 
 	sts[1] = NewStateMergeValue(

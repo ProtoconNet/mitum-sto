@@ -49,24 +49,24 @@ func StateKeySTOPrefix(addr base.Address, stoID extensioncurrency.ContractID) st
 	return fmt.Sprintf("%s%s-%s", STOPrefix, addr.String(), stoID)
 }
 
-type STODesignStateValue struct {
+type DesignStateValue struct {
 	hint.BaseHinter
-	Design STODesign
+	Design Design
 }
 
-func NewSTODesignStateValue(design STODesign) STODesignStateValue {
-	return STODesignStateValue{
+func NewDesignStateValue(design Design) DesignStateValue {
+	return DesignStateValue{
 		BaseHinter: hint.NewBaseHinter(DesignStateValueHint),
 		Design:     design,
 	}
 }
 
-func (sd STODesignStateValue) Hint() hint.Hint {
+func (sd DesignStateValue) Hint() hint.Hint {
 	return sd.BaseHinter.Hint()
 }
 
-func (sd STODesignStateValue) IsValid([]byte) error {
-	e := util.ErrInvalid.Errorf("invalid STODesignStateValue")
+func (sd DesignStateValue) IsValid([]byte) error {
+	e := util.ErrInvalid.Errorf("invalid DesignStateValue")
 
 	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
@@ -79,30 +79,30 @@ func (sd STODesignStateValue) IsValid([]byte) error {
 	return nil
 }
 
-func (sd STODesignStateValue) HashBytes() []byte {
+func (sd DesignStateValue) HashBytes() []byte {
 	return sd.Design.Bytes()
 }
 
-func StateSTODesignValue(st base.State) (STODesign, error) {
+func StateDesignValue(st base.State) (Design, error) {
 	v := st.Value()
 	if v == nil {
-		return STODesign{}, util.ErrNotFound.Errorf("sto design not found in State")
+		return Design{}, util.ErrNotFound.Errorf("sto design not found in State")
 	}
 
-	d, ok := v.(STODesignStateValue)
+	d, ok := v.(DesignStateValue)
 	if !ok {
-		return STODesign{}, errors.Errorf("invalid sto design value found, %T", v)
+		return Design{}, errors.Errorf("invalid sto design value found, %T", v)
 	}
 
 	return d.Design, nil
 }
 
-func IsStateSTODesignKey(key string) bool {
+func IsStateDesignKey(key string) bool {
 	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, DesignSuffix)
 }
 
 // sto:address-stoID:design
-func StateKeySTODesign(addr base.Address, sid extensioncurrency.ContractID) string {
+func StateKeyDesign(addr base.Address, sid extensioncurrency.ContractID) string {
 	return fmt.Sprintf("%s%s", StateKeySTOPrefix(addr, sid), DesignSuffix)
 }
 
@@ -612,15 +612,15 @@ func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFun
 
 func existsSTOPolicy(addr base.Address, sid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (STOPolicy, error) {
 	var policy STOPolicy
-	switch i, found, err := getStateFunc(StateKeySTODesign(addr, sid)); {
+	switch i, found, err := getStateFunc(StateKeyDesign(addr, sid)); {
 	case err != nil:
 		return STOPolicy{}, err
 	case !found:
 		return STOPolicy{}, base.NewBaseOperationProcessReasonError("sto not found, %s-%s", addr, sid)
 	default:
-		design, ok := i.Value().(STODesignStateValue) //nolint:forcetypeassert //...
+		design, ok := i.Value().(DesignStateValue) //nolint:forcetypeassert //...
 		if !ok {
-			return STOPolicy{}, errors.Errorf("expected STODesignStateValue, not %T", i.Value())
+			return STOPolicy{}, errors.Errorf("expected DesignStateValue, not %T", i.Value())
 		}
 		policy = design.Design.Policy()
 	}

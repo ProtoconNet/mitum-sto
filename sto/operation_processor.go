@@ -8,6 +8,7 @@ import (
 
 	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
 	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	"github.com/ProtoconNet/mitum-sto/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -276,6 +277,41 @@ func (opr *OperationProcessor) checkDuplication(op base.Operation) error {
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
+	case kyc.CreateKYCService:
+		fact, ok := t.Fact().(kyc.CreateKYCServiceFact)
+		if !ok {
+			return errors.Errorf("expected CreateKYCServiceFact, not %T", t.Fact())
+		}
+		did = fact.Sender().String()
+		didtype = DuplicationTypeSender
+	case kyc.AddControllers:
+		fact, ok := t.Fact().(kyc.AddControllersFact)
+		if !ok {
+			return errors.Errorf("expected AddControllersFact, not %T", t.Fact())
+		}
+		did = fact.Sender().String()
+		didtype = DuplicationTypeSender
+	case kyc.RemoveControllers:
+		fact, ok := t.Fact().(kyc.RemoveControllersFact)
+		if !ok {
+			return errors.Errorf("expected RemoveControllersFact, not %T", t.Fact())
+		}
+		did = fact.Sender().String()
+		didtype = DuplicationTypeSender
+	case kyc.AddCustomers:
+		fact, ok := t.Fact().(kyc.AddCustomersFact)
+		if !ok {
+			return errors.Errorf("expected AddCustomersFact, not %T", t.Fact())
+		}
+		did = fact.Sender().String()
+		didtype = DuplicationTypeSender
+	case kyc.UpdateCustomers:
+		fact, ok := t.Fact().(kyc.UpdateCustomersFact)
+		if !ok {
+			return errors.Errorf("expected UpdateCustomersFact, not %T", t.Fact())
+		}
+		did = fact.Sender().String()
+		didtype = DuplicationTypeSender
 	default:
 		return nil
 	}
@@ -359,7 +395,12 @@ func (opr *OperationProcessor) getNewProcessor(op base.Operation) (base.Operatio
 		RedeemTokens,
 		RevokeOperators,
 		SetDocument,
-		TransferSecurityTokensPartition:
+		TransferSecurityTokensPartition,
+		kyc.CreateKYCService,
+		kyc.AddControllers,
+		kyc.RemoveControllers,
+		kyc.AddCustomers,
+		kyc.UpdateCustomers:
 		return nil, false, errors.Errorf("%T needs SetProcessor", t)
 	default:
 		return nil, false, nil

@@ -1,4 +1,4 @@
-package sto
+package kyc
 
 import (
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,19 +11,17 @@ import (
 func (de Design) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
-			"_hint":       de.Hint().String(),
-			"stoid":       de.stoID,
-			"granularity": de.granularity,
-			"policy":      de.policy,
+			"_hint":  de.Hint().String(),
+			"kycid":  de.kycID,
+			"policy": de.policy,
 		},
 	)
 }
 
 type DesignBSONUnmarshaler struct {
-	Hint        string   `bson:"_hint"`
-	STO         string   `bson:"stoid"`
-	Granularity uint64   `bson:"granularity"`
-	Policy      bson.Raw `bson:"policy"`
+	Hint   string   `bson:"_hint"`
+	KYC    string   `bson:"kycid"`
+	Policy bson.Raw `bson:"policy"`
 }
 
 func (de *Design) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
@@ -39,5 +37,5 @@ func (de *Design) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 		return e(err, "")
 	}
 
-	return de.unpack(enc, ht, ud.STO, ud.Granularity, ud.Policy)
+	return de.unpack(enc, ht, ud.KYC, ud.Policy)
 }

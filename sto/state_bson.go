@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (de STODesignStateValue) MarshalBSON() ([]byte, error) {
+func (de DesignStateValue) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint": de.Hint().String(),
@@ -18,15 +18,15 @@ func (de STODesignStateValue) MarshalBSON() ([]byte, error) {
 	)
 }
 
-type STODesignStateValueBSONUnmarshaler struct {
+type DesignStateValueBSONUnmarshaler struct {
 	Hint string   `bson:"_hint"`
 	STO  bson.Raw `bson:"sto"`
 }
 
-func (de *STODesignStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of STODesignStateValue")
+func (de *DesignStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of DesignStateValue")
 
-	var u STODesignStateValueBSONUnmarshaler
+	var u DesignStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
 		return e(err, "")
 	}
@@ -38,7 +38,7 @@ func (de *STODesignStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error 
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 
-	var design STODesign
+	var design Design
 	if err := design.DecodeBSON(u.STO, enc); err != nil {
 		return e(err, "")
 	}

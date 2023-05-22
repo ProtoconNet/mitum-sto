@@ -119,12 +119,12 @@ func (opp *SetDocumentProcessor) Process(
 		return nil, base.NewBaseOperationProcessReasonError("invalid sto document, %q: %w", fact.DocumentHash(), err), nil
 	}
 
-	st, err := existsState(StateKeySTODesign(fact.Contract(), fact.STO()), "key of sto design", getStateFunc)
+	st, err := existsState(StateKeyDesign(fact.Contract(), fact.STO()), "key of sto design", getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("sto design not found, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}
 
-	design, err := StateSTODesignValue(st)
+	design, err := StateDesignValue(st)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("sto design value not found, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}
@@ -135,7 +135,7 @@ func (opp *SetDocumentProcessor) Process(
 		return nil, base.NewBaseOperationProcessReasonError("invalid sto policy, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}
 
-	design = NewSTODesign(design.STO(), design.Granularity(), stoPolicy)
+	design = NewDesign(design.STO(), design.Granularity(), stoPolicy)
 	if err := design.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid sto design, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}
@@ -143,8 +143,8 @@ func (opp *SetDocumentProcessor) Process(
 	sts := make([]base.StateMergeValue, 2)
 
 	sts[0] = NewStateMergeValue(
-		StateKeySTODesign(fact.Contract(), fact.STO()),
-		NewSTODesignStateValue(design),
+		StateKeyDesign(fact.Contract(), fact.STO()),
+		NewDesignStateValue(design),
 	)
 
 	currencyPolicy, err := existsCurrencyPolicy(fact.Currency(), getStateFunc)
