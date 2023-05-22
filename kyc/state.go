@@ -65,7 +65,7 @@ func (sd DesignStateValue) Hint() hint.Hint {
 }
 
 func (sd DesignStateValue) IsValid([]byte) error {
-	e := util.ErrInvalid.Errorf("invalid STODesignStateValue")
+	e := util.ErrInvalid.Errorf("invalid DesignStateValue")
 
 	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
