@@ -78,12 +78,12 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
 		}
 	}
 
-	st, err := existsState(StateKeySTODesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
+	st, err := existsState(StateKeyDesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
 	if err != nil {
 		return err
 	}
 
-	design, err := StateSTODesignValue(st)
+	design, err := StateDesignValue(st)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (de STODesign) MarshalBSON() ([]byte, error) {
+func (de Design) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":       de.Hint().String(),
@@ -19,17 +19,17 @@ func (de STODesign) MarshalBSON() ([]byte, error) {
 	)
 }
 
-type STODesignBSONUnmarshaler struct {
+type DesignBSONUnmarshaler struct {
 	Hint        string   `bson:"_hint"`
 	STO         string   `bson:"stoid"`
 	Granularity uint64   `bson:"granularity"`
 	Policy      bson.Raw `bson:"policy"`
 }
 
-func (de *STODesign) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of STODesign")
+func (de *Design) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of Design")
 
-	var ud STODesignBSONUnmarshaler
+	var ud DesignBSONUnmarshaler
 	if err := enc.Unmarshal(b, &ud); err != nil {
 		return e(err, "")
 	}

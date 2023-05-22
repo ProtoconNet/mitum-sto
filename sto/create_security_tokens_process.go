@@ -43,7 +43,7 @@ func (ipp *CreateSecurityTokensItemProcessor) PreProcess(
 		return err
 	}
 
-	if err := checkNotExistsState(StateKeySTODesign(it.Contract(), it.STO()), getStateFunc); err != nil {
+	if err := checkNotExistsState(StateKeyDesign(it.Contract(), it.STO()), getStateFunc); err != nil {
 		return err
 	}
 
@@ -76,15 +76,15 @@ func (ipp *CreateSecurityTokensItemProcessor) Process(
 	documents := []Document{}
 
 	policy := NewSTOPolicy(partitions, currency.NewBig(0), it.Controllers(), documents)
-	design := NewSTODesign(it.STO(), it.Granularity(), policy)
+	design := NewDesign(it.STO(), it.Granularity(), policy)
 
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
 
 	sts[0] = NewStateMergeValue(
-		StateKeySTODesign(it.Contract(), it.STO()),
-		NewSTODesignStateValue(design),
+		StateKeyDesign(it.Contract(), it.STO()),
+		NewDesignStateValue(design),
 	)
 	sts[1] = NewStateMergeValue(
 		StateKeyPartitionBalance(it.Contract(), it.STO(), it.DefaultPartition()),

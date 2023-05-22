@@ -9,15 +9,15 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-type STODesignJSONMarshaler struct {
+type DesignJSONMarshaler struct {
 	hint.BaseHinter
 	STO         extensioncurrency.ContractID `json:"stoid"`
 	Granularity uint64                       `json:"granularity"`
 	Policy      STOPolicy                    `json:"policy"`
 }
 
-func (de STODesign) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(STODesignJSONMarshaler{
+func (de Design) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(DesignJSONMarshaler{
 		BaseHinter:  de.BaseHinter,
 		STO:         de.stoID,
 		Granularity: de.granularity,
@@ -25,17 +25,17 @@ func (de STODesign) MarshalJSON() ([]byte, error) {
 	})
 }
 
-type STODesignJSONUnmarshaler struct {
+type DesignJSONUnmarshaler struct {
 	Hint        hint.Hint       `json:"_hint"`
 	STO         string          `json:"stoid"`
 	Granularity uint64          `json:"granularity"`
 	Policy      json.RawMessage `json:"policy"`
 }
 
-func (de *STODesign) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of STODesign")
+func (de *Design) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of Design")
 
-	var ud STODesignJSONUnmarshaler
+	var ud DesignJSONUnmarshaler
 	if err := enc.Unmarshal(b, &ud); err != nil {
 		return e(err, "")
 	}

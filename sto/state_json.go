@@ -10,31 +10,31 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-type STODesignStateValueJSONMarshaler struct {
+type DesignStateValueJSONMarshaler struct {
 	hint.BaseHinter
-	STO STODesign `json:"sto"`
+	STO Design `json:"sto"`
 }
 
-func (de STODesignStateValue) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(STODesignStateValueJSONMarshaler{
+func (de DesignStateValue) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(DesignStateValueJSONMarshaler{
 		BaseHinter: de.BaseHinter,
 		STO:        de.Design,
 	})
 }
 
-type STODesignStateValueJSONUnmarshaler struct {
+type DesignStateValueJSONUnmarshaler struct {
 	STO json.RawMessage `json:"sto"`
 }
 
-func (de *STODesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of STODesignStateValue")
+func (de *DesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of DesignStateValue")
 
-	var u STODesignStateValueJSONUnmarshaler
+	var u DesignStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
 		return e(err, "")
 	}
 
-	var design STODesign
+	var design Design
 
 	if err := design.DecodeJSON(u.STO, enc); err != nil {
 		return e(err, "")

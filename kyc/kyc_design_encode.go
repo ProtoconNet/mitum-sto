@@ -7,8 +7,8 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (de *KYCDesign) unpack(enc encoder.Encoder, ht hint.Hint, kyc string, bpo []byte) error {
-	e := util.StringErrorFunc("failed to decode bson of KYCDesign")
+func (de *Design) unpack(enc encoder.Encoder, ht hint.Hint, kyc string, bpo []byte) error {
+	e := util.StringErrorFunc("failed to decode bson of Design")
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 	de.kycID = extensioncurrency.ContractID(kyc)

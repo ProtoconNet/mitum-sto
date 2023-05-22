@@ -7,32 +7,32 @@ import (
 )
 
 var (
-	STODesignHint = hint.MustNewHint("mitum-sto-design-v0.0.1")
+	DesignHint = hint.MustNewHint("mitum-sto-design-v0.0.1")
 )
 
-type STODesign struct {
+type Design struct {
 	hint.BaseHinter
 	stoID       extensioncurrency.ContractID
 	granularity uint64
 	policy      STOPolicy
 }
 
-func NewSTODesign(stoID extensioncurrency.ContractID, granularity uint64, policy STOPolicy) STODesign {
-	return STODesign{
-		BaseHinter:  hint.NewBaseHinter(STODesignHint),
+func NewDesign(stoID extensioncurrency.ContractID, granularity uint64, policy STOPolicy) Design {
+	return Design{
+		BaseHinter:  hint.NewBaseHinter(DesignHint),
 		stoID:       stoID,
 		granularity: granularity,
 		policy:      policy,
 	}
 }
 
-func (s STODesign) IsValid([]byte) error {
+func (s Design) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		s.BaseHinter,
 		s.stoID,
 		s.policy,
 	); err != nil {
-		return util.ErrInvalid.Errorf("invalid STODesign: %w", err)
+		return util.ErrInvalid.Errorf("invalid Design: %w", err)
 	}
 
 	if err := s.stoID.IsValid(nil); err != nil {
@@ -42,7 +42,7 @@ func (s STODesign) IsValid([]byte) error {
 	return s.policy.IsValid(nil)
 }
 
-func (s STODesign) Bytes() []byte {
+func (s Design) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		s.stoID.Bytes(),
 		util.Uint64ToBigBytes(s.granularity),
@@ -50,19 +50,19 @@ func (s STODesign) Bytes() []byte {
 	)
 }
 
-func (s STODesign) STO() extensioncurrency.ContractID {
+func (s Design) STO() extensioncurrency.ContractID {
 	return s.stoID
 }
 
-func (s STODesign) Granularity() uint64 {
+func (s Design) Granularity() uint64 {
 	return s.granularity
 }
 
-func (s STODesign) Policy() STOPolicy {
+func (s Design) Policy() STOPolicy {
 	return s.policy
 }
 
-func (s STODesign) SetPolicy(po STOPolicy) STODesign {
+func (s Design) SetPolicy(po STOPolicy) Design {
 	s.policy = po
 
 	return s

@@ -9,30 +9,30 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-type KYCDesignJSONMarshaler struct {
+type DesignJSONMarshaler struct {
 	hint.BaseHinter
 	KYC    extensioncurrency.ContractID `json:"kycid"`
 	Policy KYCPolicy                    `json:"policy"`
 }
 
-func (de KYCDesign) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(KYCDesignJSONMarshaler{
+func (de Design) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(DesignJSONMarshaler{
 		BaseHinter: de.BaseHinter,
 		KYC:        de.kycID,
 		Policy:     de.policy,
 	})
 }
 
-type KYCDesignJSONUnmarshaler struct {
+type DesignJSONUnmarshaler struct {
 	Hint   hint.Hint       `json:"_hint"`
 	KYC    string          `json:"kycid"`
 	Policy json.RawMessage `json:"policy"`
 }
 
-func (de *KYCDesign) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of KYCDesign")
+func (de *Design) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode json of Design")
 
-	var ud KYCDesignJSONUnmarshaler
+	var ud DesignJSONUnmarshaler
 	if err := enc.Unmarshal(b, &ud); err != nil {
 		return e(err, "")
 	}

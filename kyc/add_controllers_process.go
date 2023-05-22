@@ -151,7 +151,7 @@ func (opp *AddControllersProcessor) PreProcess(
 			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[StateKeyKYCDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
+		controllers[StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -164,7 +164,7 @@ func (opp *AddControllersProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[StateKeyKYCDesign(it.Contract(), it.KYC())][it.KYC().String()]
+		ipc.controllers = controllers[StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to preprocess AddControllersItem: %w", err), nil
@@ -197,7 +197,7 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[StateKeyKYCDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
+		controllers[StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -210,7 +210,7 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[StateKeyKYCDesign(it.Contract(), it.KYC())][it.KYC().String()]
+		ipc.controllers = controllers[StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()]
 
 		_, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
@@ -223,14 +223,14 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 	for k, m := range controllers {
 		for id, cons := range m {
 			policy := NewKYCPolicy(*cons)
-			design := NewKYCDesign(extensioncurrency.ContractID(id), policy)
+			design := NewDesign(extensioncurrency.ContractID(id), policy)
 			if err := design.IsValid(nil); err != nil {
 				return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil
 			}
 
 			sts = append(sts, NewStateMergeValue(
 				k,
-				NewKYCDesignStateValue(design),
+				NewDesignStateValue(design),
 			))
 		}
 	}

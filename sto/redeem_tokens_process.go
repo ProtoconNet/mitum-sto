@@ -35,7 +35,7 @@ type RedeemTokensItemProcessor struct {
 	h                util.Hash
 	sender           base.Address
 	item             RedeemTokensItem
-	sto              *STODesign
+	sto              *Design
 	partitionBalance *currency.Big
 }
 
@@ -172,7 +172,7 @@ func (ipp *RedeemTokensItemProcessor) Process(
 		}
 	}
 
-	design = NewSTODesign(it.STO(), design.Granularity(), policy)
+	design = NewDesign(it.STO(), design.Granularity(), policy)
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
@@ -327,10 +327,10 @@ func (opp *RedeemTokensProcessor) PreProcess(
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
-	stos := map[string]*STODesign{}
+	stos := map[string]*Design{}
 
 	for _, it := range fact.Items() {
-		k := StateKeySTODesign(it.Contract(), it.STO())
+		k := StateKeyDesign(it.Contract(), it.STO())
 
 		if _, found := stos[k]; !found {
 			st, err := existsState(k, "key of sto design", getStateFunc)
@@ -338,7 +338,7 @@ func (opp *RedeemTokensProcessor) PreProcess(
 				return nil, base.NewBaseOperationProcessReasonError("sto design doesn't exist, %q: %w", k, err), nil
 			}
 
-			design, err := StateSTODesignValue(st)
+			design, err := StateDesignValue(st)
 			if err != nil {
 				return nil, base.NewBaseOperationProcessReasonError("failed to get sto design value, %q: %w", k, err), nil
 			}
@@ -362,7 +362,7 @@ func (opp *RedeemTokensProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.sto = stos[StateKeySTODesign(it.Contract(), it.STO())]
+		ipc.sto = stos[StateKeyDesign(it.Contract(), it.STO())]
 		ipc.partitionBalance = nil
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
@@ -386,10 +386,10 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 		return nil, nil, e(nil, "expected RedeemTokensFact, not %T", op.Fact())
 	}
 
-	stos := map[string]*STODesign{}
+	stos := map[string]*Design{}
 
 	for _, it := range fact.Items() {
-		k := StateKeySTODesign(it.Contract(), it.STO())
+		k := StateKeyDesign(it.Contract(), it.STO())
 
 		if _, found := stos[k]; !found {
 			st, err := existsState(k, "key of sto design", getStateFunc)
@@ -397,7 +397,7 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 				return nil, base.NewBaseOperationProcessReasonError("sto design doesn't exist, %q: %w", k, err), nil
 			}
 
-			design, err := StateSTODesignValue(st)
+			design, err := StateDesignValue(st)
 			if err != nil {
 				return nil, base.NewBaseOperationProcessReasonError("failed to get sto design value, %q: %w", k, err), nil
 			}
@@ -424,7 +424,7 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.sto = stos[StateKeySTODesign(it.Contract(), it.STO())]
+		ipc.sto = stos[StateKeyDesign(it.Contract(), it.STO())]
 		ipc.partitionBalance = partitionBalances[StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition())]
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
@@ -437,7 +437,7 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 	}
 
 	for k, v := range stos {
-		sts = append(sts, NewStateMergeValue(k, NewSTODesignStateValue(*v)))
+		sts = append(sts, NewStateMergeValue(k, NewDesignStateValue(*v)))
 	}
 
 	for k, v := range partitionBalances {

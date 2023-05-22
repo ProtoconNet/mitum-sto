@@ -39,7 +39,7 @@ type Document struct {
 
 func NewDocument(stoID extensioncurrency.ContractID, title, hash string, uri URI) Document {
 	return Document{
-		BaseHinter: hint.NewBaseHinter(STODesignHint),
+		BaseHinter: hint.NewBaseHinter(DesignHint),
 		stoID:      stoID,
 		title:      title,
 		hash:       hash,
@@ -53,7 +53,7 @@ func (s Document) IsValid([]byte) error {
 		s.stoID,
 		s.uri,
 	); err != nil {
-		return util.ErrInvalid.Errorf("invalid STODesign: %w", err)
+		return util.ErrInvalid.Errorf("invalid Design: %w", err)
 	}
 
 	return nil

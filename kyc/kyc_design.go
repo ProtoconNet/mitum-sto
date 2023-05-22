@@ -7,30 +7,30 @@ import (
 )
 
 var (
-	KYCDesignHint = hint.MustNewHint("mitum-kyc-design-v0.0.1")
+	DesignHint = hint.MustNewHint("mitum-kyc-design-v0.0.1")
 )
 
-type KYCDesign struct {
+type Design struct {
 	hint.BaseHinter
 	kycID  extensioncurrency.ContractID
 	policy KYCPolicy
 }
 
-func NewKYCDesign(kycID extensioncurrency.ContractID, policy KYCPolicy) KYCDesign {
-	return KYCDesign{
-		BaseHinter: hint.NewBaseHinter(KYCDesignHint),
+func NewDesign(kycID extensioncurrency.ContractID, policy KYCPolicy) Design {
+	return Design{
+		BaseHinter: hint.NewBaseHinter(DesignHint),
 		kycID:      kycID,
 		policy:     policy,
 	}
 }
 
-func (k KYCDesign) IsValid([]byte) error {
+func (k Design) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		k.BaseHinter,
 		k.kycID,
 		k.policy,
 	); err != nil {
-		return util.ErrInvalid.Errorf("invalid KYCKYCDesign: %w", err)
+		return util.ErrInvalid.Errorf("invalid KYCDesign: %w", err)
 	}
 
 	if err := k.kycID.IsValid(nil); err != nil {
@@ -40,22 +40,22 @@ func (k KYCDesign) IsValid([]byte) error {
 	return k.policy.IsValid(nil)
 }
 
-func (k KYCDesign) Bytes() []byte {
+func (k Design) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		k.kycID.Bytes(),
 		k.policy.Bytes(),
 	)
 }
 
-func (k KYCDesign) KYC() extensioncurrency.ContractID {
+func (k Design) KYC() extensioncurrency.ContractID {
 	return k.kycID
 }
 
-func (k KYCDesign) Policy() KYCPolicy {
+func (k Design) Policy() KYCPolicy {
 	return k.policy
 }
 
-func (k KYCDesign) SetPolicy(po KYCPolicy) KYCDesign {
+func (k Design) SetPolicy(po KYCPolicy) Design {
 	k.policy = po
 
 	return k
