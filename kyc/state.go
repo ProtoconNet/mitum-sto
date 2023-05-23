@@ -128,7 +128,7 @@ func (sd CustomerStateValue) Hint() hint.Hint {
 func (sd CustomerStateValue) IsValid([]byte) error {
 	e := util.ErrInvalid.Errorf("invalid kyc CustomerStateValue")
 
-	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
+	if err := sd.BaseHinter.IsValid(CustomerStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
 	}
 
