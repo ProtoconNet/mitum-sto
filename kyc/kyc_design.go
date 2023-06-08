@@ -1,7 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
@@ -12,11 +12,11 @@ var (
 
 type Design struct {
 	hint.BaseHinter
-	kycID  extensioncurrency.ContractID
+	kycID  currencybase.ContractID
 	policy Policy
 }
 
-func NewDesign(kycID extensioncurrency.ContractID, policy Policy) Design {
+func NewDesign(kycID currencybase.ContractID, policy Policy) Design {
 	return Design{
 		BaseHinter: hint.NewBaseHinter(DesignHint),
 		kycID:      kycID,
@@ -47,7 +47,7 @@ func (k Design) Bytes() []byte {
 	)
 }
 
-func (k Design) KYC() extensioncurrency.ContractID {
+func (k Design) KYC() currencybase.ContractID {
 	return k.kycID
 }
 

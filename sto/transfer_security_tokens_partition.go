@@ -1,7 +1,7 @@
 package sto
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -59,7 +59,7 @@ func (fact TransferSecurityTokensPartitionFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := currency.IsValidOperationFact(fact, b); err != nil {
+	if err := currencybase.IsValidOperationFact(fact, b); err != nil {
 		return err
 	}
 
@@ -120,11 +120,11 @@ func (fact TransferSecurityTokensPartitionFact) Addresses() ([]base.Address, err
 }
 
 type TransferSecurityTokensPartition struct {
-	currency.BaseOperation
+	currencybase.BaseOperation
 }
 
 func NewTransferSecurityTokensPartition(fact TransferSecurityTokensPartitionFact) (TransferSecurityTokensPartition, error) {
-	return TransferSecurityTokensPartition{BaseOperation: currency.NewBaseOperation(TransferSecurityTokensPartitionHint, fact)}, nil
+	return TransferSecurityTokensPartition{BaseOperation: currencybase.NewBaseOperation(TransferSecurityTokensPartitionHint, fact)}, nil
 }
 
 func (op *TransferSecurityTokensPartition) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

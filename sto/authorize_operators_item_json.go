@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -11,11 +10,11 @@ import (
 
 type AuthorizeOperatorsItemJSONMarshaler struct {
 	hint.BaseHinter
-	Contract  base.Address                 `json:"contract"`
-	STO       extensioncurrency.ContractID `json:"stoid"`
-	Operator  base.Address                 `json:"operator"`
-	Partition Partition                    `json:"partition"`
-	Currency  currency.CurrencyID          `json:"currency"`
+	Contract  base.Address            `json:"contract"`
+	STO       currencybase.ContractID `json:"stoid"`
+	Operator  base.Address            `json:"operator"`
+	Partition Partition               `json:"partition"`
+	Currency  currencybase.CurrencyID `json:"currency"`
 }
 
 func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {

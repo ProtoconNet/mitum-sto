@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -12,21 +11,21 @@ var CreateSecurityTokensItemHint = hint.MustNewHint("mitum-sto-create-security-t
 
 type CreateSecurityTokensItem struct {
 	hint.BaseHinter
-	contract         base.Address                 // contract account
-	stoID            extensioncurrency.ContractID // token id
-	granularity      uint64                       // token granulariry
-	defaultPartition Partition                    // default partitions
-	controllers      []base.Address               // initial controllers
-	currency         currency.CurrencyID          // fee
+	contract         base.Address            // contract account
+	stoID            currencybase.ContractID // token id
+	granularity      uint64                  // token granulariry
+	defaultPartition Partition               // default partitions
+	controllers      []base.Address          // initial controllers
+	currency         currencybase.CurrencyID // fee
 }
 
 func NewCreateSecurityTokensItem(
 	contract base.Address,
-	stoID extensioncurrency.ContractID,
+	stoID currencybase.ContractID,
 	granularity uint64,
 	partition Partition,
 	controllers []base.Address,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) CreateSecurityTokensItem {
 	return CreateSecurityTokensItem{
 		BaseHinter:       hint.NewBaseHinter(CreateSecurityTokensItemHint),
@@ -95,7 +94,7 @@ func (it CreateSecurityTokensItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it CreateSecurityTokensItem) STO() extensioncurrency.ContractID {
+func (it CreateSecurityTokensItem) STO() currencybase.ContractID {
 	return it.stoID
 }
 
@@ -111,7 +110,7 @@ func (it CreateSecurityTokensItem) Controllers() []base.Address {
 	return it.controllers
 }
 
-func (it CreateSecurityTokensItem) Currency() currency.CurrencyID {
+func (it CreateSecurityTokensItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 

@@ -4,8 +4,11 @@ import (
 	"context"
 	"sync"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	types "github.com/ProtoconNet/mitum-currency/v3/operation/type"
+	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 )
@@ -75,7 +78,7 @@ func (ipp *CreateSecurityTokensItemProcessor) Process(
 	partitions := []Partition{partition}
 	documents := []Document{}
 
-	policy := NewPolicy(partitions, currency.NewBig(0), it.Controllers(), documents)
+	policy := NewPolicy(partitions, currencybase.NewBig(0), it.Controllers(), documents)
 	design := NewDesign(it.STO(), it.Granularity(), policy)
 
 	if err := design.IsValid(nil); err != nil {
@@ -88,7 +91,7 @@ func (ipp *CreateSecurityTokensItemProcessor) Process(
 	)
 	sts[1] = NewStateMergeValue(
 		StateKeyPartitionBalance(it.Contract(), it.STO(), it.DefaultPartition()),
-		NewPartitionBalanceStateValue(currency.ZeroBig),
+		NewPartitionBalanceStateValue(currencybase.ZeroBig),
 	)
 
 	return sts, nil
@@ -108,7 +111,7 @@ type CreateSecurityTokensProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewCreateSecurityTokensProcessor() extensioncurrency.GetNewProcessor {
+func NewCreateSecurityTokensProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -225,7 +228,7 @@ func (opp *CreateSecurityTokensProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
@@ -236,7 +239,7 @@ func (opp *CreateSecurityTokensProcessor) Process( // nolint:dupl
 			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currency.NewBalanceStateMergeValue(sb[i].Key(), stv))
+		sts = append(sts, NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil
@@ -248,11 +251,11 @@ func (opp *CreateSecurityTokensProcessor) Close() error {
 	return nil
 }
 
-func calculateSTOItemsFee(getStateFunc base.GetStateFunc, items []STOItem) (map[currency.CurrencyID][2]currency.Big, error) {
-	required := map[currency.CurrencyID][2]currency.Big{}
+func calculateSTOItemsFee(getStateFunc base.GetStateFunc, items []STOItem) (map[currencybase.CurrencyID][2]currencybase.Big, error) {
+	required := map[currencybase.CurrencyID][2]currencybase.Big{}
 
 	for _, item := range items {
-		rq := [2]currency.Big{currency.ZeroBig, currency.ZeroBig}
+		rq := [2]currencybase.Big{currencybase.ZeroBig, currencybase.ZeroBig}
 
 		if k, found := required[item.Currency()]; found {
 			rq = k
@@ -263,13 +266,13 @@ func calculateSTOItemsFee(getStateFunc base.GetStateFunc, items []STOItem) (map[
 			return nil, err
 		}
 
-		switch k, err := policy.Feeer().Fee(currency.ZeroBig); {
+		switch k, err := policy.Feeer().Fee(currencybase.ZeroBig); {
 		case err != nil:
 			return nil, err
 		case !k.OverZero():
-			required[item.Currency()] = [2]currency.Big{rq[0], rq[1]}
+			required[item.Currency()] = [2]currencybase.Big{rq[0], rq[1]}
 		default:
-			required[item.Currency()] = [2]currency.Big{rq[0].Add(k), rq[1].Add(k)}
+			required[item.Currency()] = [2]currencybase.Big{rq[0].Add(k), rq[1].Add(k)}
 		}
 
 	}

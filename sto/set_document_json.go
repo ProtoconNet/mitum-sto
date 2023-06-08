@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -10,13 +9,13 @@ import (
 
 type SetDocumentFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
-	Owner        base.Address                 `json:"sender"`
-	Contract     base.Address                 `json:"contract"`
-	STOID        extensioncurrency.ContractID `json:"stoid"`
-	Title        string                       `json:"title"`
-	Uri          URI                          `json:"uri"`
-	DocumentHash string                       `json:"documenthash"`
-	Currency     currency.CurrencyID          `json:"currency"`
+	Owner        base.Address            `json:"sender"`
+	Contract     base.Address            `json:"contract"`
+	STOID        currencybase.ContractID `json:"stoid"`
+	Title        string                  `json:"title"`
+	Uri          URI                     `json:"uri"`
+	DocumentHash string                  `json:"documenthash"`
+	Currency     currencybase.CurrencyID `json:"currency"`
 }
 
 func (fact SetDocumentFact) MarshalJSON() ([]byte, error) {
@@ -57,7 +56,7 @@ func (fact *SetDocumentFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 }
 
 type SetDocumentMarshaler struct {
-	currency.BaseOperationJSONMarshaler
+	currencybase.BaseOperationJSONMarshaler
 }
 
 func (op SetDocument) MarshalJSON() ([]byte, error) {
@@ -69,7 +68,7 @@ func (op SetDocument) MarshalJSON() ([]byte, error) {
 func (op *SetDocument) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 	e := util.StringErrorFunc("failed to decode json of SetDocument")
 
-	var ubo currency.BaseOperation
+	var ubo currencybase.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
 		return e(err, "")
 	}

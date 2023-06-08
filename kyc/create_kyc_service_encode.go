@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -35,8 +34,8 @@ func (fact *CreateKYCServiceFact) unpack(enc encoder.Encoder, sa, ca, kycid stri
 	}
 	fact.controllers = controllers
 
-	fact.kycID = extensioncurrency.ContractID(kycid)
-	fact.currency = currency.CurrencyID(cid)
+	fact.kycID = currencybase.ContractID(kycid)
+	fact.currency = currencybase.CurrencyID(cid)
 
 	return nil
 }

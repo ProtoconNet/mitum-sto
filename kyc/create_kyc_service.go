@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -17,19 +16,19 @@ var (
 type CreateKYCServiceFact struct {
 	base.BaseFact
 	sender      base.Address
-	contract    base.Address                 // contract account
-	kycID       extensioncurrency.ContractID // kyc id
+	contract    base.Address            // contract account
+	kycID       currencybase.ContractID // kyc id
 	controllers []base.Address
-	currency    currency.CurrencyID
+	currency    currencybase.CurrencyID
 }
 
 func NewCreateKYCServiceFact(
 	token []byte,
 	sender base.Address,
 	contract base.Address,
-	kycID extensioncurrency.ContractID,
+	kycID currencybase.ContractID,
 	controllers []base.Address,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) CreateKYCServiceFact {
 	bf := base.NewBaseFact(CreateKYCServiceFactHint, token)
 	fact := CreateKYCServiceFact{
@@ -75,7 +74,7 @@ func (fact CreateKYCServiceFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := currency.IsValidOperationFact(fact, b); err != nil {
+	if err := currencybase.IsValidOperationFact(fact, b); err != nil {
 		return err
 	}
 
@@ -119,7 +118,7 @@ func (fact CreateKYCServiceFact) Contract() base.Address {
 	return fact.contract
 }
 
-func (fact CreateKYCServiceFact) KYC() extensioncurrency.ContractID {
+func (fact CreateKYCServiceFact) KYC() currencybase.ContractID {
 	return fact.kycID
 }
 
@@ -133,7 +132,7 @@ func (fact CreateKYCServiceFact) Controllers() []base.Address {
 	return as
 }
 
-func (fact CreateKYCServiceFact) Currency() currency.CurrencyID {
+func (fact CreateKYCServiceFact) Currency() currencybase.CurrencyID {
 	return fact.currency
 }
 
@@ -151,11 +150,11 @@ func (fact CreateKYCServiceFact) Addresses() ([]base.Address, error) {
 }
 
 type CreateKYCService struct {
-	currency.BaseOperation
+	currencybase.BaseOperation
 }
 
 func NewCreateKYCService(fact CreateKYCServiceFact) (CreateKYCService, error) {
-	return CreateKYCService{BaseOperation: currency.NewBaseOperation(CreateKYCServiceHint, fact)}, nil
+	return CreateKYCService{BaseOperation: currencybase.NewBaseOperation(CreateKYCServiceHint, fact)}, nil
 }
 
 func (op *CreateKYCService) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

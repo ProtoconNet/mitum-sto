@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -13,9 +12,9 @@ func (it *IssueSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, ca,
 	e := util.StringErrorFunc("failed to unmarshal IssueSecurityTokensItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
-	it.stoID = extensioncurrency.ContractID(sto)
+	it.stoID = currencybase.ContractID(sto)
 	it.partition = Partition(p)
-	it.currency = currency.CurrencyID(cid)
+	it.currency = currencybase.CurrencyID(cid)
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
@@ -31,7 +30,7 @@ func (it *IssueSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, ca,
 		it.receiver = a
 	}
 
-	amount, err := currency.NewBigFromString(am)
+	amount, err := currencybase.NewBigFromString(am)
 	if err != nil {
 		return e(err, "")
 	}

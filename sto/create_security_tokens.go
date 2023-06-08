@@ -3,7 +3,7 @@ package sto
 import (
 	"fmt"
 
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -13,7 +13,7 @@ import (
 type STOItem interface {
 	util.Byter
 	util.IsValider
-	Currency() currency.CurrencyID
+	Currency() currencybase.CurrencyID
 }
 
 var (
@@ -67,7 +67,7 @@ func (fact CreateSecurityTokensFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := currency.IsValidOperationFact(fact, b); err != nil {
+	if err := currencybase.IsValidOperationFact(fact, b); err != nil {
 		return err
 	}
 
@@ -133,11 +133,11 @@ func (fact CreateSecurityTokensFact) Addresses() ([]base.Address, error) {
 }
 
 type CreateSecurityTokens struct {
-	currency.BaseOperation
+	currencybase.BaseOperation
 }
 
 func NewCreateSecurityTokens(fact CreateSecurityTokensFact) (CreateSecurityTokens, error) {
-	return CreateSecurityTokens{BaseOperation: currency.NewBaseOperation(CreateSecurityTokensHint, fact)}, nil
+	return CreateSecurityTokens{BaseOperation: currencybase.NewBaseOperation(CreateSecurityTokensHint, fact)}, nil
 }
 
 func (op *CreateSecurityTokens) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

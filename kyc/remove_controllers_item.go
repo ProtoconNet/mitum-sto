@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -13,16 +12,16 @@ var RemoveControllersItemHint = hint.MustNewHint("mitum-kyc-remove-controllers-i
 type RemoveControllersItem struct {
 	hint.BaseHinter
 	contract   base.Address
-	kycID      extensioncurrency.ContractID
+	kycID      currencybase.ContractID
 	controller base.Address
-	currency   currency.CurrencyID
+	currency   currencybase.CurrencyID
 }
 
 func NewRemoveControllersItem(
 	contract base.Address,
-	kycID extensioncurrency.ContractID,
+	kycID currencybase.ContractID,
 	controller base.Address,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) RemoveControllersItem {
 	return RemoveControllersItem{
 		BaseHinter: hint.NewBaseHinter(RemoveControllersItemHint),
@@ -54,7 +53,7 @@ func (it RemoveControllersItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it RemoveControllersItem) KYC() extensioncurrency.ContractID {
+func (it RemoveControllersItem) KYC() currencybase.ContractID {
 	return it.kycID
 }
 
@@ -66,7 +65,7 @@ func (it RemoveControllersItem) Controller() base.Address {
 	return it.controller
 }
 
-func (it RemoveControllersItem) Currency() currency.CurrencyID {
+func (it RemoveControllersItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 

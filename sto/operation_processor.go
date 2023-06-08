@@ -6,8 +6,10 @@ import (
 	"io"
 	"sync"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	currency "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/operation/extension"
+	types "github.com/ProtoconNet/mitum-currency/v3/operation/type"
 	"github.com/ProtoconNet/mitum-sto/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -38,7 +40,7 @@ type OperationProcessor struct {
 	*logging.Logging
 	*base.BaseOperationProcessor
 	processorHintSet     *hint.CompatibleSet
-	fee                  map[currency.CurrencyID]currency.Big
+	fee                  map[currencybase.CurrencyID]currencybase.Big
 	duplicated           map[string]DuplicationType
 	duplicatedNewAddress map[string]struct{}
 	processorClosers     *sync.Map
@@ -52,7 +54,7 @@ func NewOperationProcessor() *OperationProcessor {
 			return c.Str("module", "mitum-sto-operations-processor")
 		}),
 		processorHintSet:     hint.NewCompatibleSet(),
-		fee:                  map[currency.CurrencyID]currency.Big{},
+		fee:                  map[currencybase.CurrencyID]currencybase.Big{},
 		duplicated:           map[string]DuplicationType{},
 		duplicatedNewAddress: map[string]struct{}{},
 		processorClosers:     &m,
@@ -100,7 +102,7 @@ func (opr *OperationProcessor) New(
 
 func (opr *OperationProcessor) SetProcessor(
 	hint hint.Hint,
-	newProcessor extensioncurrency.GetNewProcessor,
+	newProcessor types.GetNewProcessor,
 ) (base.OperationProcessor, error) {
 	if err := opr.processorHintSet.Add(hint, newProcessor); err != nil {
 		if !errors.Is(err, util.ErrFound) {
@@ -212,15 +214,15 @@ func (opr *OperationProcessor) checkDuplication(op base.Operation) error {
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case extensioncurrency.CurrencyRegister:
-		fact, ok := t.Fact().(extensioncurrency.CurrencyRegisterFact)
+	case currency.CurrencyRegister:
+		fact, ok := t.Fact().(currency.CurrencyRegisterFact)
 		if !ok {
 			return errors.Errorf("expected CurrencyRegisterFact, not %T", t.Fact())
 		}
 		did = fact.Currency().Currency().String()
 		didtype = DuplicationTypeCurrency
-	case extensioncurrency.CurrencyPolicyUpdater:
-		fact, ok := t.Fact().(extensioncurrency.CurrencyPolicyUpdaterFact)
+	case currency.CurrencyPolicyUpdater:
+		fact, ok := t.Fact().(currency.CurrencyPolicyUpdaterFact)
 		if !ok {
 			return errors.Errorf("expected CurrencyPolicyUpdaterFact, not %T", t.Fact())
 		}
@@ -386,8 +388,8 @@ func (opr *OperationProcessor) getNewProcessor(op base.Operation) (base.Operatio
 		currency.Transfers,
 		extensioncurrency.CreateContractAccounts,
 		extensioncurrency.Withdraws,
-		extensioncurrency.CurrencyRegister,
-		extensioncurrency.CurrencyPolicyUpdater,
+		currency.CurrencyRegister,
+		currency.CurrencyPolicyUpdater,
 		currency.SuffrageInflation,
 		AuthorizeOperators,
 		CreateSecurityTokens,
@@ -408,13 +410,13 @@ func (opr *OperationProcessor) getNewProcessor(op base.Operation) (base.Operatio
 }
 
 func (opr *OperationProcessor) getNewProcessorFromHintset(op base.Operation) (base.OperationProcessor, error) {
-	var f extensioncurrency.GetNewProcessor
+	var f types.GetNewProcessor
 
 	if hinter, ok := op.(hint.Hinter); !ok {
 		return nil, nil
 	} else if i := opr.processorHintSet.Find(hinter.Hint()); i == nil {
 		return nil, nil
-	} else if j, ok := i.(extensioncurrency.GetNewProcessor); !ok {
+	} else if j, ok := i.(types.GetNewProcessor); !ok {
 		return nil, errors.Errorf("invalid GetNewProcessor func, %T", i)
 	} else {
 		f = j

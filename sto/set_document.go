@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -17,23 +16,23 @@ var (
 type SetDocumentFact struct {
 	base.BaseFact
 	sender       base.Address
-	contract     base.Address                 // contract account
-	stoID        extensioncurrency.ContractID // token id
-	title        string                       // document title
-	uri          URI                          // document uri
-	documentHash string                       // document hash
-	currency     currency.CurrencyID          // fee
+	contract     base.Address            // contract account
+	stoID        currencybase.ContractID // token id
+	title        string                  // document title
+	uri          URI                     // document uri
+	documentHash string                  // document hash
+	currency     currencybase.CurrencyID // fee
 }
 
 func NewSetDocumentFact(
 	token []byte,
 	sender base.Address,
 	contract base.Address,
-	stoID extensioncurrency.ContractID,
+	stoID currencybase.ContractID,
 	title string,
 	uri URI,
 	hash string,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) SetDocumentFact {
 	bf := base.NewBaseFact(SetDocumentFactHint, token)
 	fact := SetDocumentFact{
@@ -77,7 +76,7 @@ func (fact SetDocumentFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := currency.IsValidOperationFact(fact, b); err != nil {
+	if err := currencybase.IsValidOperationFact(fact, b); err != nil {
 		return err
 	}
 
@@ -100,7 +99,7 @@ func (fact SetDocumentFact) Contract() base.Address {
 	return fact.contract
 }
 
-func (fact SetDocumentFact) STO() extensioncurrency.ContractID {
+func (fact SetDocumentFact) STO() currencybase.ContractID {
 	return fact.stoID
 }
 
@@ -116,7 +115,7 @@ func (fact SetDocumentFact) DocumentHash() string {
 	return fact.documentHash
 }
 
-func (fact SetDocumentFact) Currency() currency.CurrencyID {
+func (fact SetDocumentFact) Currency() currencybase.CurrencyID {
 	return fact.currency
 }
 
@@ -130,11 +129,11 @@ func (fact SetDocumentFact) Addresses() ([]base.Address, error) {
 }
 
 type SetDocument struct {
-	currency.BaseOperation
+	currencybase.BaseOperation
 }
 
 func NewSetDocument(fact SetDocumentFact) (SetDocument, error) {
-	return SetDocument{BaseOperation: currency.NewBaseOperation(SetDocumentHint, fact)}, nil
+	return SetDocument{BaseOperation: currencybase.NewBaseOperation(SetDocumentHint, fact)}, nil
 }
 
 func (op *SetDocument) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

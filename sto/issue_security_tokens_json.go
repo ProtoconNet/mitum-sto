@@ -3,7 +3,7 @@ package sto
 import (
 	"encoding/json"
 
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -43,7 +43,7 @@ func (fact *IssueSecurityTokensFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) 
 }
 
 type IssueSecurityTokensMarshaler struct {
-	currency.BaseOperationJSONMarshaler
+	currencybase.BaseOperationJSONMarshaler
 }
 
 func (op IssueSecurityTokens) MarshalJSON() ([]byte, error) {
@@ -55,7 +55,7 @@ func (op IssueSecurityTokens) MarshalJSON() ([]byte, error) {
 func (op *IssueSecurityTokens) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 	e := util.StringErrorFunc("failed to decode json of MintSecurityTokens")
 
-	var ubo currency.BaseOperation
+	var ubo currencybase.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
 		return e(err, "")
 	}

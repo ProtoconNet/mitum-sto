@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -11,12 +10,12 @@ import (
 
 type CreateSecurityTokensItemJSONMarshaler struct {
 	hint.BaseHinter
-	Contract         base.Address                 `json:"contract"`
-	STO              extensioncurrency.ContractID `json:"stoid"`
-	Granularity      uint64                       `json:"granularity"`
-	DefaultPartition Partition                    `json:"default_partition"`
-	Controllers      []base.Address               `json:"controllers"`
-	Currency         currency.CurrencyID          `json:"currency"`
+	Contract         base.Address            `json:"contract"`
+	STO              currencybase.ContractID `json:"stoid"`
+	Granularity      uint64                  `json:"granularity"`
+	DefaultPartition Partition               `json:"default_partition"`
+	Controllers      []base.Address          `json:"controllers"`
+	Currency         currencybase.CurrencyID `json:"currency"`
 }
 
 func (it CreateSecurityTokensItem) MarshalJSON() ([]byte, error) {

@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -13,9 +12,9 @@ func (it *UpdateCustomersItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, kyc
 	e := util.StringErrorFunc("failed to unmarshal UpdateCustomersItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
-	it.kycID = extensioncurrency.ContractID(kyc)
+	it.kycID = currencybase.ContractID(kyc)
 	it.status = st
-	it.currency = currency.CurrencyID(cid)
+	it.currency = currencybase.CurrencyID(cid)
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:

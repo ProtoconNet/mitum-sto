@@ -5,8 +5,11 @@ import (
 	"math/big"
 	"sync"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	types "github.com/ProtoconNet/mitum-currency/v3/operation/type"
+	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
@@ -35,7 +38,7 @@ type TransferSecurityTokensPartitionItemProcessor struct {
 	sender     base.Address
 	item       TransferSecurityTokensPartitionItem
 	partitions map[string][]Partition
-	balances   map[string]currency.Big
+	balances   map[string]currencybase.Big
 }
 
 func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
@@ -128,7 +131,7 @@ func (ipp *TransferSecurityTokensPartitionItemProcessor) PreProcess(
 	gn := new(big.Int)
 	gn.SetUint64(design.Granularity())
 
-	if mod := currency.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); currency.NewBigFromBigInt(mod).OverZero() {
+	if mod := currencybase.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); currencybase.NewBigFromBigInt(mod).OverZero() {
 		return errors.Errorf("amount unit does not comply with sto granularity rule, %q, %q", it.Amount(), design.Granularity())
 	}
 
@@ -256,7 +259,7 @@ type TransferSecurityTokensPartitionProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewTransferSecurityTokensPartitionProcessor() extensioncurrency.GetNewProcessor {
+func NewTransferSecurityTokensPartitionProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -363,7 +366,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 	}
 
 	partitions := map[string][]Partition{}
-	balances := map[string]currency.Big{}
+	balances := map[string]currencybase.Big{}
 
 	for _, it := range fact.Items() {
 		k := StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.TokenHolder())
@@ -411,7 +414,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 		k = StateKeyTokenHolderPartitionBalance(it.Contract(), it.STO(), it.Receiver(), it.Partition())
 
 		if _, found := balances[k]; !found {
-			var am currency.Big
+			var am currencybase.Big
 
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -422,7 +425,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition balance value, %q: %w", k, err), nil
 				}
 			default:
-				am = currency.ZeroBig
+				am = currencybase.ZeroBig
 			}
 
 			balances[k] = am
@@ -480,7 +483,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
@@ -491,7 +494,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currency.NewBalanceStateMergeValue(sb[i].Key(), stv))
+		sts = append(sts, NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil
@@ -504,8 +507,8 @@ func (opp *TransferSecurityTokensPartitionProcessor) Close() error {
 }
 
 func checkEnoughTokenHolderBalance(getStateFunc base.GetStateFunc, items []TransferSecurityTokensPartitionItem) error {
-	balances := map[string]currency.Big{}
-	amounts := map[string]currency.Big{}
+	balances := map[string]currencybase.Big{}
+	amounts := map[string]currencybase.Big{}
 
 	for _, it := range items {
 		k := StateKeyTokenHolderPartitionBalance(it.Contract(), it.STO(), it.TokenHolder(), it.Partition())

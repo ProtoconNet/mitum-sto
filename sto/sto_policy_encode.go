@@ -1,7 +1,7 @@
 package sto
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -19,7 +19,7 @@ func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big str
 	}
 	po.partitions = partitions
 
-	if ag, err := currency.NewBigFromString(big); err != nil {
+	if ag, err := currencybase.NewBigFromString(big); err != nil {
 		return e(err, "")
 	} else {
 		po.aggregate = ag

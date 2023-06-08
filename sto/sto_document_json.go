@@ -1,7 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -9,10 +9,10 @@ import (
 
 type DocumentJSONMarshaler struct {
 	hint.BaseHinter
-	STO   extensioncurrency.ContractID `json:"stoid"`
-	Title string                       `json:"title"`
-	Hash  string                       `json:"hash"`
-	URI   URI                          `json:"uri"`
+	STO   currencybase.ContractID `json:"stoid"`
+	Title string                  `json:"title"`
+	Hash  string                  `json:"hash"`
+	URI   URI                     `json:"uri"`
 }
 
 func (doc Document) MarshalJSON() ([]byte, error) {

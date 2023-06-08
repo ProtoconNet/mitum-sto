@@ -1,7 +1,7 @@
 package sto
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -14,12 +14,12 @@ var (
 type Policy struct {
 	hint.BaseHinter
 	partitions  []Partition
-	aggregate   currency.Big
+	aggregate   currencybase.Big
 	controllers []base.Address
 	documents   []Document
 }
 
-func NewPolicy(partitions []Partition, aggregate currency.Big, controllers []base.Address, documents []Document) Policy {
+func NewPolicy(partitions []Partition, aggregate currencybase.Big, controllers []base.Address, documents []Document) Policy {
 	return Policy{
 		BaseHinter:  hint.NewBaseHinter(PolicyHint),
 		partitions:  partitions,
@@ -79,7 +79,7 @@ func (po Policy) Partitions() []Partition {
 	return po.partitions
 }
 
-func (po Policy) Aggregate() currency.Big {
+func (po Policy) Aggregate() currencybase.Big {
 	return po.aggregate
 }
 

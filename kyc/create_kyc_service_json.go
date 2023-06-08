@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -10,11 +9,11 @@ import (
 
 type CreateKYCServiceFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
-	Owner       base.Address                 `json:"sender"`
-	Contract    base.Address                 `json:"contract"`
-	KYCID       extensioncurrency.ContractID `json:"kycid"`
-	Controllers []base.Address               `json:"controllers"`
-	Currency    currency.CurrencyID          `json:"currency"`
+	Owner       base.Address            `json:"sender"`
+	Contract    base.Address            `json:"contract"`
+	KYCID       currencybase.ContractID `json:"kycid"`
+	Controllers []base.Address          `json:"controllers"`
+	Currency    currencybase.CurrencyID `json:"currency"`
 }
 
 func (fact CreateKYCServiceFact) MarshalJSON() ([]byte, error) {
@@ -51,7 +50,7 @@ func (fact *CreateKYCServiceFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) err
 }
 
 type CreateKYCServiceMarshaler struct {
-	currency.BaseOperationJSONMarshaler
+	currencybase.BaseOperationJSONMarshaler
 }
 
 func (op CreateKYCService) MarshalJSON() ([]byte, error) {
@@ -63,7 +62,7 @@ func (op CreateKYCService) MarshalJSON() ([]byte, error) {
 func (op *CreateKYCService) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 	e := util.StringErrorFunc("failed to decode json of CreateKYCService")
 
-	var ubo currency.BaseOperation
+	var ubo currencybase.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
 		return e(err, "")
 	}

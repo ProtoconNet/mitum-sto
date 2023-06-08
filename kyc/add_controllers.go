@@ -1,7 +1,7 @@
 package kyc
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -59,7 +59,7 @@ func (fact AddControllersFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := currency.IsValidOperationFact(fact, b); err != nil {
+	if err := currencybase.IsValidOperationFact(fact, b); err != nil {
 		return err
 	}
 
@@ -123,11 +123,11 @@ func (fact AddControllersFact) Addresses() ([]base.Address, error) {
 }
 
 type AddControllers struct {
-	currency.BaseOperation
+	currencybase.BaseOperation
 }
 
 func NewAddControllers(fact AddControllersFact) (AddControllers, error) {
-	return AddControllers{BaseOperation: currency.NewBaseOperation(AddControllersHint, fact)}, nil
+	return AddControllers{BaseOperation: currencybase.NewBaseOperation(AddControllersHint, fact)}, nil
 }
 
 func (op *AddControllers) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

@@ -6,8 +6,11 @@ import (
 	"math/big"
 	"sync"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	types "github.com/ProtoconNet/mitum-currency/v3/operation/type"
+	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
@@ -36,7 +39,7 @@ type RedeemTokensItemProcessor struct {
 	sender           base.Address
 	item             RedeemTokensItem
 	sto              *Design
-	partitionBalance *currency.Big
+	partitionBalance *currencybase.Big
 }
 
 func (ipp *RedeemTokensItemProcessor) PreProcess(
@@ -127,7 +130,7 @@ func (ipp *RedeemTokensItemProcessor) PreProcess(
 	gn := new(big.Int)
 	gn.SetUint64(design.Granularity())
 
-	if mod := currency.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); currency.NewBigFromBigInt(mod).OverZero() {
+	if mod := currencybase.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); currencybase.NewBigFromBigInt(mod).OverZero() {
 		return errors.Errorf("amount unit does not comply with sto granularity rule, %q, %q", it.Amount(), design.Granularity())
 	}
 
@@ -274,7 +277,7 @@ type RedeemTokensProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewRedeemTokensProcessor() extensioncurrency.GetNewProcessor {
+func NewRedeemTokensProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -458,7 +461,7 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
@@ -469,7 +472,7 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currency.NewBalanceStateMergeValue(sb[i].Key(), stv))
+		sts = append(sts, NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil
@@ -481,9 +484,9 @@ func (opp *RedeemTokensProcessor) Close() error {
 	return nil
 }
 
-func checkEnoughPartitionBalance(getStateFunc base.GetStateFunc, items []RedeemTokensItem) (map[string]*currency.Big, error) {
-	balances := map[string]*currency.Big{}
-	amounts := map[string]currency.Big{}
+func checkEnoughPartitionBalance(getStateFunc base.GetStateFunc, items []RedeemTokensItem) (map[string]*currencybase.Big, error) {
+	balances := map[string]*currencybase.Big{}
+	amounts := map[string]currencybase.Big{}
 
 	for _, it := range items {
 		k := StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition())

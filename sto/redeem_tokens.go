@@ -1,7 +1,7 @@
 package sto
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -113,11 +113,11 @@ func (fact RedeemTokensFact) Addresses() ([]base.Address, error) {
 }
 
 type RedeemTokens struct {
-	currency.BaseOperation
+	currencybase.BaseOperation
 }
 
 func NewRedeemTokens(fact RedeemTokensFact) (RedeemTokens, error) {
-	return RedeemTokens{BaseOperation: currency.NewBaseOperation(RedeemTokensHint, fact)}, nil
+	return RedeemTokens{BaseOperation: currencybase.NewBaseOperation(RedeemTokensHint, fact)}, nil
 }
 
 func (op *RedeemTokens) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

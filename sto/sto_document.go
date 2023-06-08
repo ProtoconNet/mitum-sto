@@ -3,7 +3,7 @@ package sto
 import (
 	"net/url"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
@@ -31,13 +31,13 @@ var (
 
 type Document struct {
 	hint.BaseHinter
-	stoID extensioncurrency.ContractID
+	stoID currencybase.ContractID
 	title string
 	hash  string
 	uri   URI
 }
 
-func NewDocument(stoID extensioncurrency.ContractID, title, hash string, uri URI) Document {
+func NewDocument(stoID currencybase.ContractID, title, hash string, uri URI) Document {
 	return Document{
 		BaseHinter: hint.NewBaseHinter(DesignHint),
 		stoID:      stoID,
@@ -68,6 +68,6 @@ func (s Document) Bytes() []byte {
 	)
 }
 
-func (s Document) STO() extensioncurrency.ContractID {
+func (s Document) STO() currencybase.ContractID {
 	return s.stoID
 }

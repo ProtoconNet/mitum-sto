@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -12,21 +11,21 @@ var RedeemTokensItemHint = hint.MustNewHint("mitum-sto-redeem-tokens-item-v0.0.1
 
 type RedeemTokensItem struct {
 	hint.BaseHinter
-	contract    base.Address                 // contract account
-	stoID       extensioncurrency.ContractID // token id
-	tokenHolder base.Address                 // token tokenHolder
-	amount      currency.Big                 // redeem amount
-	partition   Partition                    // partition
-	currency    currency.CurrencyID          // fee
+	contract    base.Address            // contract account
+	stoID       currencybase.ContractID // token id
+	tokenHolder base.Address            // token tokenHolder
+	amount      currencybase.Big        // redeem amount
+	partition   Partition               // partition
+	currency    currencybase.CurrencyID // fee
 }
 
 func NewRedeemTokensItem(
 	contract base.Address,
-	stoID extensioncurrency.ContractID,
+	stoID currencybase.ContractID,
 	tokenHolder base.Address,
-	amount currency.Big,
+	amount currencybase.Big,
 	partition Partition,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) RedeemTokensItem {
 	return RedeemTokensItem{
 		BaseHinter:  hint.NewBaseHinter(RedeemTokensItemHint),
@@ -77,7 +76,7 @@ func (it RedeemTokensItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it RedeemTokensItem) STO() extensioncurrency.ContractID {
+func (it RedeemTokensItem) STO() currencybase.ContractID {
 	return it.stoID
 }
 
@@ -85,7 +84,7 @@ func (it RedeemTokensItem) TokenHolder() base.Address {
 	return it.tokenHolder
 }
 
-func (it RedeemTokensItem) Amount() currency.Big {
+func (it RedeemTokensItem) Amount() currencybase.Big {
 	return it.amount
 }
 
@@ -93,7 +92,7 @@ func (it RedeemTokensItem) Partition() Partition {
 	return it.partition
 }
 
-func (it RedeemTokensItem) Currency() currency.CurrencyID {
+func (it RedeemTokensItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 

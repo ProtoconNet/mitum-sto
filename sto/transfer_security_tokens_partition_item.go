@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -12,22 +11,22 @@ var TransferSecurityTokensPartitionItemHint = hint.MustNewHint("mitum-sto-transf
 
 type TransferSecurityTokensPartitionItem struct {
 	hint.BaseHinter
-	contract    base.Address                 // contract accounts
-	stoID       extensioncurrency.ContractID // token id
+	contract    base.Address            // contract accounts
+	stoID       currencybase.ContractID // token id
 	tokenholder base.Address
-	receiver    base.Address        // token holder
-	partition   Partition           // partition
-	amount      currency.Big        // transfer amount
-	currency    currency.CurrencyID // fee
+	receiver    base.Address            // token holder
+	partition   Partition               // partition
+	amount      currencybase.Big        // transfer amount
+	currency    currencybase.CurrencyID // fee
 }
 
 func NewTransferSecurityTokensPartitionItem(
 	contract base.Address,
-	stoID extensioncurrency.ContractID,
+	stoID currencybase.ContractID,
 	tokenholder, receiver base.Address,
 	partition Partition,
-	amount currency.Big,
-	currency currency.CurrencyID,
+	amount currencybase.Big,
+	currency currencybase.CurrencyID,
 ) TransferSecurityTokensPartitionItem {
 	return TransferSecurityTokensPartitionItem{
 		BaseHinter:  hint.NewBaseHinter(TransferSecurityTokensPartitionItemHint),
@@ -89,7 +88,7 @@ func (it TransferSecurityTokensPartitionItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it TransferSecurityTokensPartitionItem) STO() extensioncurrency.ContractID {
+func (it TransferSecurityTokensPartitionItem) STO() currencybase.ContractID {
 	return it.stoID
 }
 
@@ -101,7 +100,7 @@ func (it TransferSecurityTokensPartitionItem) Receiver() base.Address {
 	return it.receiver
 }
 
-func (it TransferSecurityTokensPartitionItem) Amount() currency.Big {
+func (it TransferSecurityTokensPartitionItem) Amount() currencybase.Big {
 	return it.amount
 }
 
@@ -109,7 +108,7 @@ func (it TransferSecurityTokensPartitionItem) Partition() Partition {
 	return it.partition
 }
 
-func (it TransferSecurityTokensPartitionItem) Currency() currency.CurrencyID {
+func (it TransferSecurityTokensPartitionItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 
