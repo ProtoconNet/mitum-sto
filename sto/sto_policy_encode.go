@@ -8,8 +8,8 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (po *STOPolicy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big string, bcs []string, bds []byte) error {
-	e := util.StringErrorFunc("failed to decode bson of STOPolicy")
+func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big string, bcs []string, bds []byte) error {
+	e := util.StringErrorFunc("failed to decode bson of Policy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
 

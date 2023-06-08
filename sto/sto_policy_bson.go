@@ -8,7 +8,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (po STOPolicy) MarshalBSON() ([]byte, error) {
+func (po Policy) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":       po.Hint().String(),
@@ -20,7 +20,7 @@ func (po STOPolicy) MarshalBSON() ([]byte, error) {
 	)
 }
 
-type STOPolicyBSONUnmarshaler struct {
+type PolicyBSONUnmarshaler struct {
 	Hint        string   `bson:"_hint"`
 	Partitions  []string `bson:"partitions"`
 	Aggregate   string   `bson:"aggregate"`
@@ -28,10 +28,10 @@ type STOPolicyBSONUnmarshaler struct {
 	Documents   bson.Raw `bson:"documents"`
 }
 
-func (po *STOPolicy) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of STOPolicy")
+func (po *Policy) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringErrorFunc("failed to decode bson of Policy")
 
-	var upo STOPolicyBSONUnmarshaler
+	var upo PolicyBSONUnmarshaler
 	if err := enc.Unmarshal(b, &upo); err != nil {
 		return e(err, "")
 	}

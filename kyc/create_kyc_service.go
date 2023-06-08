@@ -138,10 +138,14 @@ func (fact CreateKYCServiceFact) Currency() currency.CurrencyID {
 }
 
 func (fact CreateKYCServiceFact) Addresses() ([]base.Address, error) {
-	as := make([]base.Address, 2)
+	as := make([]base.Address, 2+len(fact.controllers))
 
 	as[0] = fact.sender
 	as[1] = fact.contract
+
+	for i, con := range fact.controllers {
+		as[i+2] = con
+	}
 
 	return as, nil
 }

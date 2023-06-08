@@ -65,7 +65,7 @@ func (sd DesignStateValue) Hint() hint.Hint {
 }
 
 func (sd DesignStateValue) IsValid([]byte) error {
-	e := util.ErrInvalid.Errorf("invalid STODesignStateValue")
+	e := util.ErrInvalid.Errorf("invalid DesignStateValue")
 
 	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
@@ -128,7 +128,7 @@ func (sd CustomerStateValue) Hint() hint.Hint {
 func (sd CustomerStateValue) IsValid([]byte) error {
 	e := util.ErrInvalid.Errorf("invalid kyc CustomerStateValue")
 
-	if err := sd.BaseHinter.IsValid(DesignStateValueHint.Type().Bytes()); err != nil {
+	if err := sd.BaseHinter.IsValid(CustomerStateValueHint.Type().Bytes()); err != nil {
 		return e.Wrap(err)
 	}
 
@@ -243,17 +243,17 @@ func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFun
 	return policy, nil
 }
 
-func existsKYCPolicy(addr base.Address, kycid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (KYCPolicy, error) {
-	var policy KYCPolicy
+func existsPolicy(addr base.Address, kycid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (Policy, error) {
+	var policy Policy
 	switch i, found, err := getStateFunc(StateKeyDesign(addr, kycid)); {
 	case err != nil:
-		return KYCPolicy{}, err
+		return Policy{}, err
 	case !found:
-		return KYCPolicy{}, base.NewBaseOperationProcessReasonError("kyc not found, %s-%s", addr, kycid)
+		return Policy{}, base.NewBaseOperationProcessReasonError("kyc not found, %s-%s", addr, kycid)
 	default:
 		design, ok := i.Value().(DesignStateValue) //nolint:forcetypeassert //...
 		if !ok {
-			return KYCPolicy{}, errors.Errorf("expected DesignStateValue, not %T", i.Value())
+			return Policy{}, errors.Errorf("expected DesignStateValue, not %T", i.Value())
 		}
 		policy = design.Design.Policy()
 	}

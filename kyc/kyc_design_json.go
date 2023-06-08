@@ -12,7 +12,7 @@ import (
 type DesignJSONMarshaler struct {
 	hint.BaseHinter
 	KYC    extensioncurrency.ContractID `json:"kycid"`
-	Policy KYCPolicy                    `json:"policy"`
+	Policy Policy                       `json:"policy"`
 }
 
 func (de Design) MarshalJSON() ([]byte, error) {

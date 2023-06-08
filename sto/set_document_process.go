@@ -80,7 +80,7 @@ func (opp *SetDocumentProcessor) PreProcess(
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
-	policy, err := existsSTOPolicy(fact.Contract(), fact.STO(), getStateFunc)
+	policy, err := existsPolicy(fact.Contract(), fact.STO(), getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("sto policy not found, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}
@@ -128,14 +128,14 @@ func (opp *SetDocumentProcessor) Process(
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("sto design value not found, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}
-	stoPolicy := design.Policy()
+	Policy := design.Policy()
 
-	stoPolicy = NewSTOPolicy(stoPolicy.Partitions(), stoPolicy.Aggregate(), stoPolicy.Controllers(), append(stoPolicy.Documents(), doc))
-	if err := stoPolicy.IsValid(nil); err != nil {
+	Policy = NewPolicy(Policy.Partitions(), Policy.Aggregate(), Policy.Controllers(), append(Policy.Documents(), doc))
+	if err := Policy.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid sto policy, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}
 
-	design = NewDesign(design.STO(), design.Granularity(), stoPolicy)
+	design = NewDesign(design.STO(), design.Granularity(), Policy)
 	if err := design.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid sto design, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
 	}

@@ -128,7 +128,7 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 		dps = append(dps, it.Partition())
 	}
 
-	policy := NewSTOPolicy(dps, it.Amount().Add(p.Aggregate()), p.Controllers(), p.Documents())
+	policy := NewPolicy(dps, it.Amount().Add(p.Aggregate()), p.Controllers(), p.Documents())
 	if err := policy.IsValid(nil); err != nil {
 		return nil, err
 	}

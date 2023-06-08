@@ -51,7 +51,7 @@ func (ipp *AddCustomersItemProcessor) PreProcess(
 	}
 
 	if !ca.Owner().Equal(ipp.sender) {
-		policy, err := existsKYCPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := existsPolicy(it.Contract(), it.KYC(), getStateFunc)
 		if err != nil {
 			return err
 		}

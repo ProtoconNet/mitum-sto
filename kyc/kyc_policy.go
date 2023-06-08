@@ -7,22 +7,22 @@ import (
 )
 
 var (
-	KYCPolicyHint = hint.MustNewHint("mitum-kyc-policy-v0.0.1")
+	PolicyHint = hint.MustNewHint("mitum-kyc-policy-v0.0.1")
 )
 
-type KYCPolicy struct {
+type Policy struct {
 	hint.BaseHinter
 	controllers []base.Address
 }
 
-func NewKYCPolicy(controllers []base.Address) KYCPolicy {
-	return KYCPolicy{
-		BaseHinter:  hint.NewBaseHinter(KYCPolicyHint),
+func NewPolicy(controllers []base.Address) Policy {
+	return Policy{
+		BaseHinter:  hint.NewBaseHinter(PolicyHint),
 		controllers: controllers,
 	}
 }
 
-func (po KYCPolicy) Bytes() []byte {
+func (po Policy) Bytes() []byte {
 	bs := make([][]byte, len(po.controllers))
 	for i, p := range po.controllers {
 		bs[i] = p.Bytes()
@@ -33,7 +33,7 @@ func (po KYCPolicy) Bytes() []byte {
 	)
 }
 
-func (po KYCPolicy) IsValid([]byte) error {
+func (po Policy) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false, po.BaseHinter); err != nil {
 		return util.ErrInvalid.Errorf("invalid kyc policy: %w", err)
 	}
@@ -47,6 +47,6 @@ func (po KYCPolicy) IsValid([]byte) error {
 	return nil
 }
 
-func (po KYCPolicy) Controllers() []base.Address {
+func (po Policy) Controllers() []base.Address {
 	return po.controllers
 }

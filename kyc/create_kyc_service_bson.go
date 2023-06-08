@@ -26,13 +26,12 @@ func (fact CreateKYCServiceFact) MarshalBSON() ([]byte, error) {
 }
 
 type CreateKYCServiceFactBSONUnmarshaler struct {
-	Hint         string   `bson:"_hint"`
-	Sender       string   `bson:"sender"`
-	Contract     string   `bson:"contract"`
-	KYCID        string   `bson:"kycid"`
-	Controllers  []string `bson:"controllers"`
-	DocumentHash string   `bson:"documenthash"`
-	Currency     string   `bson:"currency"`
+	Hint        string   `bson:"_hint"`
+	Sender      string   `bson:"sender"`
+	Contract    string   `bson:"contract"`
+	KYCID       string   `bson:"kycid"`
+	Controllers []string `bson:"controllers"`
+	Currency    string   `bson:"currency"`
 }
 
 func (fact *CreateKYCServiceFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {

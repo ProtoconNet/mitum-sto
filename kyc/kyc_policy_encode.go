@@ -7,8 +7,8 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (po *KYCPolicy) unpack(enc encoder.Encoder, ht hint.Hint, bcs []string) error {
-	e := util.StringErrorFunc("failed to decode bson of KYCPolicy")
+func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, bcs []string) error {
+	e := util.StringErrorFunc("failed to decode bson of Policy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
 

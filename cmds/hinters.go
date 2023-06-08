@@ -63,7 +63,7 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.OperatorTokenHoldersStateValueHint, Instance: sto.OperatorTokenHoldersStateValue{}},
 	{Hint: sto.DesignHint, Instance: sto.Design{}},
 	{Hint: sto.DocumentHint, Instance: sto.Document{}},
-	{Hint: sto.STOPolicyHint, Instance: sto.STOPolicy{}},
+	{Hint: sto.PolicyHint, Instance: sto.Policy{}},
 	{Hint: sto.CreateSecurityTokensItemHint, Instance: sto.CreateSecurityTokensItem{}},
 	{Hint: sto.CreateSecurityTokensHint, Instance: sto.CreateSecurityTokens{}},
 	{Hint: sto.IssueSecurityTokensItemHint, Instance: sto.IssueSecurityTokensItem{}},
@@ -80,7 +80,7 @@ var hinters = []encoder.DecodeDetail{
 
 	{Hint: kyc.DesignHint, Instance: kyc.Design{}},
 	{Hint: kyc.DesignStateValueHint, Instance: kyc.DesignStateValue{}},
-	{Hint: kyc.KYCPolicyHint, Instance: kyc.KYCPolicy{}},
+	{Hint: kyc.PolicyHint, Instance: kyc.Policy{}},
 	{Hint: kyc.CustomerStateValueHint, Instance: kyc.CustomerStateValue{}},
 	{Hint: kyc.CreateKYCServiceHint, Instance: kyc.CreateKYCService{}},
 	{Hint: kyc.AddControllersItemHint, Instance: kyc.AddControllersItem{}},
