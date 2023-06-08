@@ -3,8 +3,9 @@ package sto // nolint: dupl
 import (
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
-	bsonenc "github.com/ProtoconNet/mitum-currency/v2/digest/util/bson"
+	"github.com/ProtoconNet/mitum-currency/v3/base"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/ProtoconNet/mitum2/util/valuehash"
@@ -31,7 +32,7 @@ type CreateSecurityTokensFactBSONUnmarshaler struct {
 func (fact *CreateSecurityTokensFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	e := util.StringErrorFunc("failed to decode bson of CreateSecurityTokensFact")
 
-	var ubf currency.BaseFactBSONUnmarshaler
+	var ubf base.BaseFactBSONUnmarshaler
 
 	if err := enc.Unmarshal(b, &ubf); err != nil {
 		return e(err, "")
@@ -67,7 +68,7 @@ func (op CreateSecurityTokens) MarshalBSON() ([]byte, error) {
 func (op *CreateSecurityTokens) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	e := util.StringErrorFunc("failed to decode bson of CreateSecurityTokens")
 
-	var ubo currency.BaseOperation
+	var ubo currencybase.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
 		return e(err, "")
 	}

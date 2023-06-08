@@ -3,7 +3,7 @@ package sto
 import (
 	"encoding/json"
 
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -69,7 +69,7 @@ func (p *PartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) 
 		return e(err, "")
 	}
 
-	big, err := currency.NewBigFromString(u.Amount)
+	big, err := currencybase.NewBigFromString(u.Amount)
 	if err != nil {
 		return e(err, "")
 	}
@@ -140,7 +140,7 @@ func (p *TokenHolderPartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonen
 		return e(err, "")
 	}
 
-	big, err := currency.NewBigFromString(u.Amount)
+	big, err := currencybase.NewBigFromString(u.Amount)
 	if err != nil {
 		return e(err, "")
 	}

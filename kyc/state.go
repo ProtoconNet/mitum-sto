@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	"github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -44,7 +44,7 @@ func NewStateMergeValue(key string, stv base.StateValue) base.StateMergeValue {
 }
 
 // kyc:{address}:{kycID}
-func StateKeyKYCPrefix(addr base.Address, kycID extensioncurrency.ContractID) string {
+func StateKeyKYCPrefix(addr base.Address, kycID currencybase.ContractID) string {
 	return fmt.Sprintf("%s%s:%s", KYCPrefix, addr.String(), kycID)
 }
 
@@ -101,7 +101,7 @@ func IsStateDesignKey(key string) bool {
 }
 
 // kyc:{address}:{kycID}:design
-func StateKeyDesign(addr base.Address, sid extensioncurrency.ContractID) string {
+func StateKeyDesign(addr base.Address, sid currencybase.ContractID) string {
 	return fmt.Sprintf("%s%s", StateKeyKYCPrefix(addr, sid), DesignSuffix)
 }
 
@@ -162,7 +162,7 @@ func IsStateCustomerKey(key string) bool {
 }
 
 // kyc:{address}:{kycID}:{address}:customer
-func StateKeyCustomer(addr base.Address, sid extensioncurrency.ContractID, customer base.Address) string {
+func StateKeyCustomer(addr base.Address, sid currencybase.ContractID, customer base.Address) string {
 	return fmt.Sprintf("%s:%s%s", StateKeyKYCPrefix(addr, sid), customer.String(), CustomerSuffix)
 }
 
@@ -221,29 +221,29 @@ func notExistsState(
 	case found:
 		return nil, base.NewBaseOperationProcessReasonError("%s already exists", name)
 	case !found:
-		st = currency.NewBaseState(base.NilHeight, k, nil, nil, nil)
+		st = currencybase.NewBaseState(base.NilHeight, k, nil, nil, nil)
 	}
 	return st, nil
 }
 
-func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFunc) (extensioncurrency.CurrencyPolicy, error) {
-	var policy extensioncurrency.CurrencyPolicy
-	switch i, found, err := getStateFunc(extensioncurrency.StateKeyCurrencyDesign(cid)); {
+func existsCurrencyPolicy(cid currencybase.CurrencyID, getStateFunc base.GetStateFunc) (currencybase.CurrencyPolicy, error) {
+	var policy currencybase.CurrencyPolicy
+	switch i, found, err := getStateFunc(currency.StateKeyCurrencyDesign(cid)); {
 	case err != nil:
-		return extensioncurrency.CurrencyPolicy{}, err
+		return currencybase.CurrencyPolicy{}, err
 	case !found:
-		return extensioncurrency.CurrencyPolicy{}, base.NewBaseOperationProcessReasonError("currency not found, %v", cid)
+		return currencybase.CurrencyPolicy{}, base.NewBaseOperationProcessReasonError("currency not found, %v", cid)
 	default:
-		currencydesign, ok := i.Value().(extensioncurrency.CurrencyDesignStateValue) //nolint:forcetypeassert //...
+		currencydesign, ok := i.Value().(currency.CurrencyDesignStateValue) //nolint:forcetypeassert //...
 		if !ok {
-			return extensioncurrency.CurrencyPolicy{}, errors.Errorf("expected CurrencyDesignStateValue, not %T", i.Value())
+			return currencybase.CurrencyPolicy{}, errors.Errorf("expected CurrencyDesignStateValue, not %T", i.Value())
 		}
 		policy = currencydesign.CurrencyDesign.Policy()
 	}
 	return policy, nil
 }
 
-func existsPolicy(addr base.Address, kycid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (Policy, error) {
+func existsPolicy(addr base.Address, kycid currencybase.ContractID, getStateFunc base.GetStateFunc) (Policy, error) {
 	var policy Policy
 	switch i, found, err := getStateFunc(StateKeyDesign(addr, kycid)); {
 	case err != nil:

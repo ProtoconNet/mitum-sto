@@ -4,8 +4,11 @@ import (
 	"context"
 	"sync"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	types "github.com/ProtoconNet/mitum-currency/v3/operation/type"
+	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
@@ -113,7 +116,7 @@ type RemoveControllersProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewRemoveControllersProcessor() extensioncurrency.GetNewProcessor {
+func NewRemoveControllersProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -246,7 +249,7 @@ func (opp *RemoveControllersProcessor) Process( // nolint:dupl
 	for k, m := range controllers {
 		for id, cons := range m {
 			policy := NewPolicy(*cons)
-			design := NewDesign(extensioncurrency.ContractID(id), policy)
+			design := NewDesign(currencybase.ContractID(id), policy)
 			if err := design.IsValid(nil); err != nil {
 				return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil
 			}
@@ -268,7 +271,7 @@ func (opp *RemoveControllersProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
@@ -279,7 +282,7 @@ func (opp *RemoveControllersProcessor) Process( // nolint:dupl
 			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currency.NewBalanceStateMergeValue(sb[i].Key(), stv))
+		sts = append(sts, NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil

@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -11,11 +10,11 @@ import (
 
 type AddCustomersItemJSONMarshaler struct {
 	hint.BaseHinter
-	Contract base.Address                 `json:"contract"`
-	KYC      extensioncurrency.ContractID `json:"kycid"`
-	Customer base.Address                 `json:"customer"`
-	Status   bool                         `json:"status"`
-	Currency currency.CurrencyID          `json:"currency"`
+	Contract base.Address            `json:"contract"`
+	KYC      currencybase.ContractID `json:"kycid"`
+	Customer base.Address            `json:"customer"`
+	Status   bool                    `json:"status"`
+	Currency currencybase.CurrencyID `json:"currency"`
 }
 
 func (it AddCustomersItem) MarshalJSON() ([]byte, error) {

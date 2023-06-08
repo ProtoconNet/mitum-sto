@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -13,18 +12,18 @@ var UpdateCustomersItemHint = hint.MustNewHint("mitum-kyc-update-customers-item-
 type UpdateCustomersItem struct {
 	hint.BaseHinter
 	contract base.Address
-	kycID    extensioncurrency.ContractID
+	kycID    currencybase.ContractID
 	customer base.Address
 	status   bool
-	currency currency.CurrencyID
+	currency currencybase.CurrencyID
 }
 
 func NewUpdateCustomersItem(
 	contract base.Address,
-	kycID extensioncurrency.ContractID,
+	kycID currencybase.ContractID,
 	customer base.Address,
 	status bool,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) UpdateCustomersItem {
 	return UpdateCustomersItem{
 		BaseHinter: hint.NewBaseHinter(UpdateCustomersItemHint),
@@ -63,7 +62,7 @@ func (it UpdateCustomersItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it UpdateCustomersItem) KYC() extensioncurrency.ContractID {
+func (it UpdateCustomersItem) KYC() currencybase.ContractID {
 	return it.kycID
 }
 
@@ -79,7 +78,7 @@ func (it UpdateCustomersItem) Status() bool {
 	return it.status
 }
 
-func (it UpdateCustomersItem) Currency() currency.CurrencyID {
+func (it UpdateCustomersItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 

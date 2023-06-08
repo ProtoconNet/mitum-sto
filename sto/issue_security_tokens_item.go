@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -12,21 +11,21 @@ var IssueSecurityTokensItemHint = hint.MustNewHint("mitum-sto-issue-security-tok
 
 type IssueSecurityTokensItem struct {
 	hint.BaseHinter
-	contract  base.Address                 // contract
-	stoID     extensioncurrency.ContractID // token id
-	receiver  base.Address                 // tokenholder
-	amount    currency.Big                 // amount
-	partition Partition                    // partition
-	currency  currency.CurrencyID          // fee
+	contract  base.Address            // contract
+	stoID     currencybase.ContractID // token id
+	receiver  base.Address            // tokenholder
+	amount    currencybase.Big        // amount
+	partition Partition               // partition
+	currency  currencybase.CurrencyID // fee
 }
 
 func NewIssueSecurityTokensItem(
 	contract base.Address,
-	stoID extensioncurrency.ContractID,
+	stoID currencybase.ContractID,
 	receiver base.Address,
-	amount currency.Big,
+	amount currencybase.Big,
 	partition Partition,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) IssueSecurityTokensItem {
 	return IssueSecurityTokensItem{
 		BaseHinter: hint.NewBaseHinter(IssueSecurityTokensItemHint),
@@ -77,7 +76,7 @@ func (it IssueSecurityTokensItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it IssueSecurityTokensItem) STO() extensioncurrency.ContractID {
+func (it IssueSecurityTokensItem) STO() currencybase.ContractID {
 	return it.stoID
 }
 
@@ -85,7 +84,7 @@ func (it IssueSecurityTokensItem) Receiver() base.Address {
 	return it.receiver
 }
 
-func (it IssueSecurityTokensItem) Amount() currency.Big {
+func (it IssueSecurityTokensItem) Amount() currencybase.Big {
 	return it.amount
 }
 
@@ -93,7 +92,7 @@ func (it IssueSecurityTokensItem) Partition() Partition {
 	return it.partition
 }
 
-func (it IssueSecurityTokensItem) Currency() currency.CurrencyID {
+func (it IssueSecurityTokensItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 

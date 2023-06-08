@@ -1,7 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -11,7 +11,7 @@ func (de *Design) unpack(enc encoder.Encoder, ht hint.Hint, kyc string, bpo []by
 	e := util.StringErrorFunc("failed to decode bson of Design")
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
-	de.kycID = extensioncurrency.ContractID(kyc)
+	de.kycID = currencybase.ContractID(kyc)
 
 	if hinter, err := enc.Decode(bpo); err != nil {
 		return e(err, "")

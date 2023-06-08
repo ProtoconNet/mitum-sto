@@ -1,8 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -12,19 +11,19 @@ var AuthorizeOperatorsItemHint = hint.MustNewHint("mitum-sto-authorize-operators
 
 type AuthorizeOperatorsItem struct {
 	hint.BaseHinter
-	contract  base.Address                 // contract address
-	stoID     extensioncurrency.ContractID // token id
-	operator  base.Address                 // initial controllers
-	partition Partition                    // partition
-	currency  currency.CurrencyID          // fee
+	contract  base.Address            // contract address
+	stoID     currencybase.ContractID // token id
+	operator  base.Address            // initial controllers
+	partition Partition               // partition
+	currency  currencybase.CurrencyID // fee
 }
 
 func NewAuthorizeOperatorsItem(
 	contract base.Address,
-	stoID extensioncurrency.ContractID,
+	stoID currencybase.ContractID,
 	operator base.Address,
 	partition Partition,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) AuthorizeOperatorsItem {
 	return AuthorizeOperatorsItem{
 		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorsItemHint),
@@ -58,7 +57,7 @@ func (it AuthorizeOperatorsItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it AuthorizeOperatorsItem) STO() extensioncurrency.ContractID {
+func (it AuthorizeOperatorsItem) STO() currencybase.ContractID {
 	return it.stoID
 }
 
@@ -74,7 +73,7 @@ func (it AuthorizeOperatorsItem) Partition() Partition {
 	return it.partition
 }
 
-func (it AuthorizeOperatorsItem) Currency() currency.CurrencyID {
+func (it AuthorizeOperatorsItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 

@@ -1,8 +1,8 @@
 package sto
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
-	bsonenc "github.com/ProtoconNet/mitum-currency/v2/digest/util/bson"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -77,7 +77,7 @@ func (de *PartitionBalanceStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder)
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 
-	big, err := currency.NewBigFromString(u.Amount)
+	big, err := currencybase.NewBigFromString(u.Amount)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (p *TokenHolderPartitionBalanceStateValue) DecodeBSON(b []byte, enc *bsonen
 
 	p.BaseHinter = hint.NewBaseHinter(ht)
 
-	big, err := currency.NewBigFromString(u.Amount)
+	big, err := currencybase.NewBigFromString(u.Amount)
 	if err != nil {
 		return e(err, "")
 	}

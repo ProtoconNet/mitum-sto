@@ -3,7 +3,7 @@ package kyc
 import (
 	"encoding/json"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -11,8 +11,8 @@ import (
 
 type DesignJSONMarshaler struct {
 	hint.BaseHinter
-	KYC    extensioncurrency.ContractID `json:"kycid"`
-	Policy Policy                       `json:"policy"`
+	KYC    currencybase.ContractID `json:"kycid"`
+	Policy Policy                  `json:"policy"`
 }
 
 func (de Design) MarshalJSON() ([]byte, error) {

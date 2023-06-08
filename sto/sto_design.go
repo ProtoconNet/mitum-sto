@@ -1,7 +1,7 @@
 package sto
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
@@ -12,12 +12,12 @@ var (
 
 type Design struct {
 	hint.BaseHinter
-	stoID       extensioncurrency.ContractID
+	stoID       currencybase.ContractID
 	granularity uint64
 	policy      Policy
 }
 
-func NewDesign(stoID extensioncurrency.ContractID, granularity uint64, policy Policy) Design {
+func NewDesign(stoID currencybase.ContractID, granularity uint64, policy Policy) Design {
 	return Design{
 		BaseHinter:  hint.NewBaseHinter(DesignHint),
 		stoID:       stoID,
@@ -50,7 +50,7 @@ func (s Design) Bytes() []byte {
 	)
 }
 
-func (s Design) STO() extensioncurrency.ContractID {
+func (s Design) STO() currencybase.ContractID {
 	return s.stoID
 }
 

@@ -1,7 +1,7 @@
 package sto
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -59,7 +59,7 @@ func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := currency.IsValidOperationFact(fact, b); err != nil {
+	if err := currencybase.IsValidOperationFact(fact, b); err != nil {
 		return err
 	}
 
@@ -123,11 +123,11 @@ func (fact AuthorizeOperatorsFact) Addresses() ([]base.Address, error) {
 }
 
 type AuthorizeOperators struct {
-	currency.BaseOperation
+	currencybase.BaseOperation
 }
 
 func NewAuthorizeOperators(fact AuthorizeOperatorsFact) (AuthorizeOperators, error) {
-	return AuthorizeOperators{BaseOperation: currency.NewBaseOperation(AuthorizeOperatorsHint, fact)}, nil
+	return AuthorizeOperators{BaseOperation: currencybase.NewBaseOperation(AuthorizeOperatorsHint, fact)}, nil
 }
 
 func (op *AuthorizeOperators) HashSign(priv base.Privatekey, networkID base.NetworkID) error {

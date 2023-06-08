@@ -5,8 +5,11 @@ import (
 	"math/big"
 	"sync"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	types "github.com/ProtoconNet/mitum-currency/v3/operation/type"
+	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
@@ -83,7 +86,7 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 	gn := new(big.Int)
 	gn.SetUint64(design.Granularity())
 
-	if mod := currency.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); currency.NewBigFromBigInt(mod).OverZero() {
+	if mod := currencybase.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); currencybase.NewBigFromBigInt(mod).OverZero() {
 		return errors.Errorf("amount unit does not comply with sto granularity rule, %q, %q", it.Amount(), design.Granularity())
 	}
 
@@ -113,7 +116,7 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 	p := design.Policy()
 	dps := p.Partitions()
 
-	var pb currency.Big
+	var pb currencybase.Big
 	switch st, found, err := getStateFunc(StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition())); {
 	case err != nil:
 		return nil, err
@@ -180,7 +183,7 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 		NewTokenHolderPartitionsStateValue(ps),
 	)
 
-	var am currency.Big
+	var am currencybase.Big
 	switch st, found, err := getStateFunc(StateKeyTokenHolderPartitionBalance(it.Contract(), it.STO(), it.Receiver(), it.Partition())); {
 	case err != nil:
 		return nil, err
@@ -190,7 +193,7 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 			return nil, err
 		}
 	default:
-		am = currency.ZeroBig
+		am = currencybase.ZeroBig
 	}
 
 	am = am.Add(it.Amount())
@@ -217,7 +220,7 @@ type IssueSecurityTokensProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewIssueSecurityTokensProcessor() extensioncurrency.GetNewProcessor {
+func NewIssueSecurityTokensProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -334,7 +337,7 @@ func (opp *IssueSecurityTokensProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
@@ -345,7 +348,7 @@ func (opp *IssueSecurityTokensProcessor) Process( // nolint:dupl
 			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
 		}
 		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currency.NewBalanceStateMergeValue(sb[i].Key(), stv))
+		sts = append(sts, NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil

@@ -1,8 +1,7 @@
 package kyc
 
 import (
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -11,7 +10,7 @@ import (
 type KYCItem interface {
 	util.Byter
 	util.IsValider
-	Currency() currency.CurrencyID
+	Currency() currencybase.CurrencyID
 }
 
 var AddControllersItemHint = hint.MustNewHint("mitum-kyc-add-controllers-item-v0.0.1")
@@ -19,16 +18,16 @@ var AddControllersItemHint = hint.MustNewHint("mitum-kyc-add-controllers-item-v0
 type AddControllersItem struct {
 	hint.BaseHinter
 	contract   base.Address
-	kycID      extensioncurrency.ContractID
+	kycID      currencybase.ContractID
 	controller base.Address
-	currency   currency.CurrencyID
+	currency   currencybase.CurrencyID
 }
 
 func NewAddControllersItem(
 	contract base.Address,
-	kycID extensioncurrency.ContractID,
+	kycID currencybase.ContractID,
 	controller base.Address,
-	currency currency.CurrencyID,
+	currency currencybase.CurrencyID,
 ) AddControllersItem {
 	return AddControllersItem{
 		BaseHinter: hint.NewBaseHinter(AddControllersItemHint),
@@ -60,7 +59,7 @@ func (it AddControllersItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it AddControllersItem) KYC() extensioncurrency.ContractID {
+func (it AddControllersItem) KYC() currencybase.ContractID {
 	return it.kycID
 }
 
@@ -72,7 +71,7 @@ func (it AddControllersItem) Controller() base.Address {
 	return it.controller
 }
 
-func (it AddControllersItem) Currency() currency.CurrencyID {
+func (it AddControllersItem) Currency() currencybase.CurrencyID {
 	return it.currency
 }
 

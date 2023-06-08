@@ -3,7 +3,7 @@ package kyc
 import (
 	"encoding/json"
 
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -43,7 +43,7 @@ func (fact *UpdateCustomersFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) erro
 }
 
 type UpdateCustomersMarshaler struct {
-	currency.BaseOperationJSONMarshaler
+	currencybase.BaseOperationJSONMarshaler
 }
 
 func (op UpdateCustomers) MarshalJSON() ([]byte, error) {
@@ -55,7 +55,7 @@ func (op UpdateCustomers) MarshalJSON() ([]byte, error) {
 func (op *UpdateCustomers) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 	e := util.StringErrorFunc("failed to decode json of UpdateCustomers")
 
-	var ubo currency.BaseOperation
+	var ubo currencybase.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
 		return e(err, "")
 	}

@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	extensioncurrency "github.com/ProtoconNet/mitum-currency-extension/v2/currency"
-	"github.com/ProtoconNet/mitum-currency/v2/currency"
+	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -45,7 +45,7 @@ func NewStateMergeValue(key string, stv base.StateValue) base.StateMergeValue {
 }
 
 // sto:address-stoID
-func StateKeySTOPrefix(addr base.Address, stoID extensioncurrency.ContractID) string {
+func StateKeySTOPrefix(addr base.Address, stoID currencybase.ContractID) string {
 	return fmt.Sprintf("%s%s-%s", STOPrefix, addr.String(), stoID)
 }
 
@@ -102,7 +102,7 @@ func IsStateDesignKey(key string) bool {
 }
 
 // sto:address-stoID:design
-func StateKeyDesign(addr base.Address, sid extensioncurrency.ContractID) string {
+func StateKeyDesign(addr base.Address, sid currencybase.ContractID) string {
 	return fmt.Sprintf("%s%s", StateKeySTOPrefix(addr, sid), DesignSuffix)
 }
 
@@ -165,7 +165,7 @@ func IsStateTokenHolderPartitionsKey(key string) bool {
 	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, TokenHolderPartitionsSuffix)
 }
 
-func StateKeyTokenHolderPartitions(caddr base.Address, sid extensioncurrency.ContractID, uaddr base.Address) string {
+func StateKeyTokenHolderPartitions(caddr base.Address, sid currencybase.ContractID, uaddr base.Address) string {
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, sid), uaddr.String(), TokenHolderPartitionsSuffix)
 }
 
@@ -190,11 +190,11 @@ var (
 
 type TokenHolderPartitionBalanceStateValue struct {
 	hint.BaseHinter
-	Amount    currency.Big
+	Amount    currencybase.Big
 	Partition Partition
 }
 
-func NewTokenHolderPartitionBalanceStateValue(amount currency.Big, partition Partition) TokenHolderPartitionBalanceStateValue {
+func NewTokenHolderPartitionBalanceStateValue(amount currencybase.Big, partition Partition) TokenHolderPartitionBalanceStateValue {
 	return TokenHolderPartitionBalanceStateValue{
 		BaseHinter: hint.NewBaseHinter(TokenHolderPartitionBalanceStateValueHint),
 		Amount:     amount,
@@ -224,7 +224,7 @@ func (sv TokenHolderPartitionBalanceStateValue) HashBytes() []byte {
 	return sv.Amount.Bytes()
 }
 
-func StateKeyTokenHolderPartitionBalance(caddr base.Address, stoID extensioncurrency.ContractID, uaddr base.Address, partition Partition) string {
+func StateKeyTokenHolderPartitionBalance(caddr base.Address, stoID currencybase.ContractID, uaddr base.Address, partition Partition) string {
 	return fmt.Sprintf("%s-%s-%s%s", StateKeySTOPrefix(caddr, stoID), uaddr.String(), partition, TokenHolderPartitionBalanceSuffix)
 }
 
@@ -232,15 +232,15 @@ func IsStateTokenHolderPartitionBalanceKey(key string) bool {
 	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, TokenHolderPartitionBalanceSuffix)
 }
 
-func StateTokenHolderPartitionBalanceValue(st base.State) (currency.Big, error) {
+func StateTokenHolderPartitionBalanceValue(st base.State) (currencybase.Big, error) {
 	v := st.Value()
 	if v == nil {
-		return currency.Big{}, util.ErrNotFound.Errorf("tokenholder partition balance not found in State")
+		return currencybase.Big{}, util.ErrNotFound.Errorf("tokenholder partition balance not found in State")
 	}
 
 	p, ok := v.(TokenHolderPartitionBalanceStateValue)
 	if !ok {
-		return currency.Big{}, errors.Errorf("invalid tokenholder partition balance value found, %T", v)
+		return currencybase.Big{}, errors.Errorf("invalid tokenholder partition balance value found, %T", v)
 	}
 
 	return p.Amount, nil
@@ -308,7 +308,7 @@ func (sv TokenHolderPartitionOperatorsStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyTokenHolderPartitionOperators(caddr base.Address, stoID extensioncurrency.ContractID, uaddr base.Address, partition Partition) string {
+func StateKeyTokenHolderPartitionOperators(caddr base.Address, stoID currencybase.ContractID, uaddr base.Address, partition Partition) string {
 	return fmt.Sprintf("%s-%s-%s%s", StateKeySTOPrefix(caddr, stoID), uaddr.String(), partition.String(), TokenHolderPartitionOperatorsSuffix)
 }
 
@@ -337,10 +337,10 @@ var (
 
 type PartitionBalanceStateValue struct {
 	hint.BaseHinter
-	Amount currency.Big
+	Amount currencybase.Big
 }
 
-func NewPartitionBalanceStateValue(amount currency.Big) PartitionBalanceStateValue {
+func NewPartitionBalanceStateValue(amount currencybase.Big) PartitionBalanceStateValue {
 	return PartitionBalanceStateValue{
 		BaseHinter: hint.NewBaseHinter(PartitionBalanceStateValueHint),
 		Amount:     amount,
@@ -365,7 +365,7 @@ func (sv PartitionBalanceStateValue) HashBytes() []byte {
 	return sv.Amount.Bytes()
 }
 
-func StateKeyPartitionBalance(caddr base.Address, stoID extensioncurrency.ContractID, partition Partition) string {
+func StateKeyPartitionBalance(caddr base.Address, stoID currencybase.ContractID, partition Partition) string {
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, stoID), partition.String(), PartitionBalanceSuffix)
 }
 
@@ -373,15 +373,15 @@ func IsStatePartitionBalanceKey(key string) bool {
 	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, PartitionBalanceSuffix)
 }
 
-func StatePartitionBalanceValue(st base.State) (currency.Big, error) {
+func StatePartitionBalanceValue(st base.State) (currencybase.Big, error) {
 	v := st.Value()
 	if v == nil {
-		return currency.Big{}, util.ErrNotFound.Errorf("partition balance not found in State")
+		return currencybase.Big{}, util.ErrNotFound.Errorf("partition balance not found in State")
 	}
 
 	pb, ok := v.(PartitionBalanceStateValue)
 	if !ok {
-		return currency.Big{}, errors.Errorf("invalid partition balance value found, %T", v)
+		return currencybase.Big{}, errors.Errorf("invalid partition balance value found, %T", v)
 	}
 
 	return pb.Amount, nil
@@ -441,7 +441,7 @@ func (p PartitionControllersStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyPartitionControllers(caddr base.Address, stoID extensioncurrency.ContractID, partition Partition) string {
+func StateKeyPartitionControllers(caddr base.Address, stoID currencybase.ContractID, partition Partition) string {
 	return fmt.Sprintf("%s-%s%s", StateKeySTOPrefix(caddr, stoID), partition.String(), PartitionControllersSuffix)
 }
 
@@ -511,7 +511,7 @@ func (o OperatorTokenHoldersStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyOperatorTokenHolders(caddr base.Address, stoID extensioncurrency.ContractID, oaddr base.Address, partition Partition) string {
+func StateKeyOperatorTokenHolders(caddr base.Address, stoID currencybase.ContractID, oaddr base.Address, partition Partition) string {
 	return fmt.Sprintf("%s-%s-%s%s", StateKeySTOPrefix(caddr, stoID), oaddr.String(), partition.String(), OperatorTokenHoldersSuffix)
 }
 
@@ -588,29 +588,29 @@ func notExistsState(
 	case found:
 		return nil, base.NewBaseOperationProcessReasonError("%s already exists", name)
 	case !found:
-		st = currency.NewBaseState(base.NilHeight, k, nil, nil, nil)
+		st = currencybase.NewBaseState(base.NilHeight, k, nil, nil, nil)
 	}
 	return st, nil
 }
 
-func existsCurrencyPolicy(cid currency.CurrencyID, getStateFunc base.GetStateFunc) (extensioncurrency.CurrencyPolicy, error) {
-	var policy extensioncurrency.CurrencyPolicy
-	switch i, found, err := getStateFunc(extensioncurrency.StateKeyCurrencyDesign(cid)); {
+func existsCurrencyPolicy(cid currencybase.CurrencyID, getStateFunc base.GetStateFunc) (currencybase.CurrencyPolicy, error) {
+	var policy currencybase.CurrencyPolicy
+	switch i, found, err := getStateFunc(currency.StateKeyCurrencyDesign(cid)); {
 	case err != nil:
-		return extensioncurrency.CurrencyPolicy{}, err
+		return currencybase.CurrencyPolicy{}, err
 	case !found:
-		return extensioncurrency.CurrencyPolicy{}, base.NewBaseOperationProcessReasonError("currency not found, %v", cid)
+		return currencybase.CurrencyPolicy{}, base.NewBaseOperationProcessReasonError("currency not found, %v", cid)
 	default:
-		currencydesign, ok := i.Value().(extensioncurrency.CurrencyDesignStateValue) //nolint:forcetypeassert //...
+		currencydesign, ok := i.Value().(currency.CurrencyDesignStateValue) //nolint:forcetypeassert //...
 		if !ok {
-			return extensioncurrency.CurrencyPolicy{}, errors.Errorf("expected CurrencyDesignStateValue, not %T", i.Value())
+			return currencybase.CurrencyPolicy{}, errors.Errorf("expected CurrencyDesignStateValue, not %T", i.Value())
 		}
 		policy = currencydesign.CurrencyDesign.Policy()
 	}
 	return policy, nil
 }
 
-func existsPolicy(addr base.Address, sid extensioncurrency.ContractID, getStateFunc base.GetStateFunc) (Policy, error) {
+func existsPolicy(addr base.Address, sid currencybase.ContractID, getStateFunc base.GetStateFunc) (Policy, error) {
 	var policy Policy
 	switch i, found, err := getStateFunc(StateKeyDesign(addr, sid)); {
 	case err != nil:
@@ -627,7 +627,7 @@ func existsPolicy(addr base.Address, sid extensioncurrency.ContractID, getStateF
 	return policy, nil
 }
 
-func existsTokenHolderPartitions(ca base.Address, sid extensioncurrency.ContractID, holder base.Address, getStateFunc base.GetStateFunc) ([]Partition, error) {
+func existsTokenHolderPartitions(ca base.Address, sid currencybase.ContractID, holder base.Address, getStateFunc base.GetStateFunc) ([]Partition, error) {
 	var partitions []Partition
 	switch i, found, err := getStateFunc(StateKeyTokenHolderPartitions(ca, sid, holder)); {
 	case err != nil:
@@ -644,17 +644,17 @@ func existsTokenHolderPartitions(ca base.Address, sid extensioncurrency.Contract
 	return partitions, nil
 }
 
-func existsTokenHolderPartitionBalance(ca base.Address, sid extensioncurrency.ContractID, holder base.Address, p Partition, getStateFunc base.GetStateFunc) (currency.Big, error) {
-	var balance currency.Big
+func existsTokenHolderPartitionBalance(ca base.Address, sid currencybase.ContractID, holder base.Address, p Partition, getStateFunc base.GetStateFunc) (currencybase.Big, error) {
+	var balance currencybase.Big
 	switch i, found, err := getStateFunc(StateKeyTokenHolderPartitionBalance(ca, sid, holder, p)); {
 	case err != nil:
-		return currency.Big{}, err
+		return currencybase.Big{}, err
 	case !found:
-		return currency.Big{}, base.NewBaseOperationProcessReasonError("tokenholder partition balance not found, %s-%s-%s-%s", ca, sid, p, holder)
+		return currencybase.Big{}, base.NewBaseOperationProcessReasonError("tokenholder partition balance not found, %s-%s-%s-%s", ca, sid, p, holder)
 	default:
 		b, ok := i.Value().(TokenHolderPartitionBalanceStateValue) //nolint:forcetypeassert //...
 		if !ok {
-			return currency.Big{}, errors.Errorf("expected TokenHolderPartitionBalanceStateValue, not %T", i.Value())
+			return currencybase.Big{}, errors.Errorf("expected TokenHolderPartitionBalanceStateValue, not %T", i.Value())
 		}
 		balance = b.Amount
 	}
