@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/ProtoconNet/mitum-sto/kyc"
+	"github.com/ProtoconNet/mitum-sto/operation/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 )
 

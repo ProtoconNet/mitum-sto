@@ -23,8 +23,9 @@ import (
 	mitumcurrency "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
 	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/operation/extension"
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v3/operation/isaac"
-	"github.com/ProtoconNet/mitum-sto/kyc"
-	"github.com/ProtoconNet/mitum-sto/sto"
+	"github.com/ProtoconNet/mitum-sto/operation/kyc"
+	"github.com/ProtoconNet/mitum-sto/operation/processor"
+	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
 	isaacblock "github.com/ProtoconNet/mitum2/isaac/block"
@@ -166,7 +167,7 @@ func POperationProcessorsMap(ctx context.Context) (context.Context, error) {
 
 	set := hint.NewCompatibleSet()
 
-	opr := sto.NewOperationProcessor()
+	opr := processor.NewOperationProcessor()
 	opr.SetProcessor(mitumcurrency.CreateAccountsHint, mitumcurrency.NewCreateAccountsProcessor())
 	opr.SetProcessor(mitumcurrency.KeyUpdaterHint, mitumcurrency.NewKeyUpdaterProcessor())
 	opr.SetProcessor(mitumcurrency.TransfersHint, mitumcurrency.NewTransfersProcessor())

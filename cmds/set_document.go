@@ -5,7 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/ProtoconNet/mitum-sto/sto"
+	"github.com/ProtoconNet/mitum-sto/operation/sto"
+	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
@@ -73,7 +74,7 @@ func (cmd *SetDocumentCommand) parseFlags() error {
 }
 
 func (cmd *SetDocumentCommand) createOperation() (base.Operation, error) { // nolint:dupl}
-	fact := sto.NewSetDocumentFact([]byte(cmd.Token), cmd.sender, cmd.contract, cmd.STO.ID, cmd.Title, sto.URI(cmd.URI), cmd.DocumentHash, cmd.Currency.CID)
+	fact := sto.NewSetDocumentFact([]byte(cmd.Token), cmd.sender, cmd.contract, cmd.STO.ID, cmd.Title, stotypes.URI(cmd.URI), cmd.DocumentHash, cmd.Currency.CID)
 
 	op, err := sto.NewSetDocument(fact)
 	if err != nil {
