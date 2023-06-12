@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	currencybase "github.com/ProtoconNet/mitum-currency/v3/base"
+	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum-currency/v3/digest"
 	digestisaac "github.com/ProtoconNet/mitum-currency/v3/digest/isaac"
 	mitumcurrency "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
@@ -9,8 +9,13 @@ import (
 	isaacoperation "github.com/ProtoconNet/mitum-currency/v3/operation/isaac"
 	currencystate "github.com/ProtoconNet/mitum-currency/v3/state/currency"
 	extensionstate "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	"github.com/ProtoconNet/mitum-sto/kyc"
-	"github.com/ProtoconNet/mitum-sto/sto"
+	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-sto/operation/kyc"
+	"github.com/ProtoconNet/mitum-sto/operation/sto"
+	kycstate "github.com/ProtoconNet/mitum-sto/state/kyc"
+	stostate "github.com/ProtoconNet/mitum-sto/state/sto"
+	kyctypes "github.com/ProtoconNet/mitum-sto/types/kyc"
+	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/pkg/errors"
@@ -21,13 +26,13 @@ var SupportedProposalOperationFactHinters []encoder.DecodeDetail
 
 var hinters = []encoder.DecodeDetail{
 	// revive:disable-next-line:line-length-limit
-	{Hint: currencybase.BaseStateHint, Instance: currencybase.BaseState{}},
-	{Hint: currencybase.NodeHint, Instance: currencybase.BaseNode{}},
-	{Hint: currencybase.AccountHint, Instance: currencybase.Account{}},
-	{Hint: currencybase.AddressHint, Instance: currencybase.Address{}},
-	{Hint: currencybase.AmountHint, Instance: currencybase.Amount{}},
-	{Hint: currencybase.AccountKeysHint, Instance: currencybase.BaseAccountKeys{}},
-	{Hint: currencybase.AccountKeyHint, Instance: currencybase.BaseAccountKey{}},
+	{Hint: common.BaseStateHint, Instance: common.BaseState{}},
+	{Hint: common.NodeHint, Instance: common.BaseNode{}},
+	{Hint: currencytypes.AccountHint, Instance: currencytypes.Account{}},
+	{Hint: currencytypes.AddressHint, Instance: currencytypes.Address{}},
+	{Hint: currencytypes.AmountHint, Instance: currencytypes.Amount{}},
+	{Hint: currencytypes.AccountKeysHint, Instance: currencytypes.BaseAccountKeys{}},
+	{Hint: currencytypes.AccountKeyHint, Instance: currencytypes.BaseAccountKey{}},
 	{Hint: mitumcurrency.CreateAccountsItemMultiAmountsHint, Instance: mitumcurrency.CreateAccountsItemMultiAmounts{}},
 	{Hint: mitumcurrency.CreateAccountsItemSingleAmountHint, Instance: mitumcurrency.CreateAccountsItemSingleAmount{}},
 	{Hint: mitumcurrency.CreateAccountsHint, Instance: mitumcurrency.CreateAccounts{}},
@@ -39,11 +44,11 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: currencystate.AccountStateValueHint, Instance: currencystate.AccountStateValue{}},
 	{Hint: currencystate.BalanceStateValueHint, Instance: currencystate.BalanceStateValue{}},
 
-	{Hint: currencybase.CurrencyDesignHint, Instance: currencybase.CurrencyDesign{}},
-	{Hint: currencybase.CurrencyPolicyHint, Instance: currencybase.CurrencyPolicy{}},
+	{Hint: currencytypes.CurrencyDesignHint, Instance: currencytypes.CurrencyDesign{}},
+	{Hint: currencytypes.CurrencyPolicyHint, Instance: currencytypes.CurrencyPolicy{}},
 	{Hint: mitumcurrency.CurrencyRegisterHint, Instance: mitumcurrency.CurrencyRegister{}},
 	{Hint: mitumcurrency.CurrencyPolicyUpdaterHint, Instance: mitumcurrency.CurrencyPolicyUpdater{}},
-	{Hint: currencybase.ContractAccountKeysHint, Instance: currencybase.ContractAccountKeys{}},
+	{Hint: currencytypes.ContractAccountKeysHint, Instance: currencytypes.ContractAccountKeys{}},
 	{Hint: extensioncurrency.CreateContractAccountsItemMultiAmountsHint, Instance: extensioncurrency.CreateContractAccountsItemMultiAmounts{}},
 	{Hint: extensioncurrency.CreateContractAccountsItemSingleAmountHint, Instance: extensioncurrency.CreateContractAccountsItemSingleAmount{}},
 	{Hint: extensioncurrency.CreateContractAccountsHint, Instance: extensioncurrency.CreateContractAccounts{}},
@@ -52,21 +57,21 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: extensioncurrency.WithdrawsHint, Instance: extensioncurrency.Withdraws{}},
 	{Hint: mitumcurrency.GenesisCurrenciesFactHint, Instance: mitumcurrency.GenesisCurrenciesFact{}},
 	{Hint: mitumcurrency.GenesisCurrenciesHint, Instance: mitumcurrency.GenesisCurrencies{}},
-	{Hint: currencybase.NilFeeerHint, Instance: currencybase.NilFeeer{}},
-	{Hint: currencybase.FixedFeeerHint, Instance: currencybase.FixedFeeer{}},
-	{Hint: currencybase.RatioFeeerHint, Instance: currencybase.RatioFeeer{}},
+	{Hint: currencytypes.NilFeeerHint, Instance: currencytypes.NilFeeer{}},
+	{Hint: currencytypes.FixedFeeerHint, Instance: currencytypes.FixedFeeer{}},
+	{Hint: currencytypes.RatioFeeerHint, Instance: currencytypes.RatioFeeer{}},
 	{Hint: extensionstate.ContractAccountStateValueHint, Instance: extensionstate.ContractAccountStateValue{}},
 	{Hint: currencystate.CurrencyDesignStateValueHint, Instance: currencystate.CurrencyDesignStateValue{}},
 
-	{Hint: sto.DesignStateValueHint, Instance: sto.DesignStateValue{}},
-	{Hint: sto.TokenHolderPartitionsStateValueHint, Instance: sto.TokenHolderPartitionsStateValue{}},
-	{Hint: sto.TokenHolderPartitionBalanceStateValueHint, Instance: sto.TokenHolderPartitionBalanceStateValue{}},
-	{Hint: sto.TokenHolderPartitionOperatorsStateValueHint, Instance: sto.TokenHolderPartitionOperatorsStateValue{}},
-	{Hint: sto.PartitionBalanceStateValueHint, Instance: sto.PartitionBalanceStateValue{}},
-	{Hint: sto.OperatorTokenHoldersStateValueHint, Instance: sto.OperatorTokenHoldersStateValue{}},
-	{Hint: sto.DesignHint, Instance: sto.Design{}},
-	{Hint: sto.DocumentHint, Instance: sto.Document{}},
-	{Hint: sto.PolicyHint, Instance: sto.Policy{}},
+	{Hint: stostate.DesignStateValueHint, Instance: stostate.DesignStateValue{}},
+	{Hint: stostate.TokenHolderPartitionsStateValueHint, Instance: stostate.TokenHolderPartitionsStateValue{}},
+	{Hint: stostate.TokenHolderPartitionBalanceStateValueHint, Instance: stostate.TokenHolderPartitionBalanceStateValue{}},
+	{Hint: stostate.TokenHolderPartitionOperatorsStateValueHint, Instance: stostate.TokenHolderPartitionOperatorsStateValue{}},
+	{Hint: stostate.PartitionBalanceStateValueHint, Instance: stostate.PartitionBalanceStateValue{}},
+	{Hint: stostate.OperatorTokenHoldersStateValueHint, Instance: stostate.OperatorTokenHoldersStateValue{}},
+	{Hint: stotypes.DesignHint, Instance: stotypes.Design{}},
+	{Hint: stotypes.DocumentHint, Instance: stotypes.Document{}},
+	{Hint: stotypes.PolicyHint, Instance: stotypes.Policy{}},
 	{Hint: sto.CreateSecurityTokensItemHint, Instance: sto.CreateSecurityTokensItem{}},
 	{Hint: sto.CreateSecurityTokensHint, Instance: sto.CreateSecurityTokens{}},
 	{Hint: sto.IssueSecurityTokensItemHint, Instance: sto.IssueSecurityTokensItem{}},
@@ -81,10 +86,10 @@ var hinters = []encoder.DecodeDetail{
 	{Hint: sto.RevokeOperatorsHint, Instance: sto.RevokeOperators{}},
 	{Hint: sto.SetDocumentHint, Instance: sto.SetDocument{}},
 
-	{Hint: kyc.DesignHint, Instance: kyc.Design{}},
-	{Hint: kyc.DesignStateValueHint, Instance: kyc.DesignStateValue{}},
-	{Hint: kyc.PolicyHint, Instance: kyc.Policy{}},
-	{Hint: kyc.CustomerStateValueHint, Instance: kyc.CustomerStateValue{}},
+	{Hint: kyctypes.DesignHint, Instance: kyctypes.Design{}},
+	{Hint: kycstate.DesignStateValueHint, Instance: kycstate.DesignStateValue{}},
+	{Hint: kyctypes.PolicyHint, Instance: kyctypes.Policy{}},
+	{Hint: kycstate.CustomerStateValueHint, Instance: kycstate.CustomerStateValue{}},
 	{Hint: kyc.CreateKYCServiceHint, Instance: kyc.CreateKYCService{}},
 	{Hint: kyc.AddControllersItemHint, Instance: kyc.AddControllersItem{}},
 	{Hint: kyc.AddControllersHint, Instance: kyc.AddControllers{}},
