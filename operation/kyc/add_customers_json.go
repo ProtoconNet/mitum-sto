@@ -30,11 +30,11 @@ type AddCustomersFactJSONUnMarshaler struct {
 }
 
 func (fact *AddCustomersFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of AddCustomersFact")
+	e := util.StringError("failed to decode json of AddCustomersFact")
 
 	var uf AddCustomersFactJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
@@ -53,11 +53,11 @@ func (op AddCustomers) MarshalJSON() ([]byte, error) {
 }
 
 func (op *AddCustomers) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of AddCustomers")
+	e := util.StringError("failed to decode json of AddCustomers")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

@@ -29,12 +29,12 @@ type IssueSecurityTokensFactBSONUnmarshaler struct {
 }
 
 func (fact *IssueSecurityTokensFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of IssueSecurityTokensFact")
+	e := util.StringError("failed to decode bson of IssueSecurityTokensFact")
 
 	var ubf common.BaseFactBSONUnmarshaler
 
 	if err := enc.Unmarshal(b, &ubf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(ubf.Hash))
@@ -42,12 +42,12 @@ func (fact *IssueSecurityTokensFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) 
 
 	var uf IssueSecurityTokensFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uf.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -65,11 +65,11 @@ func (op IssueSecurityTokens) MarshalBSON() ([]byte, error) {
 }
 
 func (op *IssueSecurityTokens) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of IssueSecurityTokens")
+	e := util.StringError("failed to decode bson of IssueSecurityTokens")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

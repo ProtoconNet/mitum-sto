@@ -11,7 +11,7 @@ import (
 )
 
 func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, th, rc, p, am, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal TransferSecurityTokensPartitionItem")
+	e := util.StringError("failed to unmarshal TransferSecurityTokensPartitionItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.stoID = currencytypes.ContractID(sto)
@@ -20,28 +20,28 @@ func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hi
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
 
 	switch a, err := base.DecodeAddress(th, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.tokenholder = a
 	}
 
 	switch a, err := base.DecodeAddress(rc, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.receiver = a
 	}
 
 	amount, err := common.NewBigFromString(am)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	it.amount = amount
 

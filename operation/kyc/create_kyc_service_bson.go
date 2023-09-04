@@ -35,12 +35,12 @@ type CreateKYCServiceFactBSONUnmarshaler struct {
 }
 
 func (fact *CreateKYCServiceFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of CreateKYCServiceFact")
+	e := util.StringError("failed to decode bson of CreateKYCServiceFact")
 
 	var ubf common.BaseFactBSONUnmarshaler
 
 	if err := enc.Unmarshal(b, &ubf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(ubf.Hash))
@@ -48,12 +48,12 @@ func (fact *CreateKYCServiceFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) err
 
 	var uf CreateKYCServiceFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uf.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -71,11 +71,11 @@ func (op CreateKYCService) MarshalBSON() ([]byte, error) {
 }
 
 func (op *CreateKYCService) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of CreateKYCService")
+	e := util.StringError("failed to decode bson of CreateKYCService")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

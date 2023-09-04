@@ -38,11 +38,11 @@ type UpdateCustomersItemJSONUnMarshaler struct {
 }
 
 func (it *UpdateCustomersItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of UpdateCustomersItem")
+	e := util.StringError("failed to decode json of UpdateCustomersItem")
 
 	var uit UpdateCustomersItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unpack(enc, uit.Hint, uit.Contract, uit.KYC, uit.Customer, uit.Status, uit.Currency)

@@ -38,11 +38,11 @@ type CreateKYCServiceFactJSONUnMarshaler struct {
 }
 
 func (fact *CreateKYCServiceFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CreateKYCServiceFact")
+	e := util.StringError("failed to decode json of CreateKYCServiceFact")
 
 	var uf CreateKYCServiceFactJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
@@ -61,11 +61,11 @@ func (op CreateKYCService) MarshalJSON() ([]byte, error) {
 }
 
 func (op *CreateKYCService) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CreateKYCService")
+	e := util.StringError("failed to decode json of CreateKYCService")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

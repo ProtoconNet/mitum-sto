@@ -9,18 +9,18 @@ import (
 )
 
 func (fact *SetDocumentFact) unpack(enc encoder.Encoder, sa, ca, stoid, title, uri, dochash, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal SetDocumentFact")
+	e := util.StringError("failed to unmarshal SetDocumentFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		fact.sender = a
 	}
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		fact.contract = a
 	}

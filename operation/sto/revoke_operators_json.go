@@ -30,11 +30,11 @@ type RevokeOperatorsFactJSONUnMarshaler struct {
 }
 
 func (fact *RevokeOperatorsFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of RevokeOperatorsFact")
+	e := util.StringError("failed to decode json of RevokeOperatorsFact")
 
 	var uf RevokeOperatorsFactJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
@@ -53,11 +53,11 @@ func (op RevokeOperators) MarshalJSON() ([]byte, error) {
 }
 
 func (op *RevokeOperators) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of RevokeOperators")
+	e := util.StringError("failed to decode json of RevokeOperators")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

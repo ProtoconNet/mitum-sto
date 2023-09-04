@@ -35,12 +35,12 @@ func (po Policy) Bytes() []byte {
 
 func (po Policy) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false, po.BaseHinter); err != nil {
-		return util.ErrInvalid.Errorf("invalid kyc policy: %w", err)
+		return util.ErrInvalid.Errorf("invalid kyc policy: %v", err)
 	}
 
 	for _, p := range po.controllers {
 		if err := p.IsValid(nil); err != nil {
-			return util.ErrInvalid.Errorf("invalid Controller: %w", err)
+			return util.ErrInvalid.Errorf("invalid Controller: %v", err)
 		}
 	}
 

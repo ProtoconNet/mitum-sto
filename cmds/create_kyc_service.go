@@ -5,27 +5,28 @@ import (
 
 	"github.com/pkg/errors"
 
+	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type CreateKYCServiceCommand struct {
-	baseCommand
-	OperationFlags
-	Sender      AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract    AddressFlag    `arg:"" name:"contract" help:"contract address of kyc" required:"true"`
-	KYC         ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
-	Controller  AddressFlag    `arg:"" name:"controller" help:"controller" required:"true"`
-	Currency    CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	BaseCommand
+	currencycmds.OperationFlags
+	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract address of kyc" required:"true"`
+	KYC         currencycmds.ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
+	Controller  currencycmds.AddressFlag    `arg:"" name:"controller" help:"controller" required:"true"`
+	Currency    currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender      base.Address
 	contract    base.Address
 	controllers []base.Address
 }
 
 func NewCreateKYCServiceCommand() CreateKYCServiceCommand {
-	cmd := NewbaseCommand()
+	cmd := NewBaseCommand()
 	return CreateKYCServiceCommand{
-		baseCommand: *cmd,
+		BaseCommand: *cmd,
 	}
 }
 
@@ -34,8 +35,8 @@ func (cmd *CreateKYCServiceCommand) Run(pctx context.Context) error { // nolint:
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -46,7 +47,7 @@ func (cmd *CreateKYCServiceCommand) Run(pctx context.Context) error { // nolint:
 		return err
 	}
 
-	PrettyPrint(cmd.Out, op)
+	currencycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

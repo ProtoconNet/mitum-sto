@@ -287,18 +287,18 @@ func NewRedeemTokensProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new RedeemTokensProcessor")
+		e := util.StringError("failed to create new RedeemTokensProcessor")
 
 		nopp := redeemTokensProcessorPool.Get()
 		opp, ok := nopp.(*RedeemTokensProcessor)
 		if !ok {
-			return nil, e(nil, "expected RedeemTokensProcessor, not %T", nopp)
+			return nil, e.Wrap(errors.Errorf("expected RedeemTokensProcessor, not %T", nopp))
 		}
 
 		b, err := base.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -310,15 +310,15 @@ func NewRedeemTokensProcessor() currencytypes.GetNewProcessor {
 func (opp *RedeemTokensProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess RedeemTokens")
+	e := util.StringError("failed to preprocess RedeemTokens")
 
 	fact, ok := op.Fact().(RedeemTokensFact)
 	if !ok {
-		return ctx, nil, e(nil, "expected RedeemTokensFact, not %T", op.Fact())
+		return ctx, nil, e.Wrap(errors.Errorf("expected RedeemTokensFact, not %T", op.Fact()))
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -362,7 +362,7 @@ func (opp *RedeemTokensProcessor) PreProcess(
 		ip := redeemTokensItemProcessorPool.Get()
 		ipc, ok := ip.(*RedeemTokensItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected RedeemTokensItemProcessor, not %T", ip)
+			return nil, nil, e.Wrap(errors.Errorf("expected RedeemTokensItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -385,11 +385,11 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process RedeemTokens")
+	e := util.StringError("failed to process RedeemTokens")
 
 	fact, ok := op.Fact().(RedeemTokensFact)
 	if !ok {
-		return nil, nil, e(nil, "expected RedeemTokensFact, not %T", op.Fact())
+		return nil, nil, e.Wrap(errors.Errorf("expected RedeemTokensFact, not %T", op.Fact()))
 	}
 
 	stos := map[string]*stotypes.Design{}
@@ -424,7 +424,7 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 		ip := redeemTokensItemProcessorPool.Get()
 		ipc, ok := ip.(*RedeemTokensItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected RedeemTokensItemProcessor, not %T", ip)
+			return nil, nil, e.Wrap(errors.Errorf("expected RedeemTokensItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -472,7 +472,7 @@ func (opp *RedeemTokensProcessor) Process( // nolint:dupl
 	for i := range sb {
 		v, ok := sb[i].Value().(currency.BalanceStateValue)
 		if !ok {
-			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
+			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
 		}
 		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
 		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))

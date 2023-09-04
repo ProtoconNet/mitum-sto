@@ -8,7 +8,7 @@ import (
 )
 
 func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, bcs []string) error {
-	e := util.StringErrorFunc("failed to decode bson of Policy")
+	e := util.StringError("failed to decode bson of Policy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -16,7 +16,7 @@ func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, bcs []string) error 
 	for i := range bcs {
 		ctr, err := base.DecodeAddress(bcs[i], enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		controllers[i] = ctr
 	}

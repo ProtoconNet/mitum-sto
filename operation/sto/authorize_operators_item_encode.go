@@ -10,7 +10,7 @@ import (
 )
 
 func (it *AuthorizeOperatorsItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, op, pt, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal AuthorizeOperatorsItem")
+	e := util.StringError("failed to unmarshal AuthorizeOperatorsItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.stoID = currencytypes.ContractID(sto)
@@ -19,14 +19,14 @@ func (it *AuthorizeOperatorsItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, 
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
 
 	switch a, err := base.DecodeAddress(op, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.operator = a
 	}

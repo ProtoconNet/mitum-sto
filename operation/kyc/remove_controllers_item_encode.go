@@ -9,7 +9,7 @@ import (
 )
 
 func (it *RemoveControllersItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, kyc, con, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal RemoveControllersItem")
+	e := util.StringError("failed to unmarshal RemoveControllersItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.kycID = currencytypes.ContractID(kyc)
@@ -17,14 +17,14 @@ func (it *RemoveControllersItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, k
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
 
 	switch a, err := base.DecodeAddress(con, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.controller = a
 	}

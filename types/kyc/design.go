@@ -30,11 +30,11 @@ func (k Design) IsValid([]byte) error {
 		k.kycID,
 		k.policy,
 	); err != nil {
-		return util.ErrInvalid.Errorf("invalid KYCDesign: %w", err)
+		return util.ErrInvalid.Errorf("invalid KYCDesign: %v", err)
 	}
 
 	if err := k.kycID.IsValid(nil); err != nil {
-		return util.ErrInvalid.Errorf("invalid ContractID: %w", err)
+		return util.ErrInvalid.Errorf("invalid ContractID: %v", err)
 	}
 
 	return k.policy.IsValid(nil)

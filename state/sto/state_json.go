@@ -28,17 +28,17 @@ type DesignStateValueJSONUnmarshaler struct {
 }
 
 func (de *DesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of DesignStateValue")
+	e := util.StringError("failed to decode json of DesignStateValue")
 
 	var u DesignStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	var design stotypes.Design
 
 	if err := design.DecodeJSON(u.STO, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	de.Design = design
@@ -63,16 +63,16 @@ type PartitionBalanceStateValueJSONUnmarshaler struct {
 }
 
 func (p *PartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of PartitionBalanceStateValue")
+	e := util.StringError("failed to decode json of PartitionBalanceStateValue")
 
 	var u PartitionBalanceStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	big, err := common.NewBigFromString(u.Amount)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	p.Amount = big
@@ -97,11 +97,11 @@ type TokenHolderPartitionsStateValueJSONUnmarshaler struct {
 }
 
 func (p *TokenHolderPartitionsStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of TokenHolderPartitionsStateValue")
+	e := util.StringError("failed to decode json of TokenHolderPartitionsStateValue")
 
 	var u TokenHolderPartitionsStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	partitions := make([]stotypes.Partition, len(u.Partitions))
@@ -134,16 +134,16 @@ type TokenHolderPartitionBalanceStateValueJSONUnmarshaler struct {
 }
 
 func (p *TokenHolderPartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of TokenHolderPartitionBalanceStateValue")
+	e := util.StringError("failed to decode json of TokenHolderPartitionBalanceStateValue")
 
 	var u TokenHolderPartitionBalanceStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	big, err := common.NewBigFromString(u.Amount)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	p.Amount = big
 
@@ -169,18 +169,18 @@ type TokenHolderPartitionOperatorsStateValueJSONUnmarshaler struct {
 }
 
 func (ops *TokenHolderPartitionOperatorsStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of TokenHolderPartitionOperatorsStateValue")
+	e := util.StringError("failed to decode json of TokenHolderPartitionOperatorsStateValue")
 
 	var u TokenHolderPartitionOperatorsStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	operators := make([]base.Address, len(u.Operators))
 	for i := range u.Operators {
 		a, err := base.DecodeAddress(u.Operators[i], enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		operators[i] = a
 	}
@@ -206,18 +206,18 @@ type OperatorTokenHoldersStateValueJSONUnmarshaler struct {
 }
 
 func (oth *OperatorTokenHoldersStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of OperatorTokenHoldersStateValue")
+	e := util.StringError("failed to decode json of OperatorTokenHoldersStateValue")
 
 	var u OperatorTokenHoldersStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	holders := make([]base.Address, len(u.TokenHolders))
 	for i := range u.TokenHolders {
 		a, err := base.DecodeAddress(u.TokenHolders[i], enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		holders[i] = a
 	}

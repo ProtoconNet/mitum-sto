@@ -23,23 +23,23 @@ type DesignStateValueBSONUnmarshaler struct {
 }
 
 func (de *DesignStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of DesignStateValue")
+	e := util.StringError("failed to decode bson of DesignStateValue")
 
 	var u DesignStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 
 	var design kyctypes.Design
 	if err := design.DecodeBSON(u.KYC, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	de.Design = design
@@ -62,16 +62,16 @@ type CustomerStateValueBSONUnmarshaler struct {
 }
 
 func (cm *CustomerStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of CustomerStateValue")
+	e := util.StringError("failed to decode bson of CustomerStateValue")
 
 	var u CustomerStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	cm.BaseHinter = hint.NewBaseHinter(ht)

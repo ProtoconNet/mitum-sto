@@ -39,7 +39,7 @@ func NewSetDocumentProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new SetDocumentProcessor")
+		e := util.StringError("failed to create new SetDocumentProcessor")
 
 		nopp := setDocumentProcessorPool.Get()
 		opp, ok := nopp.(*SetDocumentProcessor)
@@ -50,7 +50,7 @@ func NewSetDocumentProcessor() currencytypes.GetNewProcessor {
 		b, err := base.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -62,15 +62,15 @@ func NewSetDocumentProcessor() currencytypes.GetNewProcessor {
 func (opp *SetDocumentProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess SetDocument")
+	e := util.StringError("failed to preprocess SetDocument")
 
 	fact, ok := op.Fact().(SetDocumentFact)
 	if !ok {
-		return ctx, nil, e(nil, "not SetDocumentFact, %T", op.Fact())
+		return ctx, nil, e.Wrap(errors.Errorf("not SetDocumentFact, %T", op.Fact()))
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -112,11 +112,11 @@ func (opp *SetDocumentProcessor) Process(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process SetDocument")
+	e := util.StringError("failed to process SetDocument")
 
 	fact, ok := op.Fact().(SetDocumentFact)
 	if !ok {
-		return nil, nil, e(nil, "expected SetDocumentFact, not %T", op.Fact())
+		return nil, nil, e.Wrap(errors.Errorf("expected SetDocumentFact, not %T", op.Fact()))
 	}
 
 	doc := stotypes.NewDocument(fact.STO(), fact.Title(), fact.DocumentHash(), fact.URI())

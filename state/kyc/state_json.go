@@ -26,17 +26,17 @@ type DesignStateValueJSONUnmarshaler struct {
 }
 
 func (de *DesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of DesignStateValue")
+	e := util.StringError("failed to decode json of DesignStateValue")
 
 	var u DesignStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	var design kyctypes.Design
 
 	if err := design.DecodeJSON(u.KYC, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	de.Design = design
@@ -61,11 +61,11 @@ type CustomerStateValueJSONUnmarshaler struct {
 }
 
 func (cm *CustomerStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CustomerStateValue")
+	e := util.StringError("failed to decode json of CustomerStateValue")
 
 	var u CustomerStateValueJSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	cm.status = Status(u.Status)
 

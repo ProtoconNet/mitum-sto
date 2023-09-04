@@ -10,7 +10,7 @@ import (
 )
 
 func (it *CreateSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto string, granularity uint64, partition string, bcs []string, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal CreateSecurityTokensItem")
+	e := util.StringError("failed to unmarshal CreateSecurityTokensItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.stoID = currencytypes.ContractID(sto)
@@ -20,7 +20,7 @@ func (it *CreateSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, ca
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
@@ -29,7 +29,7 @@ func (it *CreateSecurityTokensItem) unpack(enc encoder.Encoder, ht hint.Hint, ca
 	for i := range bcs {
 		ctr, err := base.DecodeAddress(bcs[i], enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		controllers[i] = ctr
 	}

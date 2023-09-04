@@ -45,11 +45,11 @@ type TransferSecurityTokensPartitionItemJSONUnMarshaler struct {
 }
 
 func (it *TransferSecurityTokensPartitionItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of TransferSecurityTokensPartitionItem")
+	e := util.StringError("failed to decode json of TransferSecurityTokensPartitionItem")
 
 	var uit TransferSecurityTokensPartitionItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.TokenHolder, uit.Receiver, uit.Partition, uit.Amount, uit.Currency)

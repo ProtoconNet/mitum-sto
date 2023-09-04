@@ -29,16 +29,16 @@ type DocumentBSONUnmarshaler struct {
 }
 
 func (doc *Document) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of Document")
+	e := util.StringError("failed to decode bson of Document")
 
 	var ud DocumentBSONUnmarshaler
 	if err := enc.Unmarshal(b, &ud); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(ud.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return doc.unpack(enc, ht, ud.STO, ud.Title, ud.Hash, ud.URI)

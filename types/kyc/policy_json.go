@@ -25,11 +25,11 @@ type PolicyJSONUnmarshaler struct {
 }
 
 func (po *Policy) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of Policy")
+	e := util.StringError("failed to decode json of Policy")
 
 	var upo PolicyJSONUnmarshaler
 	if err := enc.Unmarshal(b, &upo); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return po.unpack(enc, upo.Hint, upo.Controllers)
