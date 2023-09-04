@@ -9,7 +9,7 @@ import (
 )
 
 func (it *AddCustomersItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, kyc, ctm string, st bool, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal AddCustomersItem")
+	e := util.StringError("failed to unmarshal AddCustomersItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.kycID = currencytypes.ContractID(kyc)
@@ -18,14 +18,14 @@ func (it *AddCustomersItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, kyc, c
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
 
 	switch a, err := base.DecodeAddress(ctm, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.customer = a
 	}

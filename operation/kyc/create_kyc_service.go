@@ -124,13 +124,7 @@ func (fact CreateKYCServiceFact) KYC() currencytypes.ContractID {
 }
 
 func (fact CreateKYCServiceFact) Controllers() []base.Address {
-	as := make([]base.Address, len(fact.controllers))
-
-	for i, con := range fact.controllers {
-		as[i] = con
-	}
-
-	return as
+	return append([]base.Address{}, fact.controllers...)
 }
 
 func (fact CreateKYCServiceFact) Currency() currencytypes.CurrencyID {

@@ -29,12 +29,12 @@ type RedeemTokensFactBSONUnmarshaler struct {
 }
 
 func (fact *RedeemTokensFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of RedeemTokensFact")
+	e := util.StringError("failed to decode bson of RedeemTokensFact")
 
 	var ubf common.BaseFactBSONUnmarshaler
 
 	if err := enc.Unmarshal(b, &ubf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(ubf.Hash))
@@ -42,12 +42,12 @@ func (fact *RedeemTokensFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 
 	var uf RedeemTokensFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uf.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -65,11 +65,11 @@ func (op RedeemTokens) MarshalBSON() ([]byte, error) {
 }
 
 func (op *RedeemTokens) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of RedeemTokens")
+	e := util.StringError("failed to decode bson of RedeemTokens")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

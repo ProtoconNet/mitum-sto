@@ -269,18 +269,18 @@ func NewTransferSecurityTokensPartitionProcessor() currencytypes.GetNewProcessor
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new TransferSecurityTokensPartitionProcessor")
+		e := util.StringError("failed to create new TransferSecurityTokensPartitionProcessor")
 
 		nopp := transferSecurityTokensPartitionProcessorPool.Get()
 		opp, ok := nopp.(*TransferSecurityTokensPartitionProcessor)
 		if !ok {
-			return nil, e(nil, "expected TransferSecurityTokensPartitionProcessor, not %T", nopp)
+			return nil, e.Wrap(errors.Errorf("expected TransferSecurityTokensPartitionProcessor, not %T", nopp))
 		}
 
 		b, err := base.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -292,15 +292,15 @@ func NewTransferSecurityTokensPartitionProcessor() currencytypes.GetNewProcessor
 func (opp *TransferSecurityTokensPartitionProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess TransferSecurityTokensPartition")
+	e := util.StringError("failed to preprocess TransferSecurityTokensPartition")
 
 	fact, ok := op.Fact().(TransferSecurityTokensPartitionFact)
 	if !ok {
-		return ctx, nil, e(nil, "expected TransferSecurityTokensPartitionFact, not %T", op.Fact())
+		return ctx, nil, e.Wrap(errors.Errorf("expected TransferSecurityTokensPartitionFact, not %T", op.Fact()))
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -334,7 +334,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) PreProcess(
 		ip := transferSecurityTokensPartitionItemProcessorPool.Get()
 		ipc, ok := ip.(*TransferSecurityTokensPartitionItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected TransferSecurityTokensPartitionItemProcessor, not %T", ip)
+			return nil, nil, e.Wrap(errors.Errorf("expected TransferSecurityTokensPartitionItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -361,11 +361,11 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process TransferSecurityTokensPartition")
+	e := util.StringError("failed to process TransferSecurityTokensPartition")
 
 	fact, ok := op.Fact().(TransferSecurityTokensPartitionFact)
 	if !ok {
-		return nil, nil, e(nil, "expected TransferSecurityTokensPartitionFact, not %T", op.Fact())
+		return nil, nil, e.Wrap(errors.Errorf("expected TransferSecurityTokensPartitionFact, not %T", op.Fact()))
 	}
 
 	partitions := map[string][]stotypes.Partition{}
@@ -442,7 +442,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 		ip := transferSecurityTokensPartitionItemProcessorPool.Get()
 		ipc, ok := ip.(*TransferSecurityTokensPartitionItemProcessor)
 		if !ok {
-			return nil, nil, e(nil, "expected TransferSecurityTokensPartitionItemProcessor, not %T", ip)
+			return nil, nil, e.Wrap(errors.Errorf("expected TransferSecurityTokensPartitionItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -494,7 +494,7 @@ func (opp *TransferSecurityTokensPartitionProcessor) Process( // nolint:dupl
 	for i := range sb {
 		v, ok := sb[i].Value().(currency.BalanceStateValue)
 		if !ok {
-			return nil, nil, e(nil, "expected BalanceStateValue, not %T", sb[i].Value())
+			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
 		}
 		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
 		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))

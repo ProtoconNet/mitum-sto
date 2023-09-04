@@ -5,21 +5,22 @@ import (
 
 	"github.com/pkg/errors"
 
+	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type TransferSecurityTokensPartitionCommand struct {
-	baseCommand
-	OperationFlags
-	Sender      AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract    AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	STO         ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
-	TokenHolder AddressFlag    `arg:"" name:"tokenholder" help:"tokenholder" required:"true"`
-	Receiver    AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
-	Partition   PartitionFlag  `arg:"" name:"partition" help:"partition" required:"true"`
-	Amount      BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
-	Currency    CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	BaseCommand
+	currencycmds.OperationFlags
+	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	STO         currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
+	TokenHolder currencycmds.AddressFlag    `arg:"" name:"tokenholder" help:"tokenholder" required:"true"`
+	Receiver    currencycmds.AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
+	Partition   PartitionFlag               `arg:"" name:"partition" help:"partition" required:"true"`
+	Amount      currencycmds.BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
+	Currency    currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender      base.Address
 	contract    base.Address
 	holder      base.Address
@@ -27,9 +28,9 @@ type TransferSecurityTokensPartitionCommand struct {
 }
 
 func NewTransferSecurityTokensPartitionCommand() TransferSecurityTokensPartitionCommand {
-	cmd := NewbaseCommand()
+	cmd := NewBaseCommand()
 	return TransferSecurityTokensPartitionCommand{
-		baseCommand: *cmd,
+		BaseCommand: *cmd,
 	}
 }
 
@@ -38,8 +39,8 @@ func (cmd *TransferSecurityTokensPartitionCommand) Run(pctx context.Context) err
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -50,7 +51,7 @@ func (cmd *TransferSecurityTokensPartitionCommand) Run(pctx context.Context) err
 		return err
 	}
 
-	PrettyPrint(cmd.Out, op)
+	currencycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

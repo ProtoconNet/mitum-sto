@@ -32,11 +32,11 @@ func (s Design) IsValid([]byte) error {
 		s.stoID,
 		s.policy,
 	); err != nil {
-		return util.ErrInvalid.Errorf("invalid Design: %w", err)
+		return util.ErrInvalid.Errorf("invalid Design: %v", err)
 	}
 
 	if err := s.stoID.IsValid(nil); err != nil {
-		return util.ErrInvalid.Errorf("invalid ContractID: %w", err)
+		return util.ErrInvalid.Errorf("invalid ContractID: %v", err)
 	}
 
 	return s.policy.IsValid(nil)

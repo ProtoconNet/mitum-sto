@@ -30,11 +30,11 @@ type IssueSecurityTokensFactJSONUnMarshaler struct {
 }
 
 func (fact *IssueSecurityTokensFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of IssueSecurityTokensFact")
+	e := util.StringError("failed to decode json of IssueSecurityTokensFact")
 
 	var uf IssueSecurityTokensFactJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
@@ -53,11 +53,11 @@ func (op IssueSecurityTokens) MarshalJSON() ([]byte, error) {
 }
 
 func (op *IssueSecurityTokens) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of MintSecurityTokens")
+	e := util.StringError("failed to decode json of MintSecurityTokens")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

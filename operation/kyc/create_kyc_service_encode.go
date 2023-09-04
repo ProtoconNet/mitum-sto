@@ -8,18 +8,18 @@ import (
 )
 
 func (fact *CreateKYCServiceFact) unpack(enc encoder.Encoder, sa, ca, kycid string, cons []string, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal CreateKYCServiceFact")
+	e := util.StringError("failed to unmarshal CreateKYCServiceFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		fact.sender = a
 	}
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		fact.contract = a
 	}
@@ -27,7 +27,7 @@ func (fact *CreateKYCServiceFact) unpack(enc encoder.Encoder, sa, ca, kycid stri
 	controllers := make([]base.Address, len(cons))
 	for i, con := range cons {
 		if a, err := base.DecodeAddress(con, enc); err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		} else {
 			controllers[i] = a
 		}

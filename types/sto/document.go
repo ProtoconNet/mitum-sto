@@ -53,7 +53,7 @@ func (s Document) IsValid([]byte) error {
 		s.stoID,
 		s.uri,
 	); err != nil {
-		return util.ErrInvalid.Errorf("invalid Design: %w", err)
+		return util.ErrInvalid.Errorf("invalid Design: %v", err)
 	}
 
 	return nil

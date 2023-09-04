@@ -39,7 +39,7 @@ func NewCreateKYCServiceProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringErrorFunc("failed to create new CreateKYCServiceProcessor")
+		e := util.StringError("failed to create new CreateKYCServiceProcessor")
 
 		nopp := createKYCServiceProcessorPool.Get()
 		opp, ok := nopp.(*CreateKYCServiceProcessor)
@@ -50,7 +50,7 @@ func NewCreateKYCServiceProcessor() currencytypes.GetNewProcessor {
 		b, err := base.NewBaseOperationProcessor(
 			height, getStateFunc, newPreProcessConstraintFunc, newProcessConstraintFunc)
 		if err != nil {
-			return nil, e(err, "")
+			return nil, e.Wrap(err)
 		}
 
 		opp.BaseOperationProcessor = b
@@ -62,15 +62,15 @@ func NewCreateKYCServiceProcessor() currencytypes.GetNewProcessor {
 func (opp *CreateKYCServiceProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringErrorFunc("failed to preprocess CreateKYCService")
+	e := util.StringError("failed to preprocess CreateKYCService")
 
 	fact, ok := op.Fact().(CreateKYCServiceFact)
 	if !ok {
-		return ctx, nil, e(nil, "not CreateKYCServiceFact, %T", op.Fact())
+		return ctx, nil, e.Wrap(errors.Errorf("not CreateKYCServiceFact, %T", op.Fact()))
 	}
 
 	if err := fact.IsValid(nil); err != nil {
-		return ctx, nil, e(err, "")
+		return ctx, nil, e.Wrap(err)
 	}
 
 	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
@@ -106,11 +106,11 @@ func (opp *CreateKYCServiceProcessor) Process(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringErrorFunc("failed to process CreateKYCService")
+	e := util.StringError("failed to process CreateKYCService")
 
 	fact, ok := op.Fact().(CreateKYCServiceFact)
 	if !ok {
-		return nil, nil, e(nil, "expected CreateKYCServiceFact, not %T", op.Fact())
+		return nil, nil, e.Wrap(errors.Errorf("expected CreateKYCServiceFact, not %T", op.Fact()))
 	}
 
 	policy := kyctypes.NewPolicy(fact.Controllers())

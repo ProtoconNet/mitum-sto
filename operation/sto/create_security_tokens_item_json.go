@@ -42,11 +42,11 @@ type CreateSecurityTokensItemJSONUnMarshaler struct {
 }
 
 func (it *CreateSecurityTokensItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of CreateSecurityTokensItem")
+	e := util.StringError("failed to decode json of CreateSecurityTokensItem")
 
 	var uit CreateSecurityTokensItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.Granularity, uit.DefaultPartition, uit.Controllers, uit.Currency)

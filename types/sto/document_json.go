@@ -34,11 +34,11 @@ type DocumentJSONUnmarshaler struct {
 }
 
 func (doc *Document) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of Document")
+	e := util.StringError("failed to decode json of Document")
 
 	var ud DocumentJSONUnmarshaler
 	if err := enc.Unmarshal(b, &ud); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return doc.unpack(enc, ud.Hint, ud.STO, ud.Title, ud.Hash, ud.URI)

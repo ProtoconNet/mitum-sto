@@ -4,28 +4,29 @@ import (
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
+	"github.com/pkg/errors"
 )
 
 func (fact *UpdateCustomersFact) unpack(enc encoder.Encoder, sa string, bit []byte) error {
-	e := util.StringErrorFunc("failed to unmarshal UpdateCustomersFact")
+	e := util.StringError("failed to unmarshal UpdateCustomersFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		fact.sender = a
 	}
 
 	hit, err := enc.DecodeSlice(bit)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	items := make([]UpdateCustomersItem, len(hit))
 	for i := range hit {
 		j, ok := hit[i].(UpdateCustomersItem)
 		if !ok {
-			return e(util.ErrWrongType.Errorf("expected UpdateCustomersItem, not %T", hit[i]), "")
+			return e.Wrap(errors.Errorf("expected UpdateCustomersItem, not %T", hit[i]))
 		}
 
 		items[i] = j

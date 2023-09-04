@@ -10,7 +10,7 @@ import (
 )
 
 func (it *RevokeOperatorsItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, oper, p, cid string) error {
-	e := util.StringErrorFunc("failed to unmarshal RevokeOperatorsItem")
+	e := util.StringError("failed to unmarshal RevokeOperatorsItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.stoID = currencytypes.ContractID(sto)
@@ -19,14 +19,14 @@ func (it *RevokeOperatorsItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.contract = a
 	}
 
 	switch a, err := base.DecodeAddress(oper, enc); {
 	case err != nil:
-		return e(err, "")
+		return e.Wrap(err)
 	default:
 		it.operator = a
 	}

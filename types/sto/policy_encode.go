@@ -6,10 +6,11 @@ import (
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
+	"github.com/pkg/errors"
 )
 
 func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big string, bcs []string, bds []byte) error {
-	e := util.StringErrorFunc("failed to decode bson of Policy")
+	e := util.StringError("failed to decode bson of Policy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -20,7 +21,7 @@ func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big str
 	po.partitions = partitions
 
 	if ag, err := common.NewBigFromString(big); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	} else {
 		po.aggregate = ag
 	}
@@ -29,7 +30,7 @@ func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big str
 	for i := range bcs {
 		ctr, err := base.DecodeAddress(bcs[i], enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		controllers[i] = ctr
 	}
@@ -37,14 +38,14 @@ func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big str
 
 	hds, err := enc.DecodeSlice(bds)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	documents := make([]Document, len(hds))
 	for i := range hds {
 		doc, ok := hds[i].(Document)
 		if !ok {
-			return e(util.ErrWrongType.Errorf("expected Document, not %T", hds[i]), "")
+			return e.Wrap(errors.Errorf("expected Document, not %T", hds[i]))
 		}
 
 		documents[i] = doc

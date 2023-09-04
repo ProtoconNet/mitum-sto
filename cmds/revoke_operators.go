@@ -5,28 +5,29 @@ import (
 
 	"github.com/pkg/errors"
 
+	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type RevokeOperatorsCommand struct {
-	baseCommand
-	OperationFlags
-	Sender    AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract  AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	STO       ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
-	Operator  AddressFlag    `arg:"" name:"operator" help:"operator" required:"true"`
-	Partition PartitionFlag  `arg:"" name:"partition" help:"default partition" required:"true"`
-	Currency  CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	BaseCommand
+	currencycmds.OperationFlags
+	Sender    currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract  currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	STO       currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
+	Operator  currencycmds.AddressFlag    `arg:"" name:"operator" help:"operator" required:"true"`
+	Partition PartitionFlag               `arg:"" name:"partition" help:"default partition" required:"true"`
+	Currency  currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender    base.Address
 	contract  base.Address
 	operator  base.Address
 }
 
 func NewRevokeOperatorsCommand() RevokeOperatorsCommand {
-	cmd := NewbaseCommand()
+	cmd := NewBaseCommand()
 	return RevokeOperatorsCommand{
-		baseCommand: *cmd,
+		BaseCommand: *cmd,
 	}
 }
 
@@ -35,8 +36,8 @@ func (cmd *RevokeOperatorsCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -47,7 +48,7 @@ func (cmd *RevokeOperatorsCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	PrettyPrint(cmd.Out, op)
+	currencycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

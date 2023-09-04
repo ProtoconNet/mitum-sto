@@ -39,11 +39,11 @@ type RevokeOperatorsItemJSONUnMarshaler struct {
 }
 
 func (it *RevokeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of RevokeOperatorsItem")
+	e := util.StringError("failed to decode json of RevokeOperatorsItem")
 
 	var uit RevokeOperatorsItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.Operator, uit.Partition, uit.Currency)

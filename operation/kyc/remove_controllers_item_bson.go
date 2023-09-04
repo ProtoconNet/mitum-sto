@@ -28,16 +28,16 @@ type RemoveControllersItemBSONUnmarshaler struct {
 }
 
 func (it *RemoveControllersItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of RemoveControllersItem")
+	e := util.StringError("failed to decode bson of RemoveControllersItem")
 
 	var uit RemoveControllersItemBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uit); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uit.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unpack(enc, ht, uit.Contract, uit.KYC, uit.Controller, uit.Currency)

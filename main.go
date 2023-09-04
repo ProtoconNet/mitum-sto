@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	launchcmd "github.com/ProtoconNet/mitum2/launch/cmd"
+
 	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/cmds"
 	"github.com/ProtoconNet/mitum2/base"
@@ -20,19 +22,31 @@ var (
 	BuildTime = "-"
 	GitBranch = "master"
 	GitCommit = "-"
-	version   util.Version
 )
 
 //revive:disable:nested-structs
-type CLI struct { //nolint:govet //...
+var CLI struct { //nolint:govet //...
 	launch.BaseFlags
-	Import    currencycmds.ImportCommand  `cmd:"" help:"import from block data"`
-	Init      cmds.INITCommand            `cmd:"" help:"init node"`
-	Run       cmds.RunCommand             `cmd:"" help:"run node"`
-	Operation cmds.OperationCommand       `cmd:"" help:"create operation"`
-	Network   currencycmds.NetworkCommand `cmd:"" help:"network"`
-	Key       currencycmds.KeyCommand     `cmd:"" help:"key"`
-	Version   struct{}                    `cmd:"" help:"version"`
+	Init      currencycmds.INITCommand `cmd:"" help:"init node"`
+	Run       cmds.RunCommand          `cmd:"" help:"run node"`
+	Storage   launchcmd.Storage        `cmd:""`
+	Operation struct {
+		Currency currencycmds.CurrencyCommand `cmd:"" help:"currency operation"`
+		Suffrage currencycmds.SuffrageCommand `cmd:"" help:"suffrage operation"`
+		STO      cmds.STOCommand              `cmd:"" help:"sto operation"`
+		KYC      cmds.KYCCommand              `cmd:"" help:"kyc operation"`
+	} `cmd:"" help:"create operation"`
+	Network struct {
+		Client cmds.NetworkClientCommand `cmd:"" help:"network client"`
+	} `cmd:"" help:"network"`
+	Key struct {
+		New     currencycmds.KeyNewCommand     `cmd:"" help:"generate new key"`
+		Address currencycmds.KeyAddressCommand `cmd:"" help:"generate address from key"`
+		Load    currencycmds.KeyLoadCommand    `cmd:"" help:"load key"`
+		Sign    launchcmd.KeySignCommand       `cmd:"" help:"sign"`
+	} `cmd:"" help:"key"`
+	Handover launchcmd.HandoverCommands `cmd:""`
+	Version  struct{}                   `cmd:"" help:"version"`
 }
 
 var flagDefaults = kong.Vars{
@@ -48,30 +62,23 @@ var flagDefaults = kong.Vars{
 }
 
 func main() {
-	cli := CLI{
-		Import:    currencycmds.NewImportCommand(),
-		Init:      cmds.NewINITCommand(),
-		Run:       cmds.NewRunCommand(),
-		Operation: cmds.NewOperationCommand(),
-		Network:   currencycmds.NewNetworkCommand(),
-		Key:       currencycmds.NewKeyCommand(),
-	}
+	kctx := kong.Parse(&CLI, flagDefaults)
 
-	kctx := kong.Parse(&cli, flagDefaults)
-
-	if err := checkVersion(); err != nil {
+	bi, err := util.ParseBuildInfo(Version, GitBranch, GitCommit, BuildTime)
+	if err != nil {
 		kctx.FatalIfErrorf(err)
 	}
 
 	if kctx.Command() == "version" {
-		showVersion()
+		_, _ = fmt.Fprintln(os.Stdout, bi.String())
+
 		return
 	}
-
-	pctx := context.Background()
-	pctx = context.WithValue(pctx, launch.VersionContextKey, version)
-	pctx = context.WithValue(pctx, launch.FlagsContextKey, cli.BaseFlags)
-	pctx = context.WithValue(pctx, launch.KongContextContextKey, kctx)
+	pctx := util.ContextWithValues(context.Background(), map[util.ContextKey]interface{}{
+		launch.VersionContextKey:     bi.Version,
+		launch.FlagsContextKey:       CLI.BaseFlags,
+		launch.KongContextContextKey: kctx,
+	})
 
 	pss := launch.DefaultMainPS()
 
@@ -80,7 +87,7 @@ func main() {
 		kctx.FatalIfErrorf(err)
 	default:
 		pctx = i
-		kctx = kong.Parse(&cli, kong.BindTo(pctx, (*context.Context)(nil)), flagDefaults)
+		kctx = kong.Parse(&CLI, kong.BindTo(pctx, (*context.Context)(nil)), flagDefaults)
 	}
 
 	var log *logging.Logging
@@ -98,31 +105,4 @@ func main() {
 		log.Log().Error().Err(err).Msg("stopped by error")
 		kctx.FatalIfErrorf(err)
 	}
-}
-
-func checkVersion() error {
-	if len(Version) < 1 {
-		return errors.Errorf("empty version")
-	}
-
-	v, err := util.ParseVersion(Version)
-	if err != nil {
-		return err
-	}
-
-	if err := v.IsValid(nil); err != nil {
-		return err
-	}
-
-	version = v
-
-	return nil
-}
-
-func showVersion() {
-	_, _ = fmt.Fprintf(os.Stdout, `version: %s
- branch: %s
- commit: %s
-  build: %s
-`, version, GitBranch, GitCommit, BuildTime)
 }

@@ -5,28 +5,29 @@ import (
 
 	"github.com/pkg/errors"
 
+	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type UpdateCustomersCommand struct {
-	baseCommand
-	OperationFlags
-	Sender   AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	KYC      ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
-	Customer AddressFlag    `arg:"" name:"customer" help:"customer" required:"true"`
-	Status   bool           `arg:"" name:"status" help:"customer status" required:"true"`
-	Currency CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	BaseCommand
+	currencycmds.OperationFlags
+	Sender   currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	KYC      currencycmds.ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
+	Customer currencycmds.AddressFlag    `arg:"" name:"customer" help:"customer" required:"true"`
+	Status   bool                        `arg:"" name:"status" help:"customer status" required:"true"`
+	Currency currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender   base.Address
 	contract base.Address
 	customer base.Address
 }
 
 func NewUpdateCustomersCommand() UpdateCustomersCommand {
-	cmd := NewbaseCommand()
+	cmd := NewBaseCommand()
 	return UpdateCustomersCommand{
-		baseCommand: *cmd,
+		BaseCommand: *cmd,
 	}
 }
 
@@ -35,8 +36,8 @@ func (cmd *UpdateCustomersCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -47,7 +48,7 @@ func (cmd *UpdateCustomersCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	PrettyPrint(cmd.Out, op)
+	currencycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

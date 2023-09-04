@@ -35,11 +35,11 @@ type RemoveControllersItemJSONUnMarshaler struct {
 }
 
 func (it *RemoveControllersItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode json of RemoveControllersItem")
+	e := util.StringError("failed to decode json of RemoveControllersItem")
 
 	var uit RemoveControllersItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unpack(enc, uit.Hint, uit.Contract, uit.KYC, uit.Controller, uit.Currency)

@@ -53,22 +53,22 @@ func (po Policy) IsValid([]byte) error {
 	}
 
 	if err := util.CheckIsValiders(nil, false, po.BaseHinter); err != nil {
-		return util.ErrInvalid.Errorf("invalid currency policy: %w", err)
+		return util.ErrInvalid.Errorf("invalid currency policy: %v", err)
 	}
 
 	for _, p := range po.partitions {
 		if err := p.IsValid(nil); err != nil {
-			return util.ErrInvalid.Errorf("invalid Partition: %w", err)
+			return util.ErrInvalid.Errorf("invalid Partition: %v", err)
 		}
 	}
 	for _, p := range po.controllers {
 		if err := p.IsValid(nil); err != nil {
-			return util.ErrInvalid.Errorf("invalid Controller: %w", err)
+			return util.ErrInvalid.Errorf("invalid Controller: %v", err)
 		}
 	}
 	for _, p := range po.documents {
 		if err := p.IsValid(nil); err != nil {
-			return util.ErrInvalid.Errorf("invalid Document: %w", err)
+			return util.ErrInvalid.Errorf("invalid Document: %v", err)
 		}
 	}
 

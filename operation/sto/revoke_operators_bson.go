@@ -29,12 +29,12 @@ type RevokeOperatorsFactBSONUnmarshaler struct {
 }
 
 func (fact *RevokeOperatorsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of RevokeOperatorsFact")
+	e := util.StringError("failed to decode bson of RevokeOperatorsFact")
 
 	var ubf common.BaseFactBSONUnmarshaler
 
 	if err := enc.Unmarshal(b, &ubf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(ubf.Hash))
@@ -42,12 +42,12 @@ func (fact *RevokeOperatorsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) erro
 
 	var uf RevokeOperatorsFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uf.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
@@ -65,11 +65,11 @@ func (op RevokeOperators) MarshalBSON() ([]byte, error) {
 }
 
 func (op *RevokeOperators) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of RevokeOperators")
+	e := util.StringError("failed to decode bson of RevokeOperators")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	op.BaseOperation = ubo

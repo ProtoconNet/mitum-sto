@@ -5,29 +5,30 @@ import (
 
 	"github.com/pkg/errors"
 
+	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type SetDocumentCommand struct {
-	baseCommand
-	OperationFlags
-	Sender       AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract     AddressFlag    `arg:"" name:"contract" help:"contract address of sto" required:"true"`
-	STO          ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
-	Title        string         `arg:"" name:"title" help:"sto document title" required:"true"`
-	URI          string         `arg:"" name:"uri" help:"sto document uri" required:"true"`
-	DocumentHash string         `arg:"" name:"document-hash" help:"sto document hash" required:"true"`
-	Currency     CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	BaseCommand
+	currencycmds.OperationFlags
+	Sender       currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract     currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract address of sto" required:"true"`
+	STO          currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
+	Title        string                      `arg:"" name:"title" help:"sto document title" required:"true"`
+	URI          string                      `arg:"" name:"uri" help:"sto document uri" required:"true"`
+	DocumentHash string                      `arg:"" name:"document-hash" help:"sto document hash" required:"true"`
+	Currency     currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender       base.Address
 	contract     base.Address
 }
 
 func NewSetDocumentCommand() SetDocumentCommand {
-	cmd := NewbaseCommand()
+	cmd := NewBaseCommand()
 	return SetDocumentCommand{
-		baseCommand: *cmd,
+		BaseCommand: *cmd,
 	}
 }
 
@@ -36,8 +37,8 @@ func (cmd *SetDocumentCommand) Run(pctx context.Context) error { // nolint:dupl
 		return err
 	}
 
-	encs = cmd.encs
-	enc = cmd.enc
+	encs = cmd.Encoders
+	enc = cmd.Encoder
 
 	if err := cmd.parseFlags(); err != nil {
 		return err
@@ -48,7 +49,7 @@ func (cmd *SetDocumentCommand) Run(pctx context.Context) error { // nolint:dupl
 		return err
 	}
 
-	PrettyPrint(cmd.Out, op)
+	currencycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

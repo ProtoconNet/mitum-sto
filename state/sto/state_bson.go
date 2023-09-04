@@ -25,23 +25,23 @@ type DesignStateValueBSONUnmarshaler struct {
 }
 
 func (de *DesignStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of DesignStateValue")
+	e := util.StringError("failed to decode bson of DesignStateValue")
 
 	var u DesignStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 
 	var design stotypes.Design
 	if err := design.DecodeBSON(u.STO, enc); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	de.Design = design
@@ -64,16 +64,16 @@ type PartitionBalanceStateValueBSONUnmarshaler struct {
 }
 
 func (de *PartitionBalanceStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of PartitionBalanceStateValue")
+	e := util.StringError("failed to decode bson of PartitionBalanceStateValue")
 
 	var u PartitionBalanceStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
@@ -102,16 +102,16 @@ type TokenHolderPartitionsStateValueBSONUnmarshaler struct {
 }
 
 func (p *TokenHolderPartitionsStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of TokenHolderPartitionsStateValue")
+	e := util.StringError("failed to decode bson of TokenHolderPartitionsStateValue")
 
 	var u TokenHolderPartitionsStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	p.BaseHinter = hint.NewBaseHinter(ht)
@@ -143,23 +143,23 @@ type TokenHolderPartitionBalanceStateValueBSONUnmarshaler struct {
 }
 
 func (p *TokenHolderPartitionBalanceStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of TokenHolderPartitionBalanceStateValue")
+	e := util.StringError("failed to decode bson of TokenHolderPartitionBalanceStateValue")
 
 	var u TokenHolderPartitionBalanceStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	p.BaseHinter = hint.NewBaseHinter(ht)
 
 	big, err := common.NewBigFromString(u.Amount)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 	p.Amount = big
 
@@ -183,16 +183,16 @@ type TokenHolderPartitionOperatorsStateValueBSONUnmarshaler struct {
 }
 
 func (ops *TokenHolderPartitionOperatorsStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of TokenHolderPartitionOperatorsStateValue")
+	e := util.StringError("failed to decode bson of TokenHolderPartitionOperatorsStateValue")
 
 	var u TokenHolderPartitionOperatorsStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ops.BaseHinter = hint.NewBaseHinter(ht)
@@ -201,7 +201,7 @@ func (ops *TokenHolderPartitionOperatorsStateValue) DecodeBSON(b []byte, enc *bs
 	for i := range u.Operators {
 		a, err := base.DecodeAddress(u.Operators[i], enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		operators[i] = a
 	}
@@ -225,16 +225,16 @@ type OperatorTokenHoldersStateValueBSONUnmarshaler struct {
 }
 
 func (oth *OperatorTokenHoldersStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of OperatorTokenHoldersStateValue")
+	e := util.StringError("failed to decode bson of OperatorTokenHoldersStateValue")
 
 	var u OperatorTokenHoldersStateValueBSONUnmarshaler
 	if err := enc.Unmarshal(b, &u); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(u.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	oth.BaseHinter = hint.NewBaseHinter(ht)
@@ -243,7 +243,7 @@ func (oth *OperatorTokenHoldersStateValue) DecodeBSON(b []byte, enc *bsonenc.Enc
 	for i := range u.TokenHolders {
 		a, err := base.DecodeAddress(u.TokenHolders[i], enc)
 		if err != nil {
-			return e(err, "")
+			return e.Wrap(err)
 		}
 		holders[i] = a
 	}

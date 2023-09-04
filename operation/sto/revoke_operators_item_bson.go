@@ -30,16 +30,16 @@ type RevokeOperatorsItemBSONUnmarshaler struct {
 }
 
 func (it *RevokeOperatorsItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of RevokeOperatorsItem")
+	e := util.StringError("failed to decode bson of RevokeOperatorsItem")
 
 	var uit RevokeOperatorsItemBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uit); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(uit.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return it.unpack(enc, ht, uit.Contract, uit.STO, uit.Operator, uit.Partition, uit.Currency)

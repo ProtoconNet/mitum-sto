@@ -29,16 +29,16 @@ type PolicyBSONUnmarshaler struct {
 }
 
 func (po *Policy) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringErrorFunc("failed to decode bson of Policy")
+	e := util.StringError("failed to decode bson of Policy")
 
 	var upo PolicyBSONUnmarshaler
 	if err := enc.Unmarshal(b, &upo); err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	ht, err := hint.ParseHint(upo.Hint)
 	if err != nil {
-		return e(err, "")
+		return e.Wrap(err)
 	}
 
 	return po.unpack(enc, ht, upo.Partitions, upo.Aggregate, upo.Controllers, upo.Documents)

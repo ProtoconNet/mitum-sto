@@ -7,16 +7,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
-	"github.com/ProtoconNet/mitum-currency/v3/digest"
+
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
-	isaacnetwork "github.com/ProtoconNet/mitum2/isaac/network"
 	isaacstates "github.com/ProtoconNet/mitum2/isaac/states"
 	"github.com/ProtoconNet/mitum2/launch"
-	"github.com/ProtoconNet/mitum2/network/quicmemberlist"
 	"github.com/ProtoconNet/mitum2/network/quicstream"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/logging"
@@ -36,10 +33,6 @@ type RunCommand struct { //nolint:govet //...
 	exitf           func(error)
 	log             *zerolog.Logger
 	holded          bool
-}
-
-func NewRunCommand() RunCommand {
-	return RunCommand{}
 }
 
 func (cmd *RunCommand) Run(pctx context.Context) error {
@@ -72,18 +65,15 @@ func (cmd *RunCommand) Run(pctx context.Context) error {
 	pctx = context.WithValue(pctx, launch.VaultContextKey, cmd.Vault)
 	//revive:enable:modifies-parameter
 
-	pps := DefaultRunPS()
+	pps := currencycmds.DefaultRunPS()
 
 	_ = pps.POK(launch.PNameStorage).PostAddOK(ps.Name("check-hold"), cmd.pCheckHold)
 	_ = pps.POK(launch.PNameStates).
+		PreAddOK(PNameOperationProcessorsMap, POperationProcessorsMap).
 		PreAddOK(ps.Name("when-new-block-saved-in-consensus-state-func"), cmd.pWhenNewBlockSavedInConsensusStateFunc).
 		PreAddOK(ps.Name("when-new-block-confirmed-func"), cmd.pWhenNewBlockConfirmed)
-	_ = pps.POK(launch.PNameStates).
-		PreAddOK(PNameOperationProcessorsMap, POperationProcessorsMap)
-	_ = pps.POK(PNameDigest).
-		PostAddOK(PNameDigestAPIHandlers, cmd.pDigestAPIHandlers)
-	_ = pps.POK(PNameDigester).
-		PostAddOK(PNameDigesterFollowUp, PdigesterFollowUp)
+	_ = pps.POK(launch.PNameEncoder).
+		PostAddOK(launch.PNameAddHinters, PAddHinters)
 
 	_ = pps.SetLogging(log)
 
@@ -110,7 +100,7 @@ func (cmd *RunCommand) Run(pctx context.Context) error {
 	return cmd.run(pctx)
 }
 
-var errHoldStop = util.NewError("hold stop")
+var errHoldStop = util.NewIDError("hold stop")
 
 func (cmd *RunCommand) run(pctx context.Context) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -150,7 +140,7 @@ func (cmd *RunCommand) run(pctx context.Context) error {
 }
 
 func (cmd *RunCommand) runStates(ctx, pctx context.Context) (func(), error) {
-	var discoveries *util.Locked[[]quicstream.UDPConnInfo]
+	var discoveries *util.Locked[[]quicstream.ConnInfo]
 	var states *isaacstates.States
 
 	if err := util.LoadFromContextOK(pctx,
@@ -188,28 +178,27 @@ func (cmd *RunCommand) pWhenNewBlockSavedInConsensusStateFunc(pctx context.Conte
 		return pctx, err
 	}
 
-	f := func(height base.Height) {
-		l := log.Log().With().Interface("height", height).Logger()
+	f := func(bm base.BlockMap) {
+		l := log.Log().With().
+			Interface("blockmap", bm).
+			Interface("height", bm.Manifest().Height()).
+			Logger()
 
-		if cmd.Hold.IsSet() && height == cmd.Hold.Height() {
+		if cmd.Hold.IsSet() && bm.Manifest().Height() == cmd.Hold.Height() {
 			l.Debug().Msg("will be stopped by hold")
 
-			cmd.exitf(errHoldStop.Call())
+			cmd.exitf(errHoldStop.WithStack())
 
 			return
 		}
 	}
 
-	pctx = context.WithValue(pctx, launch.WhenNewBlockSavedInConsensusStateFuncContextKey, f)
-	//revive:disable-next-line:modifies-parameter
-
-	return pctx, nil
+	return context.WithValue(pctx, launch.WhenNewBlockSavedInConsensusStateFuncContextKey, f), nil
 }
 
 func (cmd *RunCommand) pWhenNewBlockConfirmed(pctx context.Context) (context.Context, error) {
 	var log *logging.Logging
 	var db isaac.Database
-	var di *digest.Digester
 
 	if err := util.LoadFromContextOK(pctx,
 		launch.LoggingContextKey, &log,
@@ -218,62 +207,20 @@ func (cmd *RunCommand) pWhenNewBlockConfirmed(pctx context.Context) (context.Con
 		return pctx, err
 	}
 
-	if err := util.LoadFromContext(pctx, ContextValueDigester, &di); err != nil {
-		return pctx, err
-	}
+	f := func(height base.Height) {
+		l := log.Log().With().Interface("height", height).Logger()
 
-	var f func(height base.Height)
-	if di != nil {
-		g := cmd.whenBlockSaved(db, di)
+		if cmd.Hold.IsSet() && height == cmd.Hold.Height() {
+			l.Debug().Msg("will be stopped by hold")
+			cmd.exitf(errHoldStop.WithStack())
 
-		f = func(height base.Height) {
-			g(pctx)
-			l := log.Log().With().Interface("height", height).Logger()
-
-			if cmd.Hold.IsSet() && height == cmd.Hold.Height() {
-				l.Debug().Msg("will be stopped by hold")
-				cmd.exitf(errHoldStop.Call())
-
-				return
-			}
-		}
-	} else {
-		f = func(height base.Height) {
-			l := log.Log().With().Interface("height", height).Logger()
-
-			if cmd.Hold.IsSet() && height == cmd.Hold.Height() {
-				l.Debug().Msg("will be stopped by hold")
-				cmd.exitf(errHoldStop.Call())
-
-				return
-			}
+			return
 		}
 	}
 
 	return context.WithValue(pctx,
 		launch.WhenNewBlockConfirmedFuncContextKey, f,
 	), nil
-}
-
-func (cmd *RunCommand) whenBlockSaved(
-	db isaac.Database,
-	di *digest.Digester,
-) ps.Func {
-	return func(ctx context.Context) (context.Context, error) {
-		switch m, found, err := db.LastBlockMap(); {
-		case err != nil:
-			return ctx, err
-		case !found:
-			return ctx, errors.Errorf("last BlockMap not found")
-		default:
-			if di != nil {
-				go func() {
-					di.Digest([]base.BlockMap{m})
-				}()
-			}
-		}
-		return ctx, nil
-	}
 }
 
 func (cmd *RunCommand) pCheckHold(pctx context.Context) (context.Context, error) {
@@ -305,121 +252,16 @@ func (cmd *RunCommand) runHTTPState(bind string) error {
 		return errors.Wrap(err, "failed to parse --http-state")
 	}
 
-	mux := http.NewServeMux()
-	if err := statsviz.Register(mux); err != nil {
+	m := http.NewServeMux()
+	if err := statsviz.Register(m); err != nil {
 		return errors.Wrap(err, "failed to register statsviz for http-state")
 	}
 
 	cmd.log.Debug().Stringer("bind", addr).Msg("statsviz started")
 
 	go func() {
-		_ = http.ListenAndServe(addr.String(), mux)
+		_ = http.ListenAndServe(addr.String(), m)
 	}()
 
 	return nil
-}
-
-func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context, error) {
-	var params base.LocalParams
-	var local base.LocalNode
-
-	util.LoadFromContextOK(ctx,
-		launch.LocalContextKey, &local,
-		launch.LocalParamsContextKey, &params,
-	)
-
-	var design currencycmds.DigestDesign
-	if err := util.LoadFromContext(ctx, ContextValueDigestDesign, &design); err != nil {
-		if errors.Is(err, util.ErrNotFound) {
-			return ctx, nil
-		}
-
-		return nil, err
-	}
-
-	if (design == currencycmds.DigestDesign{}) {
-		return ctx, nil
-	}
-
-	cache, err := cmd.loadCache(ctx, design)
-	if err != nil {
-		return ctx, err
-	}
-
-	handlers, err := cmd.setDigestHandlers(ctx, local, params, design, cache)
-	if err != nil {
-		return ctx, err
-	}
-
-	if err := handlers.Initialize(); err != nil {
-		return ctx, err
-	}
-
-	var dnt *digest.HTTP2Server
-	if err := util.LoadFromContext(ctx, ContextValueDigestNetwork, &dnt); err != nil {
-		return ctx, err
-	}
-	dnt.SetRouter(handlers.Router())
-
-	return ctx, nil
-}
-
-func (cmd *RunCommand) loadCache(_ context.Context, design currencycmds.DigestDesign) (digest.Cache, error) {
-	c, err := digest.NewCacheFromURI(design.Cache().String())
-	if err != nil {
-		cmd.log.Err(err).Str("cache", design.Cache().String()).Msg("failed to connect cache server")
-		cmd.log.Warn().Msg("instead of remote cache server, internal mem cache can be available, `memory://`")
-
-		return nil, err
-	}
-	return c, nil
-}
-
-func (cmd *RunCommand) setDigestHandlers(
-	ctx context.Context,
-	local base.LocalNode,
-	params base.LocalParams,
-	design currencycmds.DigestDesign,
-	cache digest.Cache,
-) (*digest.Handlers, error) {
-	var st *digest.Database
-	if err := util.LoadFromContext(ctx, ContextValueDigestDatabase, &st); err != nil {
-		return nil, err
-	}
-
-	handlers := digest.NewHandlers(ctx, params.NetworkID(), encs, enc, st, cache)
-	i, err := cmd.setDigestSendHandler(ctx, local, params, handlers)
-	if err != nil {
-		return nil, err
-	}
-	handlers = i
-
-	return handlers, nil
-}
-
-func (cmd *RunCommand) setDigestSendHandler(
-	ctx context.Context,
-	local base.LocalNode,
-	params base.LocalParams,
-	handlers *digest.Handlers,
-) (*digest.Handlers, error) {
-	var memberlist *quicmemberlist.Memberlist
-	if err := util.LoadFromContextOK(ctx, launch.MemberlistContextKey, &memberlist); err != nil {
-		return nil, err
-	}
-
-	client := launch.NewNetworkClient( //nolint:gomnd //...
-		encs, enc, time.Second*2,
-		base.NetworkID([]byte(params.NetworkID())),
-	)
-
-	handlers = handlers.SetSend(
-		NewSendHandler(local.Privatekey(), params.NetworkID(), func() (*isaacnetwork.QuicstreamClient, *quicmemberlist.Memberlist, error) { // nolint:contextcheck
-			return client, memberlist, nil
-		}),
-	)
-
-	cmd.log.Debug().Msg("send handler attached")
-
-	return handlers, nil
 }
