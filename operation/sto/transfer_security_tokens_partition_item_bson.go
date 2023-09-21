@@ -12,7 +12,6 @@ func (it TransferSecurityTokensPartitionItem) MarshalBSON() ([]byte, error) {
 		bson.M{
 			"_hint":       it.Hint().String(),
 			"contract":    it.contract,
-			"stoid":       it.stoID,
 			"tokenholder": it.tokenholder,
 			"receiver":    it.receiver,
 			"partition":   it.partition,
@@ -25,7 +24,6 @@ func (it TransferSecurityTokensPartitionItem) MarshalBSON() ([]byte, error) {
 type TransferSecurityTokensPartitionItemBSONUnmarshaler struct {
 	Hint        string `bson:"_hint"`
 	Contract    string `bson:"contract"`
-	STO         string `bson:"stoid"`
 	TokenHolder string `bson:"tokenholder"`
 	Receiver    string `bson:"receiver"`
 	Partition   string `bson:"partition"`
@@ -46,5 +44,5 @@ func (it *TransferSecurityTokensPartitionItem) DecodeBSON(b []byte, enc *bsonenc
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, ht, uit.Contract, uit.STO, uit.TokenHolder, uit.Receiver, uit.Partition, uit.Amount, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.TokenHolder, uit.Receiver, uit.Partition, uit.Amount, uit.Currency)
 }

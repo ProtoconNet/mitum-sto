@@ -15,19 +15,11 @@ type CreateKYCServiceCommand struct {
 	currencycmds.OperationFlags
 	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract address of kyc" required:"true"`
-	KYC         currencycmds.ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
 	Controller  currencycmds.AddressFlag    `arg:"" name:"controller" help:"controller" required:"true"`
 	Currency    currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender      base.Address
 	contract    base.Address
 	controllers []base.Address
-}
-
-func NewCreateKYCServiceCommand() CreateKYCServiceCommand {
-	cmd := NewBaseCommand()
-	return CreateKYCServiceCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *CreateKYCServiceCommand) Run(pctx context.Context) error { // nolint:dupl
@@ -79,7 +71,13 @@ func (cmd *CreateKYCServiceCommand) parseFlags() error {
 }
 
 func (cmd *CreateKYCServiceCommand) createOperation() (base.Operation, error) { // nolint:dupl}
-	fact := kyc.NewCreateKYCServiceFact([]byte(cmd.Token), cmd.sender, cmd.contract, cmd.KYC.ID, cmd.controllers, cmd.Currency.CID)
+	fact := kyc.NewCreateKYCServiceFact(
+		[]byte(cmd.Token),
+		cmd.sender,
+		cmd.contract,
+		cmd.controllers,
+		cmd.Currency.CID,
+	)
 
 	op, err := kyc.NewCreateKYCService(fact)
 	if err != nil {

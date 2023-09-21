@@ -12,7 +12,6 @@ func (it RedeemTokensItem) MarshalBSON() ([]byte, error) {
 		bson.M{
 			"_hint":       it.Hint().String(),
 			"contract":    it.contract,
-			"stoid":       it.stoID,
 			"tokenholder": it.tokenHolder,
 			"amount":      it.amount.String(),
 			"partition":   it.partition,
@@ -24,7 +23,6 @@ func (it RedeemTokensItem) MarshalBSON() ([]byte, error) {
 type RedeemTokensItemBSONUnmarshaler struct {
 	Hint        string `bson:"_hint"`
 	Contract    string `bson:"contract"`
-	STO         string `bson:"stoid"`
 	TokenHolder string `bson:"tokenholder"`
 	Amount      string `bson:"amount"`
 	Partition   string `bson:"partition"`
@@ -44,5 +42,5 @@ func (it *RedeemTokensItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, ht, uit.Contract, uit.STO, uit.TokenHolder, uit.Amount, uit.Partition, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.TokenHolder, uit.Amount, uit.Partition, uit.Currency)
 }

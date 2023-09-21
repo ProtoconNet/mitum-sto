@@ -59,7 +59,7 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 		return err
 	}
 
-	st, err := currencystate.ExistsState(stostate.StateKeyDesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
+	st, err := currencystate.ExistsState(stostate.StateKeyDesign(it.Contract()), "key of sto design", getStateFunc)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 
 	controllers := policy.Controllers()
 	if len(controllers) == 0 {
-		return errors.Errorf("empty controllers, %s-%s", it.Contract(), it.STO())
+		return errors.Errorf("empty controllers, %s", it.Contract())
 	}
 
 	for i, con := range controllers {
@@ -82,7 +82,7 @@ func (ipp *IssueSecurityTokensItemProcessor) PreProcess(
 		}
 
 		if i == len(controllers)-1 {
-			return errors.Errorf("sender is not controller of sto, %q, %s-%s", ipp.sender, it.Contract(), it.STO())
+			return errors.Errorf("sender is not controller of sto, %q, %s", ipp.sender, it.Contract())
 		}
 	}
 
@@ -107,7 +107,7 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 
 	it := ipp.item
 
-	st, err := currencystate.ExistsState(stostate.StateKeyDesign(it.Contract(), it.STO()), "key of sto design", getStateFunc)
+	st, err := currencystate.ExistsState(stostate.StateKeyDesign(it.Contract()), "key of sto design", getStateFunc)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 	dps := p.Partitions()
 
 	var pb common.Big
-	switch st, found, err := getStateFunc(stostate.StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition())); {
+	switch st, found, err := getStateFunc(stostate.StateKeyPartitionBalance(it.Contract(), it.Partition())); {
 	case err != nil:
 		return nil, err
 	case found:
@@ -139,23 +139,23 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 		return nil, err
 	}
 
-	design = stotypes.NewDesign(design.STO(), design.Granularity(), policy)
+	design = stotypes.NewDesign(design.Granularity(), policy)
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
 
 	sts[0] = currencystate.NewStateMergeValue(
-		stostate.StateKeyDesign(it.Contract(), it.STO()),
+		stostate.StateKeyDesign(it.Contract()),
 		stostate.NewDesignStateValue(design),
 	)
 
 	sts[1] = currencystate.NewStateMergeValue(
-		stostate.StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition()),
+		stostate.StateKeyPartitionBalance(it.Contract(), it.Partition()),
 		stostate.NewPartitionBalanceStateValue(pb),
 	)
 
 	var ps []stotypes.Partition
-	switch st, found, err := getStateFunc(stostate.StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.Receiver())); {
+	switch st, found, err := getStateFunc(stostate.StateKeyTokenHolderPartitions(it.Contract(), it.Receiver())); {
 	case err != nil:
 		return nil, err
 	case found:
@@ -182,12 +182,12 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 	}
 
 	sts[2] = currencystate.NewStateMergeValue(
-		stostate.StateKeyTokenHolderPartitions(it.Contract(), it.STO(), it.Receiver()),
+		stostate.StateKeyTokenHolderPartitions(it.Contract(), it.Receiver()),
 		stostate.NewTokenHolderPartitionsStateValue(ps),
 	)
 
 	var am common.Big
-	switch st, found, err := getStateFunc(stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.STO(), it.Receiver(), it.Partition())); {
+	switch st, found, err := getStateFunc(stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.Receiver(), it.Partition())); {
 	case err != nil:
 		return nil, err
 	case found:
@@ -202,7 +202,7 @@ func (ipp *IssueSecurityTokensItemProcessor) Process(
 	am = am.Add(it.Amount())
 
 	sts[3] = currencystate.NewStateMergeValue(
-		stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.STO(), it.Receiver(), it.Partition()),
+		stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.Receiver(), it.Partition()),
 		stostate.NewTokenHolderPartitionBalanceStateValue(am, it.Partition()),
 	)
 

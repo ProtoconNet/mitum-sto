@@ -12,21 +12,18 @@ var RemoveControllersItemHint = hint.MustNewHint("mitum-kyc-remove-controllers-i
 type RemoveControllersItem struct {
 	hint.BaseHinter
 	contract   base.Address
-	kycID      currencytypes.ContractID
 	controller base.Address
 	currency   currencytypes.CurrencyID
 }
 
 func NewRemoveControllersItem(
 	contract base.Address,
-	kycID currencytypes.ContractID,
 	controller base.Address,
 	currency currencytypes.CurrencyID,
 ) RemoveControllersItem {
 	return RemoveControllersItem{
 		BaseHinter: hint.NewBaseHinter(RemoveControllersItemHint),
 		contract:   contract,
-		kycID:      kycID,
 		controller: controller,
 		currency:   currency,
 	}
@@ -35,14 +32,13 @@ func NewRemoveControllersItem(
 func (it RemoveControllersItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.kycID.Bytes(),
 		it.controller.Bytes(),
 		it.currency.Bytes(),
 	)
 }
 
 func (it RemoveControllersItem) IsValid([]byte) error {
-	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.kycID, it.contract, it.controller, it.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.controller, it.currency); err != nil {
 		return err
 	}
 
@@ -51,10 +47,6 @@ func (it RemoveControllersItem) IsValid([]byte) error {
 	}
 
 	return nil
-}
-
-func (it RemoveControllersItem) KYC() currencytypes.ContractID {
-	return it.kycID
 }
 
 func (it RemoveControllersItem) Contract() base.Address {

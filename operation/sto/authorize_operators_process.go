@@ -50,21 +50,21 @@ func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
 		return err
 	}
 
-	if err := currencystate.CheckExistsState(stostate.StateKeyDesign(it.Contract(), it.STO()), getStateFunc); err != nil {
+	if err := currencystate.CheckExistsState(stostate.StateKeyDesign(it.Contract()), getStateFunc); err != nil {
 		return err
 	}
 
-	if err := currencystate.CheckExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition()), getStateFunc); err != nil {
+	if err := currencystate.CheckExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.Partition()), getStateFunc); err != nil {
 		return err
 	}
 
-	partitions, err := stostate.ExistsTokenHolderPartitions(it.Contract(), it.STO(), ipp.sender, getStateFunc)
+	partitions, err := stostate.ExistsTokenHolderPartitions(it.Contract(), ipp.sender, getStateFunc)
 	if err != nil {
 		return err
 	}
 
 	if len(partitions) == 0 {
-		return errors.Errorf("empty tokenholder partitions, %s-%s-%s", it.Contract(), it.STO(), ipp.sender)
+		return errors.Errorf("empty tokenholder partitions, %s-%s", it.Contract(), ipp.sender)
 	}
 
 	for i, p := range partitions {
@@ -73,7 +73,7 @@ func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
 		}
 
 		if i == len(partitions)-1 {
-			return errors.Errorf("partition not in tokenholder partitions, %s-%s-%s, %s", it.Contract(), it.STO(), ipp.sender, it.Partition())
+			return errors.Errorf("partition not in tokenholder partitions, %s-%s, %s", it.Contract(), ipp.sender, it.Partition())
 		}
 	}
 
@@ -107,7 +107,7 @@ func (ipp *AuthorizeOperatorsItemProcessor) Process(
 	holders := append(*ipp.tokenHolders, ipp.sender)
 
 	sts[0] = currencystate.NewStateMergeValue(
-		stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition()),
+		stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition()),
 		stostate.NewOperatorTokenHoldersStateValue(holders),
 	)
 
@@ -189,7 +189,7 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 	for _, it := range fact.Items() {
 		var ops, hds []base.Address
 
-		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())
+		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -205,7 +205,7 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 			operators[k] = &ops
 		}
 
-		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())
+		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -233,8 +233,8 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())]
+		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess AuthorizeOperatorsItem: %w", err), nil
@@ -265,7 +265,7 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 	for _, it := range fact.Items() {
 		var ops, hds []base.Address
 
-		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())
+		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -281,7 +281,7 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 			operators[k] = &ops
 		}
 
-		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())
+		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -310,8 +310,8 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())]
+		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {

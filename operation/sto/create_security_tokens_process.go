@@ -50,11 +50,11 @@ func (ipp *CreateSecurityTokensItemProcessor) PreProcess(
 		return err
 	}
 
-	if err := currencystate.CheckNotExistsState(stostate.StateKeyDesign(it.Contract(), it.STO()), getStateFunc); err != nil {
+	if err := currencystate.CheckNotExistsState(stostate.StateKeyDesign(it.Contract()), getStateFunc); err != nil {
 		return err
 	}
 
-	if err := currencystate.CheckNotExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.STO(), it.DefaultPartition()), getStateFunc); err != nil {
+	if err := currencystate.CheckNotExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.DefaultPartition()), getStateFunc); err != nil {
 		return err
 	}
 
@@ -83,18 +83,18 @@ func (ipp *CreateSecurityTokensItemProcessor) Process(
 	documents := []stotypes.Document{}
 
 	policy := stotypes.NewPolicy(partitions, common.NewBig(0), it.Controllers(), documents)
-	design := stotypes.NewDesign(it.STO(), it.Granularity(), policy)
+	design := stotypes.NewDesign(it.Granularity(), policy)
 
 	if err := design.IsValid(nil); err != nil {
 		return nil, err
 	}
 
 	sts[0] = currencystate.NewStateMergeValue(
-		stostate.StateKeyDesign(it.Contract(), it.STO()),
+		stostate.StateKeyDesign(it.Contract()),
 		stostate.NewDesignStateValue(design),
 	)
 	sts[1] = currencystate.NewStateMergeValue(
-		stostate.StateKeyPartitionBalance(it.Contract(), it.STO(), it.DefaultPartition()),
+		stostate.StateKeyPartitionBalance(it.Contract(), it.DefaultPartition()),
 		stostate.NewPartitionBalanceStateValue(common.ZeroBig),
 	)
 

@@ -12,7 +12,6 @@ var AddCustomersItemHint = hint.MustNewHint("mitum-kyc-add-customers-item-v0.0.1
 type AddCustomersItem struct {
 	hint.BaseHinter
 	contract base.Address
-	kycID    currencytypes.ContractID
 	customer base.Address
 	status   bool
 	currency currencytypes.CurrencyID
@@ -20,7 +19,6 @@ type AddCustomersItem struct {
 
 func NewAddCustomersItem(
 	contract base.Address,
-	kycID currencytypes.ContractID,
 	customer base.Address,
 	status bool,
 	currency currencytypes.CurrencyID,
@@ -28,7 +26,6 @@ func NewAddCustomersItem(
 	return AddCustomersItem{
 		BaseHinter: hint.NewBaseHinter(AddCustomersItemHint),
 		contract:   contract,
-		kycID:      kycID,
 		customer:   customer,
 		status:     status,
 		currency:   currency,
@@ -43,7 +40,6 @@ func (it AddCustomersItem) Bytes() []byte {
 
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.kycID.Bytes(),
 		it.customer.Bytes(),
 		b,
 		it.currency.Bytes(),
@@ -51,7 +47,7 @@ func (it AddCustomersItem) Bytes() []byte {
 }
 
 func (it AddCustomersItem) IsValid([]byte) error {
-	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.kycID, it.contract, it.customer, it.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.customer, it.currency); err != nil {
 		return err
 	}
 
@@ -60,10 +56,6 @@ func (it AddCustomersItem) IsValid([]byte) error {
 	}
 
 	return nil
-}
-
-func (it AddCustomersItem) KYC() currencytypes.ContractID {
-	return it.kycID
 }
 
 func (it AddCustomersItem) Contract() base.Address {

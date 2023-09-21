@@ -13,7 +13,6 @@ var AuthorizeOperatorsItemHint = hint.MustNewHint("mitum-sto-authorize-operators
 type AuthorizeOperatorsItem struct {
 	hint.BaseHinter
 	contract  base.Address             // contract address
-	stoID     currencytypes.ContractID // token id
 	operator  base.Address             // initial controllers
 	partition stotypes.Partition       // partition
 	currency  currencytypes.CurrencyID // fee
@@ -21,7 +20,6 @@ type AuthorizeOperatorsItem struct {
 
 func NewAuthorizeOperatorsItem(
 	contract base.Address,
-	stoID currencytypes.ContractID,
 	operator base.Address,
 	partition stotypes.Partition,
 	currency currencytypes.CurrencyID,
@@ -29,7 +27,6 @@ func NewAuthorizeOperatorsItem(
 	return AuthorizeOperatorsItem{
 		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorsItemHint),
 		contract:   contract,
-		stoID:      stoID,
 		operator:   operator,
 		partition:  partition,
 		currency:   currency,
@@ -39,7 +36,6 @@ func NewAuthorizeOperatorsItem(
 func (it AuthorizeOperatorsItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.stoID.Bytes(),
 		it.operator.Bytes(),
 		it.partition.Bytes(),
 		it.currency.Bytes(),
@@ -47,7 +43,7 @@ func (it AuthorizeOperatorsItem) Bytes() []byte {
 }
 
 func (it AuthorizeOperatorsItem) IsValid([]byte) error {
-	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.stoID, it.contract, it.operator, it.partition, it.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.operator, it.partition, it.currency); err != nil {
 		return err
 	}
 
@@ -56,10 +52,6 @@ func (it AuthorizeOperatorsItem) IsValid([]byte) error {
 	}
 
 	return nil
-}
-
-func (it AuthorizeOperatorsItem) STO() currencytypes.ContractID {
-	return it.stoID
 }
 
 func (it AuthorizeOperatorsItem) Contract() base.Address {

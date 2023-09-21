@@ -12,7 +12,6 @@ func (it RemoveControllersItem) MarshalBSON() ([]byte, error) {
 		bson.M{
 			"_hint":      it.Hint().String(),
 			"contract":   it.contract,
-			"kycid":      it.kycID,
 			"controller": it.controller,
 			"currency":   it.currency,
 		},
@@ -22,7 +21,6 @@ func (it RemoveControllersItem) MarshalBSON() ([]byte, error) {
 type RemoveControllersItemBSONUnmarshaler struct {
 	Hint       string `bson:"_hint"`
 	Contract   string `bson:"contract"`
-	KYC        string `bson:"kycid"`
 	Controller string `bson:"controller"`
 	Currency   string `bson:"currency"`
 }
@@ -40,5 +38,5 @@ func (it *RemoveControllersItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) erro
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, ht, uit.Contract, uit.KYC, uit.Controller, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.Controller, uit.Currency)
 }

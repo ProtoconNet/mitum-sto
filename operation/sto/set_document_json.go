@@ -13,7 +13,6 @@ type SetDocumentFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
 	Owner        base.Address             `json:"sender"`
 	Contract     base.Address             `json:"contract"`
-	STOID        currencytypes.ContractID `json:"stoid"`
 	Title        string                   `json:"title"`
 	Uri          stotypes.URI             `json:"uri"`
 	DocumentHash string                   `json:"documenthash"`
@@ -25,7 +24,6 @@ func (fact SetDocumentFact) MarshalJSON() ([]byte, error) {
 		BaseFactJSONMarshaler: fact.BaseFact.JSONMarshaler(),
 		Owner:                 fact.sender,
 		Contract:              fact.contract,
-		STOID:                 fact.stoID,
 		Title:                 fact.title,
 		Uri:                   fact.uri,
 		DocumentHash:          fact.documentHash,
@@ -37,7 +35,6 @@ type SetDocumentFactJSONUnMarshaler struct {
 	base.BaseFactJSONUnmarshaler
 	Owner        string `json:"sender"`
 	Contract     string `json:"contract"`
-	STOID        string `json:"stoid"`
 	Title        string `json:"title"`
 	Uri          string `json:"uri"`
 	DocumentHash string `json:"documenthash"`
@@ -54,7 +51,7 @@ func (fact *SetDocumentFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
 
-	return fact.unpack(enc, uf.Owner, uf.Contract, uf.STOID, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
+	return fact.unpack(enc, uf.Owner, uf.Contract, uf.Title, uf.Uri, uf.DocumentHash, uf.Currency)
 }
 
 type SetDocumentMarshaler struct {

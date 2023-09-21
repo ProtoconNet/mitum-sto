@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
 	kyctypes "github.com/ProtoconNet/mitum-sto/types/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
@@ -20,8 +19,8 @@ var (
 )
 
 // kyc:{address}:{kycID}
-func StateKeyKYCPrefix(addr base.Address, kycID currencytypes.ContractID) string {
-	return fmt.Sprintf("%s%s:%s", KYCPrefix, addr.String(), kycID)
+func StateKeyKYCPrefix(addr base.Address) string {
+	return fmt.Sprintf("%s%s", KYCPrefix, addr.String())
 }
 
 type DesignStateValue struct {
@@ -77,8 +76,8 @@ func IsStateDesignKey(key string) bool {
 }
 
 // kyc:{address}:{kycID}:design
-func StateKeyDesign(addr base.Address, sid currencytypes.ContractID) string {
-	return fmt.Sprintf("%s%s", StateKeyKYCPrefix(addr, sid), DesignSuffix)
+func StateKeyDesign(addr base.Address) string {
+	return fmt.Sprintf("%s%s", StateKeyKYCPrefix(addr), DesignSuffix)
 }
 
 type Status bool
@@ -138,17 +137,17 @@ func IsStateCustomerKey(key string) bool {
 }
 
 // kyc:{address}:{kycID}:{address}:customer
-func StateKeyCustomer(addr base.Address, sid currencytypes.ContractID, customer base.Address) string {
-	return fmt.Sprintf("%s:%s%s", StateKeyKYCPrefix(addr, sid), customer.String(), CustomerSuffix)
+func StateKeyCustomer(addr base.Address, customer base.Address) string {
+	return fmt.Sprintf("%s:%s%s", StateKeyKYCPrefix(addr), customer.String(), CustomerSuffix)
 }
 
-func ExistsPolicy(addr base.Address, kycid currencytypes.ContractID, getStateFunc base.GetStateFunc) (kyctypes.Policy, error) {
+func ExistsPolicy(addr base.Address, getStateFunc base.GetStateFunc) (kyctypes.Policy, error) {
 	var policy kyctypes.Policy
-	switch i, found, err := getStateFunc(StateKeyDesign(addr, kycid)); {
+	switch i, found, err := getStateFunc(StateKeyDesign(addr)); {
 	case err != nil:
 		return kyctypes.Policy{}, err
 	case !found:
-		return kyctypes.Policy{}, base.NewBaseOperationProcessReasonError("kyc not found, %s-%s", addr, kycid)
+		return kyctypes.Policy{}, base.NewBaseOperationProcessReasonError("kyc not found, %s", addr)
 	default:
 		design, ok := i.Value().(DesignStateValue) //nolint:forcetypeassert //...
 		if !ok {

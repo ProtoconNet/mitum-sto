@@ -12,7 +12,6 @@ import (
 type AuthorizeOperatorsItemJSONMarshaler struct {
 	hint.BaseHinter
 	Contract  base.Address             `json:"contract"`
-	STO       currencytypes.ContractID `json:"stoid"`
 	Operator  base.Address             `json:"operator"`
 	Partition stotypes.Partition       `json:"partition"`
 	Currency  currencytypes.CurrencyID `json:"currency"`
@@ -22,7 +21,6 @@ func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(AuthorizeOperatorsItemJSONMarshaler{
 		BaseHinter: it.BaseHinter,
 		Contract:   it.contract,
-		STO:        it.stoID,
 		Operator:   it.operator,
 		Partition:  it.partition,
 		Currency:   it.currency,
@@ -32,7 +30,6 @@ func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
 type AuthorizeOperatorsItemJSONUnMarshaler struct {
 	Hint      hint.Hint `json:"_hint"`
 	Contract  string    `json:"contract"`
-	STO       string    `json:"stoid"`
 	Operator  string    `json:"operator"`
 	Partition string    `json:"partition"`
 	Currency  string    `json:"currency"`
@@ -46,5 +43,5 @@ func (it *AuthorizeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) err
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.Operator, uit.Partition, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.Operator, uit.Partition, uit.Currency)
 }

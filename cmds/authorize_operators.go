@@ -15,20 +15,12 @@ type AuthorizeOperatorsCommand struct {
 	currencycmds.OperationFlags
 	Sender    currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract  currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	STO       currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
 	Operator  currencycmds.AddressFlag    `arg:"" name:"operator" help:"operator" required:"true"`
 	Partition PartitionFlag               `arg:"" name:"partition" help:"default partition" required:"true"`
 	Currency  currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender    base.Address
 	contract  base.Address
 	operator  base.Address
-}
-
-func NewAuthorizeOperatorsCommand() AuthorizeOperatorsCommand {
-	cmd := NewBaseCommand()
-	return AuthorizeOperatorsCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *AuthorizeOperatorsCommand) Run(pctx context.Context) error {
@@ -84,7 +76,6 @@ func (cmd *AuthorizeOperatorsCommand) createOperation() (base.Operation, error) 
 
 	item := sto.NewAuthorizeOperatorsItem(
 		cmd.contract,
-		cmd.STO.ID,
 		cmd.operator,
 		cmd.Partition.Partition,
 		cmd.Currency.CID,

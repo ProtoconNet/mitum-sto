@@ -12,7 +12,6 @@ func (it IssueSecurityTokensItem) MarshalBSON() ([]byte, error) {
 		bson.M{
 			"_hint":     it.Hint().String(),
 			"contract":  it.contract,
-			"stoid":     it.stoID,
 			"receiver":  it.receiver,
 			"amount":    it.amount.String(),
 			"partition": it.partition,
@@ -24,7 +23,6 @@ func (it IssueSecurityTokensItem) MarshalBSON() ([]byte, error) {
 type IssueSecurityTokensItemBSONUnmarshaler struct {
 	Hint      string `bson:"_hint"`
 	Contract  string `bson:"contract"`
-	STO       string `bson:"stoid"`
 	Receiver  string `bson:"receiver"`
 	Amount    string `bson:"amount"`
 	Partition string `bson:"partition"`
@@ -44,5 +42,5 @@ func (it *IssueSecurityTokensItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) er
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, ht, uit.Contract, uit.STO, uit.Receiver, uit.Amount, uit.Partition, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.Receiver, uit.Amount, uit.Partition, uit.Currency)
 }

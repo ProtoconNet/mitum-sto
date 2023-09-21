@@ -129,11 +129,3 @@ type AddCustomers struct {
 func NewAddCustomers(fact AddCustomersFact) (AddCustomers, error) {
 	return AddCustomers{BaseOperation: common.NewBaseOperation(AddCustomersHint, fact)}, nil
 }
-
-func (op *AddCustomers) HashSign(priv base.Privatekey, networkID base.NetworkID) error {
-	err := op.Sign(priv, networkID)
-	if err != nil {
-		return err
-	}
-	return nil
-}

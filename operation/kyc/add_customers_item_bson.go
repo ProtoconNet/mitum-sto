@@ -12,7 +12,6 @@ func (it AddCustomersItem) MarshalBSON() ([]byte, error) {
 		bson.M{
 			"_hint":    it.Hint().String(),
 			"contract": it.contract,
-			"kycid":    it.kycID,
 			"customer": it.customer,
 			"status":   it.status,
 			"currency": it.currency,
@@ -23,7 +22,6 @@ func (it AddCustomersItem) MarshalBSON() ([]byte, error) {
 type AddCustomersItemBSONUnmarshaler struct {
 	Hint     string `bson:"_hint"`
 	Contract string `bson:"contract"`
-	KYC      string `bson:"kycid"`
 	Customer string `bson:"customer"`
 	Status   bool   `bson:"status"`
 	Currency string `bson:"currency"`
@@ -42,5 +40,5 @@ func (it *AddCustomersItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, ht, uit.Contract, uit.KYC, uit.Customer, uit.Status, uit.Currency)
+	return it.unpack(enc, ht, uit.Contract, uit.Customer, uit.Status, uit.Currency)
 }

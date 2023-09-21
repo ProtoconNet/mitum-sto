@@ -91,8 +91,8 @@ func (opp *CreateKYCServiceProcessor) PreProcess(
 		return nil, base.NewBaseOperationProcessReasonError("not contract account owner, %q", fact.sender), nil
 	}
 
-	if err := currencystate.CheckNotExistsState(kycstate.StateKeyDesign(fact.Contract(), fact.KYC()), getStateFunc); err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("kyc service already exists, %s-%s: %w", fact.Contract(), fact.KYC(), err), nil
+	if err := currencystate.CheckNotExistsState(kycstate.StateKeyDesign(fact.Contract()), getStateFunc); err != nil {
+		return nil, base.NewBaseOperationProcessReasonError("kyc service already exists, %s: %w", fact.Contract(), err), nil
 	}
 
 	if err := currencystate.CheckFactSignsByState(fact.Sender(), op.Signs(), getStateFunc); err != nil {
@@ -115,18 +115,18 @@ func (opp *CreateKYCServiceProcessor) Process(
 
 	policy := kyctypes.NewPolicy(fact.Controllers())
 	if err := policy.IsValid(nil); err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("invalid kyc policy, %s-%s: %w", fact.Contract(), fact.KYC(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("invalid kyc policy, %s-%s: %w", fact.Contract(), err), nil
 	}
 
-	design := kyctypes.NewDesign(fact.KYC(), policy)
+	design := kyctypes.NewDesign(policy)
 	if err := design.IsValid(nil); err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("invalid kyc design, %s-%s: %w", fact.Contract(), fact.KYC(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("invalid kyc design, %s-%s: %w", fact.Contract(), err), nil
 	}
 
 	sts := make([]base.StateMergeValue, 2)
 
 	sts[0] = currencystate.NewStateMergeValue(
-		kycstate.StateKeyDesign(fact.Contract(), fact.KYC()),
+		kycstate.StateKeyDesign(fact.Contract()),
 		kycstate.NewDesignStateValue(design),
 	)
 

@@ -129,11 +129,3 @@ type AddControllers struct {
 func NewAddControllers(fact AddControllersFact) (AddControllers, error) {
 	return AddControllers{BaseOperation: common.NewBaseOperation(AddControllersHint, fact)}, nil
 }
-
-func (op *AddControllers) HashSign(priv base.Privatekey, networkID base.NetworkID) error {
-	err := op.Sign(priv, networkID)
-	if err != nil {
-		return err
-	}
-	return nil
-}

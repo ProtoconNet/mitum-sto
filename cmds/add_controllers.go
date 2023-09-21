@@ -16,19 +16,11 @@ type AddControllersCommand struct {
 	currencycmds.OperationFlags
 	Sender     currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract   currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	KYC        currencycmds.ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
 	Controller currencycmds.AddressFlag    `arg:"" name:"controller" help:"controller" required:"true"`
 	Currency   currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender     base.Address
 	contract   base.Address
 	controller base.Address
-}
-
-func NewAddControllersCommand() AddControllersCommand {
-	cmd := NewBaseCommand()
-	return AddControllersCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *AddControllersCommand) Run(pctx context.Context) error {
@@ -84,7 +76,6 @@ func (cmd *AddControllersCommand) createOperation() (base.Operation, error) { //
 
 	item := kyc.NewAddControllersItem(
 		cmd.contract,
-		cmd.KYC.ID,
 		cmd.controller,
 		cmd.Currency.CID,
 	)
@@ -99,7 +90,7 @@ func (cmd *AddControllersCommand) createOperation() (base.Operation, error) { //
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to add controllers operation")
 	}
-	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
+	err = op.Sign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to add controllers operation")
 	}

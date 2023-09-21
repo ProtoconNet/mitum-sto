@@ -15,7 +15,6 @@ type TransferSecurityTokensPartitionCommand struct {
 	currencycmds.OperationFlags
 	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	STO         currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
 	TokenHolder currencycmds.AddressFlag    `arg:"" name:"tokenholder" help:"tokenholder" required:"true"`
 	Receiver    currencycmds.AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
 	Partition   PartitionFlag               `arg:"" name:"partition" help:"partition" required:"true"`
@@ -25,13 +24,6 @@ type TransferSecurityTokensPartitionCommand struct {
 	contract    base.Address
 	holder      base.Address
 	receiver    base.Address
-}
-
-func NewTransferSecurityTokensPartitionCommand() TransferSecurityTokensPartitionCommand {
-	cmd := NewBaseCommand()
-	return TransferSecurityTokensPartitionCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *TransferSecurityTokensPartitionCommand) Run(pctx context.Context) error {
@@ -97,7 +89,6 @@ func (cmd *TransferSecurityTokensPartitionCommand) createOperation() (base.Opera
 
 	item := sto.NewTransferSecurityTokensPartitionItem(
 		cmd.contract,
-		cmd.STO.ID,
 		cmd.holder,
 		cmd.receiver,
 		cmd.Partition.Partition,

@@ -15,20 +15,12 @@ type UpdateCustomersCommand struct {
 	currencycmds.OperationFlags
 	Sender   currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	KYC      currencycmds.ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
 	Customer currencycmds.AddressFlag    `arg:"" name:"customer" help:"customer" required:"true"`
 	Status   bool                        `arg:"" name:"status" help:"customer status" required:"true"`
 	Currency currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender   base.Address
 	contract base.Address
 	customer base.Address
-}
-
-func NewUpdateCustomersCommand() UpdateCustomersCommand {
-	cmd := NewBaseCommand()
-	return UpdateCustomersCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *UpdateCustomersCommand) Run(pctx context.Context) error {
@@ -84,7 +76,6 @@ func (cmd *UpdateCustomersCommand) createOperation() (base.Operation, error) { /
 
 	item := kyc.NewUpdateCustomersItem(
 		cmd.contract,
-		cmd.KYC.ID,
 		cmd.customer,
 		cmd.Status,
 		cmd.Currency.CID,

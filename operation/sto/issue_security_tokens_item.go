@@ -14,7 +14,6 @@ var IssueSecurityTokensItemHint = hint.MustNewHint("mitum-sto-issue-security-tok
 type IssueSecurityTokensItem struct {
 	hint.BaseHinter
 	contract  base.Address             // contract
-	stoID     currencytypes.ContractID // token id
 	receiver  base.Address             // tokenholder
 	amount    common.Big               // amount
 	partition stotypes.Partition       // partition
@@ -23,7 +22,6 @@ type IssueSecurityTokensItem struct {
 
 func NewIssueSecurityTokensItem(
 	contract base.Address,
-	stoID currencytypes.ContractID,
 	receiver base.Address,
 	amount common.Big,
 	partition stotypes.Partition,
@@ -32,7 +30,6 @@ func NewIssueSecurityTokensItem(
 	return IssueSecurityTokensItem{
 		BaseHinter: hint.NewBaseHinter(IssueSecurityTokensItemHint),
 		contract:   contract,
-		stoID:      stoID,
 		receiver:   receiver,
 		amount:     amount,
 		partition:  partition,
@@ -43,7 +40,6 @@ func NewIssueSecurityTokensItem(
 func (it IssueSecurityTokensItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.stoID.Bytes(),
 		it.receiver.Bytes(),
 		it.amount.Bytes(),
 		it.partition.Bytes(),
@@ -55,7 +51,6 @@ func (it IssueSecurityTokensItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		it.BaseHinter,
 		it.contract,
-		it.stoID,
 		it.receiver,
 		it.partition,
 		it.currency,
@@ -76,10 +71,6 @@ func (it IssueSecurityTokensItem) IsValid([]byte) error {
 
 func (it IssueSecurityTokensItem) Contract() base.Address {
 	return it.contract
-}
-
-func (it IssueSecurityTokensItem) STO() currencytypes.ContractID {
-	return it.stoID
 }
 
 func (it IssueSecurityTokensItem) Receiver() base.Address {

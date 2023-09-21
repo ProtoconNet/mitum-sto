@@ -61,7 +61,7 @@ func (ipp *RemoveControllersItemProcessor) PreProcess(
 	}
 
 	if len(*ipp.controllers) == 0 {
-		return errors.Errorf("empty controllers, %s-%s", it.Contract(), it.KYC())
+		return errors.Errorf("empty controllers, %s", it.Contract())
 	}
 
 	for i, ad := range *ipp.controllers {
@@ -96,7 +96,7 @@ func (ipp *RemoveControllersItemProcessor) Process(
 		}
 
 		if i == len(*ipp.controllers)-1 {
-			return nil, errors.Errorf("controller not in kyc service controllers, %s-%s, %q", it.Contract(), it.KYC(), it.Controller())
+			return nil, errors.Errorf("controller not in kyc service controllers, %s, %q", it.Contract(), it.Controller())
 		}
 	}
 
@@ -174,12 +174,12 @@ func (opp *RemoveControllersProcessor) PreProcess(
 	controllers := map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
+			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s: %w", it.Contract(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())] = &cons
+		controllers[kycstate.StateKeyDesign(it.Contract())] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -192,7 +192,7 @@ func (opp *RemoveControllersProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())]
+		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to preprocess RemoveControllersItem: %w", err), nil
@@ -217,15 +217,15 @@ func (opp *RemoveControllersProcessor) Process( // nolint:dupl
 
 	var sts []base.StateMergeValue // nolint:prealloc
 
-	controllers := map[string]map[string]*[]base.Address{}
+	controllers := map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
+			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s: %w", it.Contract(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
+		controllers[kycstate.StateKeyDesign(it.Contract())] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -238,7 +238,7 @@ func (opp *RemoveControllersProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()]
+		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract())]
 
 		_, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
@@ -249,18 +249,16 @@ func (opp *RemoveControllersProcessor) Process( // nolint:dupl
 	}
 
 	for k, m := range controllers {
-		for id, cons := range m {
-			policy := kyctypes.NewPolicy(*cons)
-			design := kyctypes.NewDesign(currencytypes.ContractID(id), policy)
-			if err := design.IsValid(nil); err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil
-			}
-
-			sts = append(sts, currencystate.NewStateMergeValue(
-				k,
-				kycstate.NewDesignStateValue(design),
-			))
+		policy := kyctypes.NewPolicy(*m)
+		design := kyctypes.NewDesign(policy)
+		if err := design.IsValid(nil); err != nil {
+			return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil
 		}
+
+		sts = append(sts, currencystate.NewStateMergeValue(
+			k,
+			kycstate.NewDesignStateValue(design),
+		))
 	}
 
 	fitems := fact.Items()

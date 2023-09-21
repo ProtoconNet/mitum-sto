@@ -8,11 +8,10 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (it *AddControllersItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, kyc, con, cid string) error {
+func (it *AddControllersItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, con, cid string) error {
 	e := util.StringError("failed to unmarshal AddControllersItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
-	it.kycID = currencytypes.ContractID(kyc)
 	it.currency = currencytypes.CurrencyID(cid)
 
 	switch a, err := base.DecodeAddress(ca, enc); {

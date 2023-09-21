@@ -18,21 +18,18 @@ var AddControllersItemHint = hint.MustNewHint("mitum-kyc-add-controllers-item-v0
 type AddControllersItem struct {
 	hint.BaseHinter
 	contract   base.Address
-	kycID      currencytypes.ContractID
 	controller base.Address
 	currency   currencytypes.CurrencyID
 }
 
 func NewAddControllersItem(
 	contract base.Address,
-	kycID currencytypes.ContractID,
 	controller base.Address,
 	currency currencytypes.CurrencyID,
 ) AddControllersItem {
 	return AddControllersItem{
 		BaseHinter: hint.NewBaseHinter(AddControllersItemHint),
 		contract:   contract,
-		kycID:      kycID,
 		controller: controller,
 		currency:   currency,
 	}
@@ -41,14 +38,13 @@ func NewAddControllersItem(
 func (it AddControllersItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.kycID.Bytes(),
 		it.controller.Bytes(),
 		it.currency.Bytes(),
 	)
 }
 
 func (it AddControllersItem) IsValid([]byte) error {
-	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.kycID, it.contract, it.controller, it.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.controller, it.currency); err != nil {
 		return err
 	}
 
@@ -57,10 +53,6 @@ func (it AddControllersItem) IsValid([]byte) error {
 	}
 
 	return nil
-}
-
-func (it AddControllersItem) KYC() currencytypes.ContractID {
-	return it.kycID
 }
 
 func (it AddControllersItem) Contract() base.Address {

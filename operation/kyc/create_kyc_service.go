@@ -17,8 +17,7 @@ var (
 type CreateKYCServiceFact struct {
 	base.BaseFact
 	sender      base.Address
-	contract    base.Address             // contract account
-	kycID       currencytypes.ContractID // kyc id
+	contract    base.Address // contract account
 	controllers []base.Address
 	currency    currencytypes.CurrencyID
 }
@@ -27,7 +26,6 @@ func NewCreateKYCServiceFact(
 	token []byte,
 	sender base.Address,
 	contract base.Address,
-	kycID currencytypes.ContractID,
 	controllers []base.Address,
 	currency currencytypes.CurrencyID,
 ) CreateKYCServiceFact {
@@ -36,7 +34,6 @@ func NewCreateKYCServiceFact(
 		BaseFact:    bf,
 		sender:      sender,
 		contract:    contract,
-		kycID:       kycID,
 		controllers: controllers,
 		currency:    currency,
 	}
@@ -64,7 +61,6 @@ func (fact CreateKYCServiceFact) Bytes() []byte {
 		fact.Token(),
 		fact.sender.Bytes(),
 		fact.contract.Bytes(),
-		fact.kycID.Bytes(),
 		util.ConcatBytesSlice(bc...),
 		fact.currency.Bytes(),
 	)
@@ -79,7 +75,7 @@ func (fact CreateKYCServiceFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender, fact.kycID, fact.contract, fact.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false, fact.sender, fact.contract, fact.currency); err != nil {
 		return err
 	}
 
@@ -117,10 +113,6 @@ func (fact CreateKYCServiceFact) Sender() base.Address {
 
 func (fact CreateKYCServiceFact) Contract() base.Address {
 	return fact.contract
-}
-
-func (fact CreateKYCServiceFact) KYC() currencytypes.ContractID {
-	return fact.kycID
 }
 
 func (fact CreateKYCServiceFact) Controllers() []base.Address {

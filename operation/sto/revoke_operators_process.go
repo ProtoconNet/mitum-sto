@@ -50,16 +50,16 @@ func (ipp *RevokeOperatorsItemProcessor) PreProcess(
 		return err
 	}
 
-	if err := currencystate.CheckExistsState(stostate.StateKeyDesign(it.Contract(), it.STO()), getStateFunc); err != nil {
+	if err := currencystate.CheckExistsState(stostate.StateKeyDesign(it.Contract()), getStateFunc); err != nil {
 		return err
 	}
 
-	if err := currencystate.CheckExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.STO(), it.Partition()), getStateFunc); err != nil {
+	if err := currencystate.CheckExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.Partition()), getStateFunc); err != nil {
 		return err
 	}
 
 	if len(*ipp.operators) == 0 {
-		return errors.Errorf("empty tokenholder operators, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), ipp.sender)
+		return errors.Errorf("empty tokenholder operators, %s-%s-%s", it.Contract(), it.Partition(), ipp.sender)
 	}
 
 	for i, ad := range *ipp.operators {
@@ -68,12 +68,12 @@ func (ipp *RevokeOperatorsItemProcessor) PreProcess(
 		}
 
 		if i == len(*ipp.operators)-1 {
-			return errors.Errorf("operator not in tokenholder operators, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), ipp.sender, it.Operator())
+			return errors.Errorf("operator not in tokenholder operators, %s-%s-%s, %q", it.Contract(), it.Partition(), ipp.sender, it.Operator())
 		}
 	}
 
 	if len(*ipp.tokenHolders) == 0 {
-		return errors.Errorf("empty operator tokenholders, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), it.Operator())
+		return errors.Errorf("empty operator tokenholders, %s-%s-%s", it.Contract(), it.Partition(), it.Operator())
 	}
 
 	for i, ad := range *ipp.tokenHolders {
@@ -82,7 +82,7 @@ func (ipp *RevokeOperatorsItemProcessor) PreProcess(
 		}
 
 		if i == len(*ipp.tokenHolders)-1 {
-			return errors.Errorf("sender not in operator tokenholders, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), it.Operator(), ipp.sender)
+			return errors.Errorf("sender not in operator tokenholders, %s-%s-%s, %q", it.Contract(), it.Partition(), it.Operator(), ipp.sender)
 		}
 	}
 
@@ -101,7 +101,7 @@ func (ipp *RevokeOperatorsItemProcessor) Process(
 	it := ipp.item
 
 	if len(*ipp.operators) == 0 {
-		return nil, errors.Errorf("empty tokenholder operators, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), ipp.sender)
+		return nil, errors.Errorf("empty tokenholder operators, %s-%s-%s", it.Contract(), it.Partition(), ipp.sender)
 	}
 
 	for i, ad := range *ipp.operators {
@@ -114,13 +114,13 @@ func (ipp *RevokeOperatorsItemProcessor) Process(
 		}
 
 		if i == len(*ipp.operators)-1 {
-			return nil, errors.Errorf("operator not in tokenholder operators, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), ipp.sender, it.Operator())
+			return nil, errors.Errorf("operator not in tokenholder operators, %s-%s-%s, %q", it.Contract(), it.Partition(), ipp.sender, it.Operator())
 		}
 	}
 
 	holders := *ipp.tokenHolders
 	if len(holders) == 0 {
-		return nil, errors.Errorf("empty operator tokenholders, %s-%s-%s-%s", it.Contract(), it.STO(), it.Partition(), it.Operator())
+		return nil, errors.Errorf("empty operator tokenholders, %s-%s-%s", it.Contract(), it.Partition(), it.Operator())
 	}
 
 	for i, ad := range holders {
@@ -133,12 +133,12 @@ func (ipp *RevokeOperatorsItemProcessor) Process(
 		}
 
 		if i == len(holders)-1 {
-			return nil, errors.Errorf("sender not in operator tokenholders, %s-%s-%s-%s, %q", it.Contract(), it.STO(), it.Partition(), it.Operator(), ipp.sender)
+			return nil, errors.Errorf("sender not in operator tokenholders, %s-%s-%s, %q", it.Contract(), it.Partition(), it.Operator(), ipp.sender)
 		}
 	}
 
 	sts[0] = currencystate.NewStateMergeValue(
-		stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition()),
+		stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition()),
 		stostate.NewOperatorTokenHoldersStateValue(holders),
 	)
 
@@ -220,7 +220,7 @@ func (opp *RevokeOperatorsProcessor) PreProcess(
 	for _, it := range fact.Items() {
 		var ops, hds []base.Address
 
-		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())
+		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -236,7 +236,7 @@ func (opp *RevokeOperatorsProcessor) PreProcess(
 			operators[k] = &ops
 		}
 
-		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())
+		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -263,8 +263,8 @@ func (opp *RevokeOperatorsProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())]
+		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess RevokeOperatorsItem: %w", err), nil
@@ -295,7 +295,7 @@ func (opp *RevokeOperatorsProcessor) Process( // nolint:dupl
 	for _, it := range fact.Items() {
 		var ops, hds []base.Address
 
-		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())
+		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -311,7 +311,7 @@ func (opp *RevokeOperatorsProcessor) Process( // nolint:dupl
 			operators[k] = &ops
 		}
 
-		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())
+		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
@@ -340,8 +340,8 @@ func (opp *RevokeOperatorsProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.STO(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.STO(), it.Operator(), it.Partition())]
+		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {

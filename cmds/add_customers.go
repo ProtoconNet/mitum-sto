@@ -15,20 +15,12 @@ type AddCustomersCommand struct {
 	currencycmds.OperationFlags
 	Sender   currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	KYC      currencycmds.ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
 	Customer currencycmds.AddressFlag    `arg:"" name:"customer" help:"customer" required:"true"`
 	Status   bool                        `arg:"" name:"status" help:"customer status" required:"true"`
 	Currency currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender   base.Address
 	contract base.Address
 	customer base.Address
-}
-
-func NewAddCustomersCommand() AddCustomersCommand {
-	cmd := NewBaseCommand()
-	return AddCustomersCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *AddCustomersCommand) Run(pctx context.Context) error {
@@ -84,7 +76,6 @@ func (cmd *AddCustomersCommand) createOperation() (base.Operation, error) { // n
 
 	item := kyc.NewAddCustomersItem(
 		cmd.contract,
-		cmd.KYC.ID,
 		cmd.customer,
 		cmd.Status,
 		cmd.Currency.CID,
@@ -100,7 +91,7 @@ func (cmd *AddCustomersCommand) createOperation() (base.Operation, error) { // n
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to add customers operation")
 	}
-	err = op.HashSign(cmd.Privatekey, cmd.NetworkID.NetworkID())
+	err = op.Sign(cmd.Privatekey, cmd.NetworkID.NetworkID())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to add customers operation")
 	}

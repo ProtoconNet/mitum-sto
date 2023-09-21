@@ -15,7 +15,6 @@ type CreateSecurityTokensCommand struct {
 	currencycmds.OperationFlags
 	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	STO         currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
 	Granularity uint64                      `arg:"" name:"granularity" help:"granularity" required:"true"`
 	Partition   PartitionFlag               `arg:"" name:"default-partition" help:"default partition" required:"true"`
 	Currency    currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
@@ -23,13 +22,6 @@ type CreateSecurityTokensCommand struct {
 	sender      base.Address
 	contract    base.Address
 	controllers []base.Address
-}
-
-func NewCreateSecurityTokensCommand() CreateSecurityTokensCommand {
-	cmd := NewBaseCommand()
-	return CreateSecurityTokensCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *CreateSecurityTokensCommand) Run(pctx context.Context) error {
@@ -87,7 +79,6 @@ func (cmd *CreateSecurityTokensCommand) createOperation() (base.Operation, error
 
 	item := sto.NewCreateSecurityTokensItem(
 		cmd.contract,
-		cmd.STO.ID,
 		cmd.Granularity,
 		cmd.Partition.Partition,
 		cmd.controllers,

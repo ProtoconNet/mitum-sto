@@ -3,14 +3,14 @@ module github.com/ProtoconNet/mitum-sto
 go 1.20
 
 require (
-	github.com/ProtoconNet/mitum-currency/v3 v3.0.0-alpha.0.20230904013423-deed65948e8b
-	github.com/ProtoconNet/mitum2 v0.0.0-20230823020019-a8d11066c575
+	github.com/ProtoconNet/mitum-currency/v3 v3.0.0-alpha.0.20230917062443-936c168ff47a
+	github.com/ProtoconNet/mitum2 v0.0.0-20230917053416-239fc0fabf6f
 	github.com/alecthomas/kong v0.8.0
 	github.com/arl/statsviz v0.5.2
+	github.com/gorilla/mux v1.8.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.30.0
 	go.mongodb.org/mongo-driver v1.11.0
-	github.com/gorilla/mux v1.8.0
 )
 
 require (
@@ -41,7 +41,6 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/pprof v0.0.0-20230817174616-7a8ec2ada47b // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
-
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/consul/api v1.24.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

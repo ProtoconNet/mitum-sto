@@ -8,7 +8,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
-func (fact *SetDocumentFact) unpack(enc encoder.Encoder, sa, ca, stoid, title, uri, dochash, cid string) error {
+func (fact *SetDocumentFact) unpack(enc encoder.Encoder, sa, ca, title, uri, dochash, cid string) error {
 	e := util.StringError("failed to unmarshal SetDocumentFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
@@ -25,7 +25,6 @@ func (fact *SetDocumentFact) unpack(enc encoder.Encoder, sa, ca, stoid, title, u
 		fact.contract = a
 	}
 
-	fact.stoID = currencytypes.ContractID(stoid)
 	fact.title = title
 	fact.uri = stotypes.URI(uri)
 	fact.documentHash = dochash

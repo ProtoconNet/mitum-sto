@@ -13,7 +13,6 @@ var RevokeOperatorsItemHint = hint.MustNewHint("mitum-sto-revoke-operators-item-
 type RevokeOperatorsItem struct {
 	hint.BaseHinter
 	contract  base.Address             // contract account
-	stoID     currencytypes.ContractID // token id
 	operator  base.Address             // operator account
 	partition stotypes.Partition       // partition
 	currency  currencytypes.CurrencyID // fee
@@ -21,7 +20,6 @@ type RevokeOperatorsItem struct {
 
 func NewRevokeOperatorsItem(
 	contract base.Address,
-	stoID currencytypes.ContractID,
 	operator base.Address,
 	partition stotypes.Partition,
 	currency currencytypes.CurrencyID,
@@ -29,7 +27,6 @@ func NewRevokeOperatorsItem(
 	return RevokeOperatorsItem{
 		BaseHinter: hint.NewBaseHinter(RevokeOperatorsItemHint),
 		contract:   contract,
-		stoID:      stoID,
 		operator:   operator,
 		partition:  partition,
 		currency:   currency,
@@ -39,7 +36,6 @@ func NewRevokeOperatorsItem(
 func (it RevokeOperatorsItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.stoID.Bytes(),
 		it.operator.Bytes(),
 		it.partition.Bytes(),
 		it.currency.Bytes(),
@@ -50,7 +46,6 @@ func (it RevokeOperatorsItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		it.BaseHinter,
 		it.contract,
-		it.stoID,
 		it.operator,
 		it.partition,
 		it.currency,
@@ -67,10 +62,6 @@ func (it RevokeOperatorsItem) IsValid([]byte) error {
 
 func (it RevokeOperatorsItem) Contract() base.Address {
 	return it.contract
-}
-
-func (it RevokeOperatorsItem) STO() currencytypes.ContractID {
-	return it.stoID
 }
 
 func (it RevokeOperatorsItem) Operator() base.Address {

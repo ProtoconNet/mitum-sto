@@ -15,19 +15,11 @@ type RemoveControllersCommand struct {
 	currencycmds.OperationFlags
 	Sender     currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract   currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	KYC        currencycmds.ContractIDFlag `arg:"" name:"kyc-id" help:"kyc id" required:"true"`
 	Controller currencycmds.AddressFlag    `arg:"" name:"controller" help:"controller" required:"true"`
 	Currency   currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender     base.Address
 	contract   base.Address
 	controller base.Address
-}
-
-func NewRemoveControllersCommand() RemoveControllersCommand {
-	cmd := NewBaseCommand()
-	return RemoveControllersCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *RemoveControllersCommand) Run(pctx context.Context) error {
@@ -83,7 +75,6 @@ func (cmd *RemoveControllersCommand) createOperation() (base.Operation, error) {
 
 	item := kyc.NewRemoveControllersItem(
 		cmd.contract,
-		cmd.KYC.ID,
 		cmd.controller,
 		cmd.Currency.CID,
 	)

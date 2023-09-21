@@ -12,7 +12,6 @@ type CreateKYCServiceFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
 	Owner       base.Address             `json:"sender"`
 	Contract    base.Address             `json:"contract"`
-	KYCID       currencytypes.ContractID `json:"kycid"`
 	Controllers []base.Address           `json:"controllers"`
 	Currency    currencytypes.CurrencyID `json:"currency"`
 }
@@ -22,7 +21,6 @@ func (fact CreateKYCServiceFact) MarshalJSON() ([]byte, error) {
 		BaseFactJSONMarshaler: fact.BaseFact.JSONMarshaler(),
 		Owner:                 fact.sender,
 		Contract:              fact.contract,
-		KYCID:                 fact.kycID,
 		Controllers:           fact.controllers,
 		Currency:              fact.currency,
 	})
@@ -32,7 +30,6 @@ type CreateKYCServiceFactJSONUnMarshaler struct {
 	base.BaseFactJSONUnmarshaler
 	Owner       string   `json:"sender"`
 	Contract    string   `json:"contract"`
-	KYCID       string   `json:"kycid"`
 	Controllers []string `json:"controllers"`
 	Currency    string   `json:"currency"`
 }
@@ -47,7 +44,7 @@ func (fact *CreateKYCServiceFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) err
 
 	fact.BaseFact.SetJSONUnmarshaler(uf.BaseFactJSONUnmarshaler)
 
-	return fact.unpack(enc, uf.Owner, uf.Contract, uf.KYCID, uf.Controllers, uf.Currency)
+	return fact.unpack(enc, uf.Owner, uf.Contract, uf.Controllers, uf.Currency)
 }
 
 type CreateKYCServiceMarshaler struct {

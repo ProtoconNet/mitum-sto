@@ -13,7 +13,6 @@ var CreateSecurityTokensItemHint = hint.MustNewHint("mitum-sto-create-security-t
 type CreateSecurityTokensItem struct {
 	hint.BaseHinter
 	contract         base.Address             // contract account
-	stoID            currencytypes.ContractID // token id
 	granularity      uint64                   // token granulariry
 	defaultPartition stotypes.Partition       // default partitions
 	controllers      []base.Address           // initial controllers
@@ -22,7 +21,6 @@ type CreateSecurityTokensItem struct {
 
 func NewCreateSecurityTokensItem(
 	contract base.Address,
-	stoID currencytypes.ContractID,
 	granularity uint64,
 	partition stotypes.Partition,
 	controllers []base.Address,
@@ -31,7 +29,6 @@ func NewCreateSecurityTokensItem(
 	return CreateSecurityTokensItem{
 		BaseHinter:       hint.NewBaseHinter(CreateSecurityTokensItemHint),
 		contract:         contract,
-		stoID:            stoID,
 		granularity:      granularity,
 		defaultPartition: partition,
 		controllers:      controllers,
@@ -48,7 +45,6 @@ func (it CreateSecurityTokensItem) Bytes() []byte {
 
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.stoID.Bytes(),
 		util.Uint64ToBytes(it.granularity),
 		it.defaultPartition.Bytes(),
 		util.ConcatBytesSlice(bc...),
@@ -60,7 +56,6 @@ func (it CreateSecurityTokensItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		it.BaseHinter,
 		it.contract,
-		it.stoID,
 		it.defaultPartition,
 		it.currency,
 	); err != nil {
@@ -93,10 +88,6 @@ func (it CreateSecurityTokensItem) IsValid([]byte) error {
 
 func (it CreateSecurityTokensItem) Contract() base.Address {
 	return it.contract
-}
-
-func (it CreateSecurityTokensItem) STO() currencytypes.ContractID {
-	return it.stoID
 }
 
 func (it CreateSecurityTokensItem) Granularity() uint64 {

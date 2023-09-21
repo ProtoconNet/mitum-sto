@@ -85,14 +85,14 @@ func (opp *SetDocumentProcessor) PreProcess(
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
-	policy, err := stostate.ExistsPolicy(fact.Contract(), fact.STO(), getStateFunc)
+	policy, err := stostate.ExistsPolicy(fact.Contract(), getStateFunc)
 	if err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("sto policy not found, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("sto policy not found, %s: %w", fact.Contract(), err), nil
 	}
 
 	controllers := policy.Controllers()
 	if len(controllers) == 0 {
-		return nil, base.NewBaseOperationProcessReasonError("empty controllers, %s-%s", fact.Contract(), fact.STO()), nil
+		return nil, base.NewBaseOperationProcessReasonError("empty controllers, %s", fact.Contract()), nil
 	}
 
 	for i, con := range controllers {
@@ -101,7 +101,7 @@ func (opp *SetDocumentProcessor) PreProcess(
 		}
 
 		if i == len(controllers)-1 {
-			return nil, base.NewBaseOperationProcessReasonError("sender is not controller of sto, %q, %s-%s", fact.Sender(), fact.Contract(), fact.STO()), nil
+			return nil, base.NewBaseOperationProcessReasonError("sender is not controller of sto, %q, %s", fact.Sender(), fact.Contract()), nil
 		}
 	}
 
@@ -119,36 +119,36 @@ func (opp *SetDocumentProcessor) Process(
 		return nil, nil, e.Wrap(errors.Errorf("expected SetDocumentFact, not %T", op.Fact()))
 	}
 
-	doc := stotypes.NewDocument(fact.STO(), fact.Title(), fact.DocumentHash(), fact.URI())
+	doc := stotypes.NewDocument(fact.Title(), fact.DocumentHash(), fact.URI())
 	if err := doc.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid sto document, %q: %w", fact.DocumentHash(), err), nil
 	}
 
-	st, err := currencystate.ExistsState(stostate.StateKeyDesign(fact.Contract(), fact.STO()), "key of sto design", getStateFunc)
+	st, err := currencystate.ExistsState(stostate.StateKeyDesign(fact.Contract()), "key of sto design", getStateFunc)
 	if err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("sto design not found, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("sto design not found, %s: %w", fact.Contract(), err), nil
 	}
 
 	design, err := stostate.StateDesignValue(st)
 	if err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("sto design value not found, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("sto design value not found, %s: %w", fact.Contract(), err), nil
 	}
 	Policy := design.Policy()
 
 	Policy = stotypes.NewPolicy(Policy.Partitions(), Policy.Aggregate(), Policy.Controllers(), append(Policy.Documents(), doc))
 	if err := Policy.IsValid(nil); err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("invalid sto policy, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("invalid sto policy, %s: %w", fact.Contract(), err), nil
 	}
 
-	design = stotypes.NewDesign(design.STO(), design.Granularity(), Policy)
+	design = stotypes.NewDesign(design.Granularity(), Policy)
 	if err := design.IsValid(nil); err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("invalid sto design, %s-%s: %w", fact.Contract(), fact.STO(), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("invalid sto design, %s: %w", fact.Contract(), err), nil
 	}
 
 	sts := make([]base.StateMergeValue, 2)
 
 	sts[0] = currencystate.NewStateMergeValue(
-		stostate.StateKeyDesign(fact.Contract(), fact.STO()),
+		stostate.StateKeyDesign(fact.Contract()),
 		stostate.NewDesignStateValue(design),
 	)
 

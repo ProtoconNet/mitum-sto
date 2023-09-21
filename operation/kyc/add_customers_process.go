@@ -55,14 +55,14 @@ func (ipp *AddCustomersItemProcessor) PreProcess(
 	}
 
 	if !ca.Owner().Equal(ipp.sender) {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
 			return err
 		}
 
 		controllers := policy.Controllers()
 		if len(controllers) == 0 {
-			return errors.Errorf("not contract account owner neither its controller, %s-%s", it.Contract(), it.KYC())
+			return errors.Errorf("not contract account owner neither its controller, %s", it.Contract())
 		}
 
 		for i, con := range controllers {
@@ -71,12 +71,12 @@ func (ipp *AddCustomersItemProcessor) PreProcess(
 			}
 
 			if i == len(controllers)-1 {
-				return errors.Errorf("not contract account owner neither its controller, %s-%s", it.Contract(), it.KYC())
+				return errors.Errorf("not contract account owner neither its controller, %s-%s", it.Contract())
 			}
 		}
 	}
 
-	if err := currencystate.CheckNotExistsState(kycstate.StateKeyCustomer(it.Contract(), it.KYC(), it.Customer()), getStateFunc); err != nil {
+	if err := currencystate.CheckNotExistsState(kycstate.StateKeyCustomer(it.Contract(), it.Customer()), getStateFunc); err != nil {
 		return err
 	}
 
@@ -93,7 +93,7 @@ func (ipp *AddCustomersItemProcessor) Process(
 	it := ipp.item
 
 	v := currencystate.NewStateMergeValue(
-		kycstate.StateKeyCustomer(it.Contract(), it.KYC(), it.Customer()),
+		kycstate.StateKeyCustomer(it.Contract(), it.Customer()),
 		kycstate.NewCustomerStateValue(kycstate.Status(it.Status())),
 	)
 

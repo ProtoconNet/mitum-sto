@@ -11,7 +11,6 @@ import (
 type AddCustomersItemJSONMarshaler struct {
 	hint.BaseHinter
 	Contract base.Address             `json:"contract"`
-	KYC      currencytypes.ContractID `json:"kycid"`
 	Customer base.Address             `json:"customer"`
 	Status   bool                     `json:"status"`
 	Currency currencytypes.CurrencyID `json:"currency"`
@@ -21,7 +20,6 @@ func (it AddCustomersItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(AddCustomersItemJSONMarshaler{
 		BaseHinter: it.BaseHinter,
 		Contract:   it.contract,
-		KYC:        it.kycID,
 		Customer:   it.customer,
 		Status:     it.status,
 		Currency:   it.currency,
@@ -31,7 +29,6 @@ func (it AddCustomersItem) MarshalJSON() ([]byte, error) {
 type AddCustomersItemJSONUnMarshaler struct {
 	Hint     hint.Hint `json:"_hint"`
 	Contract string    `json:"contract"`
-	KYC      string    `json:"kycid"`
 	Customer string    `json:"customer"`
 	Status   bool      `json:"status"`
 	Currency string    `json:"currency"`
@@ -45,5 +42,5 @@ func (it *AddCustomersItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, uit.Hint, uit.Contract, uit.KYC, uit.Customer, uit.Status, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.Customer, uit.Status, uit.Currency)
 }

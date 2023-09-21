@@ -7,7 +7,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
-func (fact *CreateKYCServiceFact) unpack(enc encoder.Encoder, sa, ca, kycid string, cons []string, cid string) error {
+func (fact *CreateKYCServiceFact) unpack(enc encoder.Encoder, sa, ca string, cons []string, cid string) error {
 	e := util.StringError("failed to unmarshal CreateKYCServiceFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
@@ -34,7 +34,6 @@ func (fact *CreateKYCServiceFact) unpack(enc encoder.Encoder, sa, ca, kycid stri
 	}
 	fact.controllers = controllers
 
-	fact.kycID = currencytypes.ContractID(kycid)
 	fact.currency = currencytypes.CurrencyID(cid)
 
 	return nil

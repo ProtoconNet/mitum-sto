@@ -16,7 +16,6 @@ func (fact CreateKYCServiceFact) MarshalBSON() ([]byte, error) {
 			"_hint":       fact.Hint().String(),
 			"sender":      fact.sender,
 			"contract":    fact.contract,
-			"kycid":       fact.kycID,
 			"controllers": fact.controllers,
 			"currency":    fact.currency,
 			"hash":        fact.BaseFact.Hash().String(),
@@ -29,7 +28,6 @@ type CreateKYCServiceFactBSONUnmarshaler struct {
 	Hint        string   `bson:"_hint"`
 	Sender      string   `bson:"sender"`
 	Contract    string   `bson:"contract"`
-	KYCID       string   `bson:"kycid"`
 	Controllers []string `bson:"controllers"`
 	Currency    string   `bson:"currency"`
 }
@@ -57,7 +55,7 @@ func (fact *CreateKYCServiceFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) err
 	}
 	fact.BaseHinter = hint.NewBaseHinter(ht)
 
-	return fact.unpack(enc, uf.Sender, uf.Contract, uf.KYCID, uf.Controllers, uf.Currency)
+	return fact.unpack(enc, uf.Sender, uf.Contract, uf.Controllers, uf.Currency)
 }
 
 func (op CreateKYCService) MarshalBSON() ([]byte, error) {

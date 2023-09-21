@@ -12,7 +12,6 @@ import (
 type RedeemTokensItemJSONMarshaler struct {
 	hint.BaseHinter
 	Contract    base.Address             `json:"contract"`
-	STO         currencytypes.ContractID `json:"stoid"`
 	TokenHolder base.Address             `json:"tokenholder"`
 	Amount      string                   `json:"amount"`
 	Partition   stotypes.Partition       `json:"partition"`
@@ -23,7 +22,6 @@ func (it RedeemTokensItem) MarshalJSON() ([]byte, error) {
 	return util.MarshalJSON(RedeemTokensItemJSONMarshaler{
 		BaseHinter:  it.BaseHinter,
 		Contract:    it.contract,
-		STO:         it.stoID,
 		TokenHolder: it.tokenHolder,
 		Amount:      it.amount.String(),
 		Partition:   it.partition,
@@ -34,7 +32,6 @@ func (it RedeemTokensItem) MarshalJSON() ([]byte, error) {
 type RedeemTokensItemJSONUnMarshaler struct {
 	Hint        hint.Hint `json:"_hint"`
 	Contract    string    `json:"contract"`
-	STO         string    `json:"stoid"`
 	TokenHolder string    `json:"tokenholder"`
 	Amount      string    `json:"amount"`
 	Partition   string    `json:"partition"`
@@ -49,5 +46,5 @@ func (it *RedeemTokensItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, uit.Hint, uit.Contract, uit.STO, uit.TokenHolder, uit.Amount, uit.Partition, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.TokenHolder, uit.Amount, uit.Partition, uit.Currency)
 }

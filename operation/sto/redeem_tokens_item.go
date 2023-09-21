@@ -14,7 +14,6 @@ var RedeemTokensItemHint = hint.MustNewHint("mitum-sto-redeem-tokens-item-v0.0.1
 type RedeemTokensItem struct {
 	hint.BaseHinter
 	contract    base.Address             // contract account
-	stoID       currencytypes.ContractID // token id
 	tokenHolder base.Address             // token tokenHolder
 	amount      common.Big               // redeem amount
 	partition   stotypes.Partition       // partition
@@ -23,7 +22,6 @@ type RedeemTokensItem struct {
 
 func NewRedeemTokensItem(
 	contract base.Address,
-	stoID currencytypes.ContractID,
 	tokenHolder base.Address,
 	amount common.Big,
 	partition stotypes.Partition,
@@ -32,7 +30,6 @@ func NewRedeemTokensItem(
 	return RedeemTokensItem{
 		BaseHinter:  hint.NewBaseHinter(RedeemTokensItemHint),
 		contract:    contract,
-		stoID:       stoID,
 		tokenHolder: tokenHolder,
 		amount:      amount,
 		partition:   partition,
@@ -43,7 +40,6 @@ func NewRedeemTokensItem(
 func (it RedeemTokensItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.stoID.Bytes(),
 		it.tokenHolder.Bytes(),
 		it.amount.Bytes(),
 		it.partition.Bytes(),
@@ -55,7 +51,6 @@ func (it RedeemTokensItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		it.BaseHinter,
 		it.contract,
-		it.stoID,
 		it.tokenHolder,
 		it.partition,
 		it.currency,
@@ -76,10 +71,6 @@ func (it RedeemTokensItem) IsValid([]byte) error {
 
 func (it RedeemTokensItem) Contract() base.Address {
 	return it.contract
-}
-
-func (it RedeemTokensItem) STO() currencytypes.ContractID {
-	return it.stoID
 }
 
 func (it RedeemTokensItem) TokenHolder() base.Address {

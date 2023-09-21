@@ -15,7 +15,6 @@ type IssueSecurityTokensCommand struct {
 	currencycmds.OperationFlags
 	Sender    currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract  currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	STO       currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
 	Receiver  currencycmds.AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
 	Amount    currencycmds.BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
 	Partition PartitionFlag               `arg:"" name:"partition" help:"partition" required:"true"`
@@ -23,13 +22,6 @@ type IssueSecurityTokensCommand struct {
 	sender    base.Address
 	contract  base.Address
 	receiver  base.Address
-}
-
-func NewIssueSecurityTokensCommand() IssueSecurityTokensCommand {
-	cmd := NewBaseCommand()
-	return IssueSecurityTokensCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *IssueSecurityTokensCommand) Run(pctx context.Context) error {
@@ -89,7 +81,6 @@ func (cmd *IssueSecurityTokensCommand) createOperation() (base.Operation, error)
 
 	item := sto.NewIssueSecurityTokensItem(
 		cmd.contract,
-		cmd.STO.ID,
 		cmd.receiver,
 		cmd.Amount.Big,
 		cmd.Partition.Partition,

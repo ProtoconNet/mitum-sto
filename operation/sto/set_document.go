@@ -19,7 +19,6 @@ type SetDocumentFact struct {
 	base.BaseFact
 	sender       base.Address
 	contract     base.Address             // contract account
-	stoID        currencytypes.ContractID // token id
 	title        string                   // document title
 	uri          stotypes.URI             // document uri
 	documentHash string                   // document hash
@@ -30,7 +29,6 @@ func NewSetDocumentFact(
 	token []byte,
 	sender base.Address,
 	contract base.Address,
-	stoID currencytypes.ContractID,
 	title string,
 	uri stotypes.URI,
 	hash string,
@@ -41,7 +39,6 @@ func NewSetDocumentFact(
 		BaseFact:     bf,
 		sender:       sender,
 		contract:     contract,
-		stoID:        stoID,
 		title:        title,
 		uri:          uri,
 		documentHash: hash,
@@ -65,7 +62,6 @@ func (fact SetDocumentFact) Bytes() []byte {
 		fact.Token(),
 		fact.sender.Bytes(),
 		fact.contract.Bytes(),
-		fact.stoID.Bytes(),
 		[]byte(fact.title),
 		fact.uri.Bytes(),
 		[]byte(fact.documentHash),
@@ -82,7 +78,7 @@ func (fact SetDocumentFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender, fact.stoID, fact.contract, fact.uri, fact.currency); err != nil {
+	if err := util.CheckIsValiders(nil, false, fact.sender, fact.contract, fact.uri, fact.currency); err != nil {
 		return err
 	}
 
@@ -99,10 +95,6 @@ func (fact SetDocumentFact) Sender() base.Address {
 
 func (fact SetDocumentFact) Contract() base.Address {
 	return fact.contract
-}
-
-func (fact SetDocumentFact) STO() currencytypes.ContractID {
-	return fact.stoID
 }
 
 func (fact SetDocumentFact) Title() string {

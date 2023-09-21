@@ -13,8 +13,7 @@ var TransferSecurityTokensPartitionItemHint = hint.MustNewHint("mitum-sto-transf
 
 type TransferSecurityTokensPartitionItem struct {
 	hint.BaseHinter
-	contract    base.Address             // contract accounts
-	stoID       currencytypes.ContractID // token id
+	contract    base.Address // contract accounts
 	tokenholder base.Address
 	receiver    base.Address             // token holder
 	partition   stotypes.Partition       // partition
@@ -24,7 +23,6 @@ type TransferSecurityTokensPartitionItem struct {
 
 func NewTransferSecurityTokensPartitionItem(
 	contract base.Address,
-	stoID currencytypes.ContractID,
 	tokenholder, receiver base.Address,
 	partition stotypes.Partition,
 	amount common.Big,
@@ -33,7 +31,6 @@ func NewTransferSecurityTokensPartitionItem(
 	return TransferSecurityTokensPartitionItem{
 		BaseHinter:  hint.NewBaseHinter(TransferSecurityTokensPartitionItemHint),
 		contract:    contract,
-		stoID:       stoID,
 		tokenholder: tokenholder,
 		receiver:    receiver,
 		partition:   partition,
@@ -45,7 +42,6 @@ func NewTransferSecurityTokensPartitionItem(
 func (it TransferSecurityTokensPartitionItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
-		it.stoID.Bytes(),
 		it.tokenholder.Bytes(),
 		it.receiver.Bytes(),
 		it.partition.Bytes(),
@@ -58,7 +54,6 @@ func (it TransferSecurityTokensPartitionItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false,
 		it.BaseHinter,
 		it.contract,
-		it.stoID,
 		it.tokenholder,
 		it.receiver,
 		it.partition,
@@ -88,10 +83,6 @@ func (it TransferSecurityTokensPartitionItem) IsValid([]byte) error {
 
 func (it TransferSecurityTokensPartitionItem) Contract() base.Address {
 	return it.contract
-}
-
-func (it TransferSecurityTokensPartitionItem) STO() currencytypes.ContractID {
-	return it.stoID
 }
 
 func (it TransferSecurityTokensPartitionItem) TokenHolder() base.Address {

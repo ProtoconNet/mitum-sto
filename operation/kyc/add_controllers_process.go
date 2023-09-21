@@ -149,15 +149,15 @@ func (opp *AddControllersProcessor) PreProcess(
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
-	controllers := map[string]map[string]*[]base.Address{}
+	controllers := map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
+			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s: %w", it.Contract(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
+		controllers[kycstate.StateKeyDesign(it.Contract())] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -170,7 +170,7 @@ func (opp *AddControllersProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()]
+		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to preprocess AddControllersItem: %w", err), nil
@@ -195,15 +195,15 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 
 	var sts []base.StateMergeValue // nolint:prealloc
 
-	controllers := map[string]map[string]*[]base.Address{}
+	controllers := map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), it.KYC(), getStateFunc)
+		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s-%s: %w", it.Contract(), it.KYC(), err), nil
+			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s: %w", it.Contract(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()] = &cons
+		controllers[kycstate.StateKeyDesign(it.Contract())] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -216,7 +216,7 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract(), it.KYC())][it.KYC().String()]
+		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract())]
 
 		_, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
@@ -227,18 +227,16 @@ func (opp *AddControllersProcessor) Process( // nolint:dupl
 	}
 
 	for k, m := range controllers {
-		for id, cons := range m {
-			policy := kyctypes.NewPolicy(*cons)
-			design := kyctypes.NewDesign(currencytypes.ContractID(id), policy)
-			if err := design.IsValid(nil); err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil
-			}
-
-			sts = append(sts, currencystate.NewStateMergeValue(
-				k,
-				kycstate.NewDesignStateValue(design),
-			))
+		policy := kyctypes.NewPolicy(*m)
+		design := kyctypes.NewDesign(policy)
+		if err := design.IsValid(nil); err != nil {
+			return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil
 		}
+
+		sts = append(sts, currencystate.NewStateMergeValue(
+			k,
+			kycstate.NewDesignStateValue(design),
+		))
 	}
 
 	fitems := fact.Items()

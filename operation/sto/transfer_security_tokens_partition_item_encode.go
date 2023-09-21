@@ -10,11 +10,10 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, th, rc, p, am, cid string) error {
+func (it *TransferSecurityTokensPartitionItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, th, rc, p, am, cid string) error {
 	e := util.StringError("failed to unmarshal TransferSecurityTokensPartitionItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
-	it.stoID = currencytypes.ContractID(sto)
 	it.partition = stotypes.Partition(p)
 	it.currency = currencytypes.CurrencyID(cid)
 

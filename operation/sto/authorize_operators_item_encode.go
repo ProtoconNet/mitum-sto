@@ -9,11 +9,10 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-func (it *AuthorizeOperatorsItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, sto, op, pt, cid string) error {
+func (it *AuthorizeOperatorsItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, op, pt, cid string) error {
 	e := util.StringError("failed to unmarshal AuthorizeOperatorsItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
-	it.stoID = currencytypes.ContractID(sto)
 	it.partition = stotypes.Partition(pt)
 	it.currency = currencytypes.CurrencyID(cid)
 

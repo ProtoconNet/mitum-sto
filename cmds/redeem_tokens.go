@@ -15,7 +15,6 @@ type RedeemTokensCommand struct {
 	currencycmds.OperationFlags
 	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
 	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	STO         currencycmds.ContractIDFlag `arg:"" name:"sto-id" help:"sto id" required:"true"`
 	TokenHolder currencycmds.AddressFlag    `arg:"" name:"tokenholder" help:"tokenholder" required:"true"`
 	Amount      currencycmds.BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
 	Partition   PartitionFlag               `arg:"" name:"partition" help:"partition" required:"true"`
@@ -23,13 +22,6 @@ type RedeemTokensCommand struct {
 	sender      base.Address
 	contract    base.Address
 	holder      base.Address
-}
-
-func NewRedeemTokensCommand() RedeemTokensCommand {
-	cmd := NewBaseCommand()
-	return RedeemTokensCommand{
-		BaseCommand: *cmd,
-	}
 }
 
 func (cmd *RedeemTokensCommand) Run(pctx context.Context) error {
@@ -89,7 +81,6 @@ func (cmd *RedeemTokensCommand) createOperation() (base.Operation, error) { // n
 
 	item := sto.NewRedeemTokensItem(
 		cmd.contract,
-		cmd.STO.ID,
 		cmd.holder,
 		cmd.Amount.Big,
 		cmd.Partition.Partition,
