@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (fact *AuthorizeOperatorsFact) unpack(enc encoder.Encoder, sa string, bit []byte) error {
-	e := util.StringError("failed to unmarshal AuthorizeOperatorsFact")
+func (fact *AuthorizeOperatorFact) unpack(enc encoder.Encoder, sa string, bit []byte) error {
+	e := util.StringError("failed to unmarshal AuthorizeOperatorFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:
@@ -22,11 +22,11 @@ func (fact *AuthorizeOperatorsFact) unpack(enc encoder.Encoder, sa string, bit [
 		return e.Wrap(err)
 	}
 
-	items := make([]AuthorizeOperatorsItem, len(hit))
+	items := make([]AuthorizeOperatorItem, len(hit))
 	for i := range hit {
-		j, ok := hit[i].(AuthorizeOperatorsItem)
+		j, ok := hit[i].(AuthorizeOperatorItem)
 		if !ok {
-			return e.Wrap(errors.Errorf("expected AuthorizeOperatorsItem, not %T", hit[i]))
+			return e.Wrap(errors.Errorf("expected AuthorizeOperatorItem, not %T", hit[i]))
 		}
 
 		items[i] = j

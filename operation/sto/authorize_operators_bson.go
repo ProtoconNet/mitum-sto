@@ -10,7 +10,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/valuehash"
 )
 
-func (fact AuthorizeOperatorsFact) MarshalBSON() ([]byte, error) {
+func (fact AuthorizeOperatorFact) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":  fact.Hint().String(),
@@ -22,14 +22,14 @@ func (fact AuthorizeOperatorsFact) MarshalBSON() ([]byte, error) {
 	)
 }
 
-type AuthorizeOperatorsFactBSONUnmarshaler struct {
+type AuthorizeOperatorFactBSONUnmarshaler struct {
 	Hint   string   `bson:"_hint"`
 	Sender string   `bson:"sender"`
 	Items  bson.Raw `bson:"items"`
 }
 
-func (fact *AuthorizeOperatorsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringError("failed to decode bson of AuthorizeOperatorsFact")
+func (fact *AuthorizeOperatorFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringError("failed to decode bson of AuthorizeOperatorFact")
 
 	var ubf common.BaseFactBSONUnmarshaler
 
@@ -40,7 +40,7 @@ func (fact *AuthorizeOperatorsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) e
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(ubf.Hash))
 	fact.BaseFact.SetToken(ubf.Token)
 
-	var uf AuthorizeOperatorsFactBSONUnmarshaler
+	var uf AuthorizeOperatorFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
 		return e.Wrap(err)
 	}
@@ -54,7 +54,7 @@ func (fact *AuthorizeOperatorsFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) e
 	return fact.unpack(enc, uf.Sender, uf.Items)
 }
 
-func (op AuthorizeOperators) MarshalBSON() ([]byte, error) {
+func (op AuthorizeOperator) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint": op.Hint().String(),
@@ -64,8 +64,8 @@ func (op AuthorizeOperators) MarshalBSON() ([]byte, error) {
 		})
 }
 
-func (op *AuthorizeOperators) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringError("failed to decode bson of AuthorizeOperators")
+func (op *AuthorizeOperator) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringError("failed to decode bson of AuthorizeOperator")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {

@@ -50,17 +50,17 @@ func POperationProcessorsMap(pctx context.Context) (context.Context, error) {
 	}
 
 	ps := []processorInfo{
-		{sto.AuthorizeOperatorsHint, sto.NewAuthorizeOperatorsProcessor()},
-		{sto.CreateSecurityTokensHint, sto.NewCreateSecurityTokensProcessor()},
-		{sto.IssueSecurityTokensHint, sto.NewIssueSecurityTokensProcessor()},
-		{sto.RedeemTokensHint, sto.NewRedeemTokensProcessor()},
-		{sto.RevokeOperatorsHint, sto.NewRevokeOperatorsProcessor()},
+		{sto.AuthorizeOperatorHint, sto.NewAuthorizeOperatorsProcessor()},
+		{sto.CreateSecurityTokenHint, sto.NewCreateSecurityTokenProcessor()},
+		{sto.IssueHint, sto.NewIssueProcessor()},
+		{sto.RedeemHint, sto.NewRedeemProcessor()},
+		{sto.RevokeOperatorHint, sto.NewRevokeOperatorProcessor()},
 		{sto.SetDocumentHint, sto.NewSetDocumentProcessor()},
-		{sto.TransferSecurityTokensPartitionHint, sto.NewTransferSecurityTokensPartitionProcessor()},
-		{kyc.AddControllersHint, kyc.NewAddControllersProcessor()},
-		{kyc.AddCustomersHint, kyc.NewAddCustomersProcessor()},
-		{kyc.CreateKYCServiceHint, kyc.NewCreateKYCServiceProcessor()},
-		{kyc.RemoveControllersHint, kyc.NewRemoveControllersProcessor()},
+		{sto.TransferByPartitionHint, sto.NewTransferByPartitionProcessor()},
+		{kyc.AddControllerHint, kyc.NewAddControllerProcessor()},
+		{kyc.AddCustomerHint, kyc.NewAddCustomerProcessor()},
+		{kyc.CreateServiceHint, kyc.NewCreateServiceProcessor()},
+		{kyc.RemoveControllerHint, kyc.NewRemoveControllerProcessor()},
 		{kyc.UpdateCustomersHint, kyc.NewUpdateCustomersProcessor()},
 	}
 

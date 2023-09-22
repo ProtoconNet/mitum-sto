@@ -9,30 +9,30 @@ import (
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
 )
 
-type AuthorizeOperatorsFactJSONMarshaler struct {
+type AuthorizeOperatorFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
-	Owner base.Address             `json:"sender"`
-	Items []AuthorizeOperatorsItem `json:"items"`
+	Owner base.Address            `json:"sender"`
+	Items []AuthorizeOperatorItem `json:"items"`
 }
 
-func (fact AuthorizeOperatorsFact) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(AuthorizeOperatorsFactJSONMarshaler{
+func (fact AuthorizeOperatorFact) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(AuthorizeOperatorFactJSONMarshaler{
 		BaseFactJSONMarshaler: fact.BaseFact.JSONMarshaler(),
 		Owner:                 fact.sender,
 		Items:                 fact.items,
 	})
 }
 
-type AuthorizeOperatorsFactJSONUnMarshaler struct {
+type AuthorizeOperatorFactJSONUnMarshaler struct {
 	base.BaseFactJSONUnmarshaler
 	Owner string          `json:"sender"`
 	Items json.RawMessage `json:"items"`
 }
 
-func (fact *AuthorizeOperatorsFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringError("failed to decode json of AuthorizeOperatorsFact")
+func (fact *AuthorizeOperatorFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringError("failed to decode json of AuthorizeOperatorFact")
 
-	var uf AuthorizeOperatorsFactJSONUnMarshaler
+	var uf AuthorizeOperatorFactJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uf); err != nil {
 		return e.Wrap(err)
 	}
@@ -42,18 +42,18 @@ func (fact *AuthorizeOperatorsFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) e
 	return fact.unpack(enc, uf.Owner, uf.Items)
 }
 
-type AuthorizeOperatorsMarshaler struct {
+type AuthorizeOperatorMarshaler struct {
 	common.BaseOperationJSONMarshaler
 }
 
-func (op AuthorizeOperators) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(AuthorizeOperatorsMarshaler{
+func (op AuthorizeOperator) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(AuthorizeOperatorMarshaler{
 		BaseOperationJSONMarshaler: op.BaseOperation.JSONMarshaler(),
 	})
 }
 
-func (op *AuthorizeOperators) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringError("failed to decode json of AuthorizeOperators")
+func (op *AuthorizeOperator) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringError("failed to decode json of AuthorizeOperator")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {

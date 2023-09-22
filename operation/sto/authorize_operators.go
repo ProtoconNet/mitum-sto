@@ -9,21 +9,21 @@ import (
 )
 
 var (
-	AuthorizeOperatorsFactHint = hint.MustNewHint("mitum-sto-authorize-operator-operation-fact-v0.0.1")
-	AuthorizeOperatorsHint     = hint.MustNewHint("mitum-sto-authorize-operator-operation-v0.0.1")
+	AuthorizeOperatorFactHint = hint.MustNewHint("mitum-sto-authorize-operator-operation-fact-v0.0.1")
+	AuthorizeOperatorHint     = hint.MustNewHint("mitum-sto-authorize-operator-operation-v0.0.1")
 )
 
-var MaxAuthorizeOperatorsItems uint = 10
+var MaxAuthorizeOperatorItems uint = 10
 
-type AuthorizeOperatorsFact struct {
+type AuthorizeOperatorFact struct {
 	base.BaseFact
 	sender base.Address
-	items  []AuthorizeOperatorsItem
+	items  []AuthorizeOperatorItem
 }
 
-func NewAuthorizeOperatorsFact(token []byte, sender base.Address, items []AuthorizeOperatorsItem) AuthorizeOperatorsFact {
-	bf := base.NewBaseFact(AuthorizeOperatorsFactHint, token)
-	fact := AuthorizeOperatorsFact{
+func NewAuthorizeOperatorFact(token []byte, sender base.Address, items []AuthorizeOperatorItem) AuthorizeOperatorFact {
+	bf := base.NewBaseFact(AuthorizeOperatorFactHint, token)
+	fact := AuthorizeOperatorFact{
 		BaseFact: bf,
 		sender:   sender,
 		items:    items,
@@ -33,15 +33,15 @@ func NewAuthorizeOperatorsFact(token []byte, sender base.Address, items []Author
 	return fact
 }
 
-func (fact AuthorizeOperatorsFact) Hash() util.Hash {
+func (fact AuthorizeOperatorFact) Hash() util.Hash {
 	return fact.BaseFact.Hash()
 }
 
-func (fact AuthorizeOperatorsFact) GenerateHash() util.Hash {
+func (fact AuthorizeOperatorFact) GenerateHash() util.Hash {
 	return valuehash.NewSHA256(fact.Bytes())
 }
 
-func (fact AuthorizeOperatorsFact) Bytes() []byte {
+func (fact AuthorizeOperatorFact) Bytes() []byte {
 	is := make([][]byte, len(fact.items))
 	for i := range fact.items {
 		is[i] = fact.items[i].Bytes()
@@ -54,7 +54,7 @@ func (fact AuthorizeOperatorsFact) Bytes() []byte {
 	)
 }
 
-func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
+func (fact AuthorizeOperatorFact) IsValid(b []byte) error {
 	if err := fact.BaseHinter.IsValid(nil); err != nil {
 		return err
 	}
@@ -65,8 +65,8 @@ func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
 
 	if n := len(fact.items); n < 1 {
 		return util.ErrInvalid.Errorf("empty items")
-	} else if n > int(MaxAuthorizeOperatorsItems) {
-		return util.ErrInvalid.Errorf("items, %d over max, %d", n, MaxAuthorizeOperatorsItems)
+	} else if n > int(MaxAuthorizeOperatorItems) {
+		return util.ErrInvalid.Errorf("items, %d over max, %d", n, MaxAuthorizeOperatorItems)
 	}
 
 	if err := fact.sender.IsValid(nil); err != nil {
@@ -93,19 +93,19 @@ func (fact AuthorizeOperatorsFact) IsValid(b []byte) error {
 	return nil
 }
 
-func (fact AuthorizeOperatorsFact) Token() base.Token {
+func (fact AuthorizeOperatorFact) Token() base.Token {
 	return fact.BaseFact.Token()
 }
 
-func (fact AuthorizeOperatorsFact) Sender() base.Address {
+func (fact AuthorizeOperatorFact) Sender() base.Address {
 	return fact.sender
 }
 
-func (fact AuthorizeOperatorsFact) Items() []AuthorizeOperatorsItem {
+func (fact AuthorizeOperatorFact) Items() []AuthorizeOperatorItem {
 	return fact.items
 }
 
-func (fact AuthorizeOperatorsFact) Addresses() ([]base.Address, error) {
+func (fact AuthorizeOperatorFact) Addresses() ([]base.Address, error) {
 	as := []base.Address{}
 
 	adrMap := make(map[string]struct{})
@@ -122,15 +122,15 @@ func (fact AuthorizeOperatorsFact) Addresses() ([]base.Address, error) {
 	return as, nil
 }
 
-type AuthorizeOperators struct {
+type AuthorizeOperator struct {
 	common.BaseOperation
 }
 
-func NewAuthorizeOperators(fact AuthorizeOperatorsFact) (AuthorizeOperators, error) {
-	return AuthorizeOperators{BaseOperation: common.NewBaseOperation(AuthorizeOperatorsHint, fact)}, nil
+func NewAuthorizeOperator(fact AuthorizeOperatorFact) (AuthorizeOperator, error) {
+	return AuthorizeOperator{BaseOperation: common.NewBaseOperation(AuthorizeOperatorHint, fact)}, nil
 }
 
-func (op *AuthorizeOperators) HashSign(priv base.Privatekey, networkID base.NetworkID) error {
+func (op *AuthorizeOperator) HashSign(priv base.Privatekey, networkID base.NetworkID) error {
 	err := op.Sign(priv, networkID)
 	if err != nil {
 		return err

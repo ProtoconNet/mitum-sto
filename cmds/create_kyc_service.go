@@ -71,7 +71,7 @@ func (cmd *CreateKYCServiceCommand) parseFlags() error {
 }
 
 func (cmd *CreateKYCServiceCommand) createOperation() (base.Operation, error) { // nolint:dupl}
-	fact := kyc.NewCreateKYCServiceFact(
+	fact := kyc.NewCreateServiceFact(
 		[]byte(cmd.Token),
 		cmd.sender,
 		cmd.contract,
@@ -79,7 +79,7 @@ func (cmd *CreateKYCServiceCommand) createOperation() (base.Operation, error) { 
 		cmd.Currency.CID,
 	)
 
-	op, err := kyc.NewCreateKYCService(fact)
+	op, err := kyc.NewCreateService(fact)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create create-kyc-service operation")
 	}

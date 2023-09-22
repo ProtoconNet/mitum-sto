@@ -9,7 +9,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-type AuthorizeOperatorsItemJSONMarshaler struct {
+type AuthorizeOperatorItemJSONMarshaler struct {
 	hint.BaseHinter
 	Contract  base.Address             `json:"contract"`
 	Operator  base.Address             `json:"operator"`
@@ -17,8 +17,8 @@ type AuthorizeOperatorsItemJSONMarshaler struct {
 	Currency  currencytypes.CurrencyID `json:"currency"`
 }
 
-func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(AuthorizeOperatorsItemJSONMarshaler{
+func (it AuthorizeOperatorItem) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(AuthorizeOperatorItemJSONMarshaler{
 		BaseHinter: it.BaseHinter,
 		Contract:   it.contract,
 		Operator:   it.operator,
@@ -27,7 +27,7 @@ func (it AuthorizeOperatorsItem) MarshalJSON() ([]byte, error) {
 	})
 }
 
-type AuthorizeOperatorsItemJSONUnMarshaler struct {
+type AuthorizeOperatorItemJSONUnMarshaler struct {
 	Hint      hint.Hint `json:"_hint"`
 	Contract  string    `json:"contract"`
 	Operator  string    `json:"operator"`
@@ -35,10 +35,10 @@ type AuthorizeOperatorsItemJSONUnMarshaler struct {
 	Currency  string    `json:"currency"`
 }
 
-func (it *AuthorizeOperatorsItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringError("failed to decode json of AuthorizeOperatorsItem")
+func (it *AuthorizeOperatorItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringError("failed to decode json of AuthorizeOperatorItem")
 
-	var uit AuthorizeOperatorsItemJSONUnMarshaler
+	var uit AuthorizeOperatorItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {
 		return e.Wrap(err)
 	}

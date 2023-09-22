@@ -8,9 +8,9 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-var AuthorizeOperatorsItemHint = hint.MustNewHint("mitum-sto-authorize-operators-item-v0.0.1")
+var AuthorizeOperatorItemHint = hint.MustNewHint("mitum-sto-authorize-operator-item-v0.0.1")
 
-type AuthorizeOperatorsItem struct {
+type AuthorizeOperatorItem struct {
 	hint.BaseHinter
 	contract  base.Address             // contract address
 	operator  base.Address             // initial controllers
@@ -18,14 +18,14 @@ type AuthorizeOperatorsItem struct {
 	currency  currencytypes.CurrencyID // fee
 }
 
-func NewAuthorizeOperatorsItem(
+func NewAuthorizeOperatorItem(
 	contract base.Address,
 	operator base.Address,
 	partition stotypes.Partition,
 	currency currencytypes.CurrencyID,
-) AuthorizeOperatorsItem {
-	return AuthorizeOperatorsItem{
-		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorsItemHint),
+) AuthorizeOperatorItem {
+	return AuthorizeOperatorItem{
+		BaseHinter: hint.NewBaseHinter(AuthorizeOperatorItemHint),
 		contract:   contract,
 		operator:   operator,
 		partition:  partition,
@@ -33,7 +33,7 @@ func NewAuthorizeOperatorsItem(
 	}
 }
 
-func (it AuthorizeOperatorsItem) Bytes() []byte {
+func (it AuthorizeOperatorItem) Bytes() []byte {
 	return util.ConcatBytesSlice(
 		it.contract.Bytes(),
 		it.operator.Bytes(),
@@ -42,7 +42,7 @@ func (it AuthorizeOperatorsItem) Bytes() []byte {
 	)
 }
 
-func (it AuthorizeOperatorsItem) IsValid([]byte) error {
+func (it AuthorizeOperatorItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.operator, it.partition, it.currency); err != nil {
 		return err
 	}
@@ -54,23 +54,23 @@ func (it AuthorizeOperatorsItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it AuthorizeOperatorsItem) Contract() base.Address {
+func (it AuthorizeOperatorItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it AuthorizeOperatorsItem) Operator() base.Address {
+func (it AuthorizeOperatorItem) Operator() base.Address {
 	return it.operator
 }
 
-func (it AuthorizeOperatorsItem) Partition() stotypes.Partition {
+func (it AuthorizeOperatorItem) Partition() stotypes.Partition {
 	return it.partition
 }
 
-func (it AuthorizeOperatorsItem) Currency() currencytypes.CurrencyID {
+func (it AuthorizeOperatorItem) Currency() currencytypes.CurrencyID {
 	return it.currency
 }
 
-func (it AuthorizeOperatorsItem) Addresses() []base.Address {
+func (it AuthorizeOperatorItem) Addresses() []base.Address {
 	ad := make([]base.Address, 2)
 
 	ad[0] = it.contract

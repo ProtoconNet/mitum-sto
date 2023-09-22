@@ -83,38 +83,38 @@ func CheckDuplication(opr *currencyprocessor.OperationProcessor, op mitumbase.Op
 		did = fact.Currency().String()
 		didtype = DuplicationTypeCurrency
 	case currency.Mint:
-	case sto.AuthorizeOperators:
-		fact, ok := t.Fact().(sto.AuthorizeOperatorsFact)
+	case sto.AuthorizeOperator:
+		fact, ok := t.Fact().(sto.AuthorizeOperatorFact)
 		if !ok {
-			return errors.Errorf("expected AuthorizeOperators, not %T", t.Fact())
+			return errors.Errorf("expected AuthorizeOperator, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case sto.CreateSecurityTokens:
-		fact, ok := t.Fact().(sto.CreateSecurityTokensFact)
+	case sto.CreateSecurityToken:
+		fact, ok := t.Fact().(sto.CreateSecurityTokenFact)
 		if !ok {
-			return errors.Errorf("expected CreateSecurityTokensFact, not %T", t.Fact())
+			return errors.Errorf("expected CreateSecurityTokenFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case sto.IssueSecurityTokens:
-		fact, ok := t.Fact().(sto.IssueSecurityTokensFact)
+	case sto.Issue:
+		fact, ok := t.Fact().(sto.IssueFact)
 		if !ok {
-			return errors.Errorf("expected IssueSecurityTokensFact, not %T", t.Fact())
+			return errors.Errorf("expected IssueFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case sto.RedeemTokens:
-		fact, ok := t.Fact().(sto.RedeemTokensFact)
+	case sto.Redeem:
+		fact, ok := t.Fact().(sto.RedeemFact)
 		if !ok {
-			return errors.Errorf("expected RedeemTokensFact, not %T", t.Fact())
+			return errors.Errorf("expected RedeemFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case sto.RevokeOperators:
-		fact, ok := t.Fact().(sto.RevokeOperatorsFact)
+	case sto.RevokeOperator:
+		fact, ok := t.Fact().(sto.RevokeOperatorFact)
 		if !ok {
-			return errors.Errorf("expected RevokeOperatorsFact, not %T", t.Fact())
+			return errors.Errorf("expected RevokeOperatorFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
@@ -125,38 +125,38 @@ func CheckDuplication(opr *currencyprocessor.OperationProcessor, op mitumbase.Op
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case sto.TransferSecurityTokensPartition:
-		fact, ok := t.Fact().(sto.TransferSecurityTokensPartitionFact)
+	case sto.TransferByPartition:
+		fact, ok := t.Fact().(sto.TransferByPartitionFact)
 		if !ok {
-			return errors.Errorf("expected TransferSecurityTokensPartitionFact, not %T", t.Fact())
+			return errors.Errorf("expected TransferByPartitionFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case kyc.AddControllers:
-		fact, ok := t.Fact().(kyc.AddControllersFact)
+	case kyc.AddController:
+		fact, ok := t.Fact().(kyc.AddControllerFact)
 		if !ok {
-			return errors.Errorf("expected AddControllersFact, not %T", t.Fact())
+			return errors.Errorf("expected AddControllerFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case kyc.AddCustomers:
-		fact, ok := t.Fact().(kyc.AddCustomersFact)
+	case kyc.AddCustomer:
+		fact, ok := t.Fact().(kyc.AddCustomerFact)
 		if !ok {
-			return errors.Errorf("expected AddCustomersFact, not %T", t.Fact())
+			return errors.Errorf("expected AddCustomerFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case kyc.CreateKYCService:
-		fact, ok := t.Fact().(kyc.CreateKYCServiceFact)
+	case kyc.CreateService:
+		fact, ok := t.Fact().(kyc.CreateServiceFact)
 		if !ok {
-			return errors.Errorf("expected CreateKYCServiceFact, not %T", t.Fact())
+			return errors.Errorf("expected CreateServiceFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
-	case kyc.RemoveControllers:
-		fact, ok := t.Fact().(kyc.RemoveControllersFact)
+	case kyc.RemoveController:
+		fact, ok := t.Fact().(kyc.RemoveControllerFact)
 		if !ok {
-			return errors.Errorf("expected RemoveControllersFact, not %T", t.Fact())
+			return errors.Errorf("expected RemoveControllerFact, not %T", t.Fact())
 		}
 		did = fact.Sender().String()
 		didtype = DuplicationTypeSender
@@ -212,13 +212,13 @@ func GetNewProcessor(opr *currencyprocessor.OperationProcessor, op mitumbase.Ope
 		currency.RegisterCurrency,
 		currency.UpdateCurrency,
 		currency.Mint,
-		sto.AuthorizeOperators,
-		sto.CreateSecurityTokens,
-		sto.IssueSecurityTokens,
-		sto.RedeemTokens,
-		sto.RevokeOperators,
+		sto.AuthorizeOperator,
+		sto.CreateSecurityToken,
+		sto.Issue,
+		sto.Redeem,
+		sto.RevokeOperator,
 		sto.SetDocument,
-		sto.TransferSecurityTokensPartition:
+		sto.TransferByPartition:
 		return nil, false, errors.Errorf("%T needs SetProcessor", t)
 	default:
 		return nil, false, nil

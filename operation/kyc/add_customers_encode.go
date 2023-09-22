@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (fact *AddCustomersFact) unpack(enc encoder.Encoder, sa string, bit []byte) error {
-	e := util.StringError("failed to unmarshal AddCustomersFact")
+func (fact *AddCustomerFact) unpack(enc encoder.Encoder, sa string, bit []byte) error {
+	e := util.StringError("failed to unmarshal AddCustomerFact")
 
 	switch a, err := base.DecodeAddress(sa, enc); {
 	case err != nil:
@@ -22,11 +22,11 @@ func (fact *AddCustomersFact) unpack(enc encoder.Encoder, sa string, bit []byte)
 		return e.Wrap(err)
 	}
 
-	items := make([]AddCustomersItem, len(hit))
+	items := make([]AddCustomerItem, len(hit))
 	for i := range hit {
-		j, ok := hit[i].(AddCustomersItem)
+		j, ok := hit[i].(AddCustomerItem)
 		if !ok {
-			return e.Wrap(errors.Errorf("expected AddCustomersItem, not %T", hit[i]))
+			return e.Wrap(errors.Errorf("expected AddCustomerItem, not %T", hit[i]))
 		}
 
 		items[i] = j

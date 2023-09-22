@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (it AddCustomersItem) MarshalBSON() ([]byte, error) {
+func (it AddCustomerItem) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":    it.Hint().String(),
@@ -19,7 +19,7 @@ func (it AddCustomersItem) MarshalBSON() ([]byte, error) {
 	)
 }
 
-type AddCustomersItemBSONUnmarshaler struct {
+type AddCustomerItemBSONUnmarshaler struct {
 	Hint     string `bson:"_hint"`
 	Contract string `bson:"contract"`
 	Customer string `bson:"customer"`
@@ -27,10 +27,10 @@ type AddCustomersItemBSONUnmarshaler struct {
 	Currency string `bson:"currency"`
 }
 
-func (it *AddCustomersItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringError("failed to decode bson of AddCustomersItem")
+func (it *AddCustomerItem) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringError("failed to decode bson of AddCustomerItem")
 
-	var uit AddCustomersItemBSONUnmarshaler
+	var uit AddCustomerItemBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uit); err != nil {
 		return e.Wrap(err)
 	}

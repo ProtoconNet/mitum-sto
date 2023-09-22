@@ -7,9 +7,9 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-var AddCustomersItemHint = hint.MustNewHint("mitum-kyc-add-customers-item-v0.0.1")
+var AddCustomerItemHint = hint.MustNewHint("mitum-kyc-add-customer-item-v0.0.1")
 
-type AddCustomersItem struct {
+type AddCustomerItem struct {
 	hint.BaseHinter
 	contract base.Address
 	customer base.Address
@@ -17,14 +17,14 @@ type AddCustomersItem struct {
 	currency currencytypes.CurrencyID
 }
 
-func NewAddCustomersItem(
+func NewAddCustomerItem(
 	contract base.Address,
 	customer base.Address,
 	status bool,
 	currency currencytypes.CurrencyID,
-) AddCustomersItem {
-	return AddCustomersItem{
-		BaseHinter: hint.NewBaseHinter(AddCustomersItemHint),
+) AddCustomerItem {
+	return AddCustomerItem{
+		BaseHinter: hint.NewBaseHinter(AddCustomerItemHint),
 		contract:   contract,
 		customer:   customer,
 		status:     status,
@@ -32,7 +32,7 @@ func NewAddCustomersItem(
 	}
 }
 
-func (it AddCustomersItem) Bytes() []byte {
+func (it AddCustomerItem) Bytes() []byte {
 	b := []byte{0}
 	if it.status {
 		b[0] = 1
@@ -46,7 +46,7 @@ func (it AddCustomersItem) Bytes() []byte {
 	)
 }
 
-func (it AddCustomersItem) IsValid([]byte) error {
+func (it AddCustomerItem) IsValid([]byte) error {
 	if err := util.CheckIsValiders(nil, false, it.BaseHinter, it.contract, it.customer, it.currency); err != nil {
 		return err
 	}
@@ -58,23 +58,23 @@ func (it AddCustomersItem) IsValid([]byte) error {
 	return nil
 }
 
-func (it AddCustomersItem) Contract() base.Address {
+func (it AddCustomerItem) Contract() base.Address {
 	return it.contract
 }
 
-func (it AddCustomersItem) Customer() base.Address {
+func (it AddCustomerItem) Customer() base.Address {
 	return it.customer
 }
 
-func (it AddCustomersItem) Status() bool {
+func (it AddCustomerItem) Status() bool {
 	return it.status
 }
 
-func (it AddCustomersItem) Currency() currencytypes.CurrencyID {
+func (it AddCustomerItem) Currency() currencytypes.CurrencyID {
 	return it.currency
 }
 
-func (it AddCustomersItem) Addresses() []base.Address {
+func (it AddCustomerItem) Addresses() []base.Address {
 	ad := make([]base.Address, 2)
 
 	ad[0] = it.contract

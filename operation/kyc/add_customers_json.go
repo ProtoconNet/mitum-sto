@@ -9,30 +9,30 @@ import (
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
 )
 
-type AddCustomersFactJSONMarshaler struct {
+type AddCustomerFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
-	Owner base.Address       `json:"sender"`
-	Items []AddCustomersItem `json:"items"`
+	Owner base.Address      `json:"sender"`
+	Items []AddCustomerItem `json:"items"`
 }
 
-func (fact AddCustomersFact) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(AddCustomersFactJSONMarshaler{
+func (fact AddCustomerFact) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(AddCustomerFactJSONMarshaler{
 		BaseFactJSONMarshaler: fact.BaseFact.JSONMarshaler(),
 		Owner:                 fact.sender,
 		Items:                 fact.items,
 	})
 }
 
-type AddCustomersFactJSONUnMarshaler struct {
+type AddCustomerFactJSONUnMarshaler struct {
 	base.BaseFactJSONUnmarshaler
 	Owner string          `json:"sender"`
 	Items json.RawMessage `json:"items"`
 }
 
-func (fact *AddCustomersFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringError("failed to decode json of AddCustomersFact")
+func (fact *AddCustomerFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringError("failed to decode json of AddCustomerFact")
 
-	var uf AddCustomersFactJSONUnMarshaler
+	var uf AddCustomerFactJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uf); err != nil {
 		return e.Wrap(err)
 	}
@@ -42,18 +42,18 @@ func (fact *AddCustomersFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 	return fact.unpack(enc, uf.Owner, uf.Items)
 }
 
-type AddCustomersMarshaler struct {
+type AddCustomerMarshaler struct {
 	common.BaseOperationJSONMarshaler
 }
 
-func (op AddCustomers) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(AddCustomersMarshaler{
+func (op AddCustomer) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(AddCustomerMarshaler{
 		BaseOperationJSONMarshaler: op.BaseOperation.JSONMarshaler(),
 	})
 }
 
-func (op *AddCustomers) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringError("failed to decode json of AddCustomers")
+func (op *AddCustomer) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringError("failed to decode json of AddCustomer")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeJSON(b, enc); err != nil {

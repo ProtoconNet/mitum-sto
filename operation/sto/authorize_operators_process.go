@@ -15,33 +15,33 @@ import (
 	"github.com/pkg/errors"
 )
 
-var authorizeOperatorsItemProcessorPool = sync.Pool{
+var authorizeOperatorItemProcessorPool = sync.Pool{
 	New: func() interface{} {
-		return new(AuthorizeOperatorsItemProcessor)
+		return new(AuthorizeOperatorItemProcessor)
 	},
 }
 
-var authorizeOperatorsProcessorPool = sync.Pool{
+var authorizeOperatorProcessorPool = sync.Pool{
 	New: func() interface{} {
-		return new(AuthorizeOperatorsProcessor)
+		return new(AuthorizeOperatorProcessor)
 	},
 }
 
-func (AuthorizeOperators) Process(
+func (AuthorizeOperator) Process(
 	ctx context.Context, getStateFunc base.GetStateFunc,
 ) ([]base.StateMergeValue, base.OperationProcessReasonError, error) {
 	return nil, nil, nil
 }
 
-type AuthorizeOperatorsItemProcessor struct {
+type AuthorizeOperatorItemProcessor struct {
 	h            util.Hash
 	sender       base.Address
-	item         AuthorizeOperatorsItem
+	item         AuthorizeOperatorItem
 	operators    *[]base.Address
 	tokenHolders *[]base.Address
 }
 
-func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
+func (ipp *AuthorizeOperatorItemProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) error {
 	it := ipp.item
@@ -96,7 +96,7 @@ func (ipp *AuthorizeOperatorsItemProcessor) PreProcess(
 	return nil
 }
 
-func (ipp *AuthorizeOperatorsItemProcessor) Process(
+func (ipp *AuthorizeOperatorItemProcessor) Process(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) ([]base.StateMergeValue, error) {
 	sts := make([]base.StateMergeValue, 1)
@@ -114,19 +114,19 @@ func (ipp *AuthorizeOperatorsItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *AuthorizeOperatorsItemProcessor) Close() error {
+func (ipp *AuthorizeOperatorItemProcessor) Close() error {
 	ipp.h = nil
 	ipp.sender = nil
-	ipp.item = AuthorizeOperatorsItem{}
+	ipp.item = AuthorizeOperatorItem{}
 	ipp.operators = nil
 	ipp.tokenHolders = nil
 
-	authorizeOperatorsItemProcessorPool.Put(ipp)
+	authorizeOperatorItemProcessorPool.Put(ipp)
 
 	return nil
 }
 
-type AuthorizeOperatorsProcessor struct {
+type AuthorizeOperatorProcessor struct {
 	*base.BaseOperationProcessor
 }
 
@@ -137,12 +137,12 @@ func NewAuthorizeOperatorsProcessor() currencytypes.GetNewProcessor {
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringError("failed to create new AuthorizeOperatorsProcessor")
+		e := util.StringError("failed to create new AuthorizeOperatorProcessor")
 
-		nopp := authorizeOperatorsProcessorPool.Get()
-		opp, ok := nopp.(*AuthorizeOperatorsProcessor)
+		nopp := authorizeOperatorProcessorPool.Get()
+		opp, ok := nopp.(*AuthorizeOperatorProcessor)
 		if !ok {
-			return nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorsProcessor, not %T", nopp))
+			return nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorProcessor, not %T", nopp))
 		}
 
 		b, err := base.NewBaseOperationProcessor(
@@ -157,14 +157,14 @@ func NewAuthorizeOperatorsProcessor() currencytypes.GetNewProcessor {
 	}
 }
 
-func (opp *AuthorizeOperatorsProcessor) PreProcess(
+func (opp *AuthorizeOperatorProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringError("failed to preprocess AuthorizeOperators")
+	e := util.StringError("failed to preprocess AuthorizeOperator")
 
-	fact, ok := op.Fact().(AuthorizeOperatorsFact)
+	fact, ok := op.Fact().(AuthorizeOperatorFact)
 	if !ok {
-		return ctx, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorsFact, not %T", op.Fact()))
+		return ctx, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorFact, not %T", op.Fact()))
 	}
 
 	if err := fact.IsValid(nil); err != nil {
@@ -224,10 +224,10 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 	}
 
 	for _, it := range fact.Items() {
-		ip := authorizeOperatorsItemProcessorPool.Get()
-		ipc, ok := ip.(*AuthorizeOperatorsItemProcessor)
+		ip := authorizeOperatorItemProcessorPool.Get()
+		ipc, ok := ip.(*AuthorizeOperatorItemProcessor)
 		if !ok {
-			return nil, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorsItemProcessor, not %T", ip))
+			return nil, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -237,7 +237,7 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess AuthorizeOperatorsItem: %w", err), nil
+			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess AuthorizeOperatorItem: %w", err), nil
 		}
 
 		ipc.Close()
@@ -246,15 +246,15 @@ func (opp *AuthorizeOperatorsProcessor) PreProcess(
 	return ctx, nil, nil
 }
 
-func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
+func (opp *AuthorizeOperatorProcessor) Process( // nolint:dupl
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringError("failed to process AuthorizeOperators")
+	e := util.StringError("failed to process AuthorizeOperator")
 
-	fact, ok := op.Fact().(AuthorizeOperatorsFact)
+	fact, ok := op.Fact().(AuthorizeOperatorFact)
 	if !ok {
-		return nil, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorsFact, not %T", op.Fact()))
+		return nil, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorFact, not %T", op.Fact()))
 	}
 
 	var sts []base.StateMergeValue // nolint:prealloc
@@ -299,12 +299,12 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 		}
 	}
 
-	ipcs := make([]*AuthorizeOperatorsItemProcessor, len(fact.items))
+	ipcs := make([]*AuthorizeOperatorItemProcessor, len(fact.items))
 	for i, it := range fact.Items() {
-		ip := authorizeOperatorsItemProcessorPool.Get()
-		ipc, ok := ip.(*AuthorizeOperatorsItemProcessor)
+		ip := authorizeOperatorItemProcessorPool.Get()
+		ipc, ok := ip.(*AuthorizeOperatorItemProcessor)
 		if !ok {
-			return nil, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorsItemProcessor, not %T", ip))
+			return nil, nil, e.Wrap(errors.Errorf("expected AuthorizeOperatorItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -315,7 +315,7 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to process AuthorizeOperatorsItem: %w", err), nil
+			return nil, base.NewBaseOperationProcessReasonError("failed to process AuthorizeOperatorItem: %w", err), nil
 		}
 		sts = append(sts, s...)
 
@@ -360,8 +360,8 @@ func (opp *AuthorizeOperatorsProcessor) Process( // nolint:dupl
 	return sts, nil, nil
 }
 
-func (opp *AuthorizeOperatorsProcessor) Close() error {
-	authorizeOperatorsProcessorPool.Put(opp)
+func (opp *AuthorizeOperatorProcessor) Close() error {
+	authorizeOperatorProcessorPool.Put(opp)
 
 	return nil
 }

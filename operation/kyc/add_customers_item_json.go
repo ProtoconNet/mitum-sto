@@ -8,7 +8,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
-type AddCustomersItemJSONMarshaler struct {
+type AddCustomerItemJSONMarshaler struct {
 	hint.BaseHinter
 	Contract base.Address             `json:"contract"`
 	Customer base.Address             `json:"customer"`
@@ -16,8 +16,8 @@ type AddCustomersItemJSONMarshaler struct {
 	Currency currencytypes.CurrencyID `json:"currency"`
 }
 
-func (it AddCustomersItem) MarshalJSON() ([]byte, error) {
-	return util.MarshalJSON(AddCustomersItemJSONMarshaler{
+func (it AddCustomerItem) MarshalJSON() ([]byte, error) {
+	return util.MarshalJSON(AddCustomerItemJSONMarshaler{
 		BaseHinter: it.BaseHinter,
 		Contract:   it.contract,
 		Customer:   it.customer,
@@ -26,7 +26,7 @@ func (it AddCustomersItem) MarshalJSON() ([]byte, error) {
 	})
 }
 
-type AddCustomersItemJSONUnMarshaler struct {
+type AddCustomerItemJSONUnMarshaler struct {
 	Hint     hint.Hint `json:"_hint"`
 	Contract string    `json:"contract"`
 	Customer string    `json:"customer"`
@@ -34,10 +34,10 @@ type AddCustomersItemJSONUnMarshaler struct {
 	Currency string    `json:"currency"`
 }
 
-func (it *AddCustomersItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
-	e := util.StringError("failed to decode json of AddCustomersItem")
+func (it *AddCustomerItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+	e := util.StringError("failed to decode json of AddCustomerItem")
 
-	var uit AddCustomersItemJSONUnMarshaler
+	var uit AddCustomerItemJSONUnMarshaler
 	if err := enc.Unmarshal(b, &uit); err != nil {
 		return e.Wrap(err)
 	}

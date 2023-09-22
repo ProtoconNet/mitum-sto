@@ -15,31 +15,31 @@ import (
 	"github.com/pkg/errors"
 )
 
-var addCustomersItemProcessorPool = sync.Pool{
+var addCustomerItemProcessorPool = sync.Pool{
 	New: func() interface{} {
-		return new(AddCustomersItemProcessor)
+		return new(AddCustomerItemProcessor)
 	},
 }
 
-var addCustomersProcessorPool = sync.Pool{
+var addCustomerProcessorPool = sync.Pool{
 	New: func() interface{} {
-		return new(AddCustomersProcessor)
+		return new(AddCustomerProcessor)
 	},
 }
 
-func (AddCustomers) Process(
+func (AddCustomer) Process(
 	ctx context.Context, getStateFunc base.GetStateFunc,
 ) ([]base.StateMergeValue, base.OperationProcessReasonError, error) {
 	return nil, nil, nil
 }
 
-type AddCustomersItemProcessor struct {
+type AddCustomerItemProcessor struct {
 	h      util.Hash
 	sender base.Address
-	item   AddCustomersItem
+	item   AddCustomerItem
 }
 
-func (ipp *AddCustomersItemProcessor) PreProcess(
+func (ipp *AddCustomerItemProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) error {
 	it := ipp.item
@@ -87,7 +87,7 @@ func (ipp *AddCustomersItemProcessor) PreProcess(
 	return nil
 }
 
-func (ipp *AddCustomersItemProcessor) Process(
+func (ipp *AddCustomerItemProcessor) Process(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) ([]base.StateMergeValue, error) {
 	it := ipp.item
@@ -102,33 +102,33 @@ func (ipp *AddCustomersItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *AddCustomersItemProcessor) Close() error {
+func (ipp *AddCustomerItemProcessor) Close() error {
 	ipp.h = nil
 	ipp.sender = nil
-	ipp.item = AddCustomersItem{}
+	ipp.item = AddCustomerItem{}
 
-	addCustomersItemProcessorPool.Put(ipp)
+	addCustomerItemProcessorPool.Put(ipp)
 
 	return nil
 }
 
-type AddCustomersProcessor struct {
+type AddCustomerProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewAddCustomersProcessor() currencytypes.GetNewProcessor {
+func NewAddCustomerProcessor() currencytypes.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
 		newPreProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 		newProcessConstraintFunc base.NewOperationProcessorProcessFunc,
 	) (base.OperationProcessor, error) {
-		e := util.StringError("failed to create new AddCustomersProcessor")
+		e := util.StringError("failed to create new AddCustomerProcessor")
 
-		nopp := addCustomersProcessorPool.Get()
-		opp, ok := nopp.(*AddCustomersProcessor)
+		nopp := addCustomerProcessorPool.Get()
+		opp, ok := nopp.(*AddCustomerProcessor)
 		if !ok {
-			return nil, e.Wrap(errors.Errorf("expected AddCustomersProcessor, not %T", nopp))
+			return nil, e.Wrap(errors.Errorf("expected AddCustomerProcessor, not %T", nopp))
 		}
 
 		b, err := base.NewBaseOperationProcessor(
@@ -143,14 +143,14 @@ func NewAddCustomersProcessor() currencytypes.GetNewProcessor {
 	}
 }
 
-func (opp *AddCustomersProcessor) PreProcess(
+func (opp *AddCustomerProcessor) PreProcess(
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
 ) (context.Context, base.OperationProcessReasonError, error) {
-	e := util.StringError("failed to preprocess AddCustomers")
+	e := util.StringError("failed to preprocess AddCustomer")
 
-	fact, ok := op.Fact().(AddCustomersFact)
+	fact, ok := op.Fact().(AddCustomerFact)
 	if !ok {
-		return ctx, nil, e.Wrap(errors.Errorf("expected AddCustomersFact, not %T", op.Fact()))
+		return ctx, nil, e.Wrap(errors.Errorf("expected AddCustomerFact, not %T", op.Fact()))
 	}
 
 	if err := fact.IsValid(nil); err != nil {
@@ -170,10 +170,10 @@ func (opp *AddCustomersProcessor) PreProcess(
 	}
 
 	for _, it := range fact.Items() {
-		ip := addCustomersItemProcessorPool.Get()
-		ipc, ok := ip.(*AddCustomersItemProcessor)
+		ip := addCustomerItemProcessorPool.Get()
+		ipc, ok := ip.(*AddCustomerItemProcessor)
 		if !ok {
-			return nil, nil, e.Wrap(errors.Errorf("expected AddCustomersItemProcessor, not %T", ip))
+			return nil, nil, e.Wrap(errors.Errorf("expected AddCustomerItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -181,7 +181,7 @@ func (opp *AddCustomersProcessor) PreProcess(
 		ipc.item = it
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to preprocess AddCustomersItem: %w", err), nil
+			return nil, base.NewBaseOperationProcessReasonError("failed to preprocess AddCustomerItem: %w", err), nil
 		}
 
 		ipc.Close()
@@ -190,24 +190,24 @@ func (opp *AddCustomersProcessor) PreProcess(
 	return ctx, nil, nil
 }
 
-func (opp *AddCustomersProcessor) Process( // nolint:dupl
+func (opp *AddCustomerProcessor) Process( // nolint:dupl
 	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc) (
 	[]base.StateMergeValue, base.OperationProcessReasonError, error,
 ) {
-	e := util.StringError("failed to process AddCustomers")
+	e := util.StringError("failed to process AddCustomer")
 
-	fact, ok := op.Fact().(AddCustomersFact)
+	fact, ok := op.Fact().(AddCustomerFact)
 	if !ok {
-		return nil, nil, e.Wrap(errors.Errorf("expected AddCustomersFact, not %T", op.Fact()))
+		return nil, nil, e.Wrap(errors.Errorf("expected AddCustomerFact, not %T", op.Fact()))
 	}
 
 	var sts []base.StateMergeValue // nolint:prealloc
 
 	for _, it := range fact.Items() {
-		ip := addCustomersItemProcessorPool.Get()
-		ipc, ok := ip.(*AddCustomersItemProcessor)
+		ip := addCustomerItemProcessorPool.Get()
+		ipc, ok := ip.(*AddCustomerItemProcessor)
 		if !ok {
-			return nil, nil, e.Wrap(errors.Errorf("expected AddCustomersItemProcessor, not %T", ip))
+			return nil, nil, e.Wrap(errors.Errorf("expected AddCustomerItemProcessor, not %T", ip))
 		}
 
 		ipc.h = op.Hash()
@@ -216,7 +216,7 @@ func (opp *AddCustomersProcessor) Process( // nolint:dupl
 
 		st, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to process AddCustomersItem: %w", err), nil
+			return nil, base.NewBaseOperationProcessReasonError("failed to process AddCustomerItem: %w", err), nil
 		}
 
 		sts = append(sts, st...)
@@ -251,8 +251,8 @@ func (opp *AddCustomersProcessor) Process( // nolint:dupl
 	return sts, nil, nil
 }
 
-func (opp *AddCustomersProcessor) Close() error {
-	addCustomersProcessorPool.Put(opp)
+func (opp *AddCustomerProcessor) Close() error {
+	addCustomerProcessorPool.Put(opp)
 
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/ProtoconNet/mitum2/util/valuehash"
 )
 
-func (fact AddCustomersFact) MarshalBSON() ([]byte, error) {
+func (fact AddCustomerFact) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint":  fact.Hint().String(),
@@ -22,14 +22,14 @@ func (fact AddCustomersFact) MarshalBSON() ([]byte, error) {
 	)
 }
 
-type AddCustomersFactBSONUnmarshaler struct {
+type AddCustomerFactBSONUnmarshaler struct {
 	Hint   string   `bson:"_hint"`
 	Sender string   `bson:"sender"`
 	Items  bson.Raw `bson:"items"`
 }
 
-func (fact *AddCustomersFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringError("failed to decode bson of AddCustomersFact")
+func (fact *AddCustomerFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringError("failed to decode bson of AddCustomerFact")
 
 	var ubf common.BaseFactBSONUnmarshaler
 
@@ -40,7 +40,7 @@ func (fact *AddCustomersFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	fact.BaseFact.SetHash(valuehash.NewBytesFromString(ubf.Hash))
 	fact.BaseFact.SetToken(ubf.Token)
 
-	var uf AddCustomersFactBSONUnmarshaler
+	var uf AddCustomerFactBSONUnmarshaler
 	if err := bson.Unmarshal(b, &uf); err != nil {
 		return e.Wrap(err)
 	}
@@ -54,7 +54,7 @@ func (fact *AddCustomersFact) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	return fact.unpack(enc, uf.Sender, uf.Items)
 }
 
-func (op AddCustomers) MarshalBSON() ([]byte, error) {
+func (op AddCustomer) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
 			"_hint": op.Hint().String(),
@@ -64,8 +64,8 @@ func (op AddCustomers) MarshalBSON() ([]byte, error) {
 		})
 }
 
-func (op *AddCustomers) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
-	e := util.StringError("failed to decode bson of AddCustomers")
+func (op *AddCustomer) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
+	e := util.StringError("failed to decode bson of AddCustomer")
 
 	var ubo common.BaseOperation
 	if err := ubo.DecodeBSON(b, enc); err != nil {
