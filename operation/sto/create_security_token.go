@@ -68,10 +68,6 @@ func (fact CreateSecurityTokenFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := common.IsValidOperationFact(fact, b); err != nil {
-		return err
-	}
-
 	if n := len(fact.items); n < 1 {
 		return util.ErrInvalid.Errorf("empty items")
 	} else if n > int(MaxCreateSecurityTokenItems) {
@@ -99,6 +95,10 @@ func (fact CreateSecurityTokenFact) IsValid(b []byte) error {
 		}
 
 		founds[k] = struct{}{}
+	}
+
+	if err := common.IsValidOperationFact(fact, b); err != nil {
+		return err
 	}
 
 	return nil

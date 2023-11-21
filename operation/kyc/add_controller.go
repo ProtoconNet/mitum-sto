@@ -59,10 +59,6 @@ func (fact AddControllerFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := common.IsValidOperationFact(fact, b); err != nil {
-		return err
-	}
-
 	if n := len(fact.items); n < 1 {
 		return util.ErrInvalid.Errorf("empty items")
 	} else if n > int(MaxAddControllersItems) {
@@ -88,6 +84,10 @@ func (fact AddControllerFact) IsValid(b []byte) error {
 		}
 
 		founds[it.controller.String()] = struct{}{}
+	}
+
+	if err := common.IsValidOperationFact(fact, b); err != nil {
+		return err
 	}
 
 	return nil

@@ -80,6 +80,10 @@ func (fact RedeemFact) IsValid(b []byte) error {
 		founds[addr.String()] = struct{}{}
 	}
 
+	if err := common.IsValidOperationFact(fact, b); err != nil {
+		return err
+	}
+
 	return nil
 }
 

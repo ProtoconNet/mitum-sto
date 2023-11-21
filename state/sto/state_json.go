@@ -39,9 +39,11 @@ func (de *DesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
 
 	if err := design.DecodeJSON(u.STO, enc); err != nil {
 		return e.Wrap(err)
+	} else if err := design.IsValid(nil); err != nil {
+		return e.Wrap(err)
+	} else {
+		de.Design = design
 	}
-
-	de.Design = design
 
 	return nil
 }

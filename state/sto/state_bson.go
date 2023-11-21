@@ -42,9 +42,11 @@ func (de *DesignStateValue) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 	var design stotypes.Design
 	if err := design.DecodeBSON(u.STO, enc); err != nil {
 		return e.Wrap(err)
+	} else if err := design.IsValid(nil); err != nil {
+		return e.Wrap(err)
+	} else {
+		de.Design = design
 	}
-
-	de.Design = design
 
 	return nil
 }

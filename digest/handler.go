@@ -52,6 +52,7 @@ func NewHandlers(
 	st *currencydigest.Database,
 	cache currencydigest.Cache,
 	router *mux.Router,
+	routes map[string]*mux.Route,
 ) *Handlers {
 	var log *logging.Logging
 	if err := util.LoadFromContextOK(ctx, launch.LoggingContextKey, &log); err != nil {
@@ -66,7 +67,7 @@ func NewHandlers(
 		database:        st,
 		cache:           cache,
 		router:          router,
-		routes:          map[string]*mux.Route{},
+		routes:          routes,
 		itemsLimiter:    currencydigest.DefaultItemsLimiter,
 		rg:              &singleflight.Group{},
 		expireNotFilled: time.Second * 3,

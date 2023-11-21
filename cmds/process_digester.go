@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"context"
+	"github.com/ProtoconNet/mitum-sto/digest"
 
 	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
@@ -36,14 +37,14 @@ func ProcessDigester(ctx context.Context) (context.Context, error) {
 	}
 	root := launch.LocalFSDataDirectory(design.Storage.Base)
 
-	di := currencydigest.NewDigester(st, root, nil)
+	di := digest.NewDigester(st, root, nil)
 	_ = di.SetLogging(log)
 
 	return context.WithValue(ctx, currencycmds.ContextValueDigester, di), nil
 }
 
 func ProcessStartDigester(ctx context.Context) (context.Context, error) {
-	var di *currencydigest.Digester
+	var di *digest.Digester
 	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigester, &di); err != nil {
 		return ctx, err
 	}
@@ -159,7 +160,15 @@ func digestFollowup(ctx context.Context, height base.Height) error {
 			sts = v.([]base.State) //nolint:forcetypeassert //...
 		}
 
-		if err := currencydigest.DigestBlock(ctx, st, m, ops, opstree, sts); err != nil {
+		var proposal base.ProposalSignFact
+		switch v, found, err := reader.Item(base.BlockMapItemTypeProposal); {
+		case err != nil:
+			return err
+		case found:
+			proposal = v.(base.ProposalSignFact) //nolint:forcetypeassert //...
+		}
+
+		if err := digest.DigestBlock(ctx, st, m, ops, opstree, sts, proposal); err != nil {
 			return err
 		}
 

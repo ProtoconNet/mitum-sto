@@ -74,11 +74,11 @@ func (fact SetDocumentFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := common.IsValidOperationFact(fact, b); err != nil {
+	if err := util.CheckIsValiders(nil, false, fact.sender, fact.contract, fact.uri, fact.currency); err != nil {
 		return err
 	}
 
-	if err := util.CheckIsValiders(nil, false, fact.sender, fact.contract, fact.uri, fact.currency); err != nil {
+	if err := common.IsValidOperationFact(fact, b); err != nil {
 		return err
 	}
 

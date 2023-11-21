@@ -71,10 +71,6 @@ func (fact CreateServiceFact) IsValid(b []byte) error {
 		return err
 	}
 
-	if err := common.IsValidOperationFact(fact, b); err != nil {
-		return err
-	}
-
 	if err := util.CheckIsValiders(nil, false, fact.sender, fact.contract, fact.currency); err != nil {
 		return err
 	}
@@ -98,6 +94,10 @@ func (fact CreateServiceFact) IsValid(b []byte) error {
 		}
 
 		founds[con.String()] = struct{}{}
+	}
+
+	if err := common.IsValidOperationFact(fact, b); err != nil {
+		return err
 	}
 
 	return nil
