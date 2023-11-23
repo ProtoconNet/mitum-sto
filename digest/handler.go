@@ -20,6 +20,16 @@ import (
 	"golang.org/x/sync/singleflight"
 )
 
+var (
+	HandlerPathSTOService                  = `/sto/{contract:\w+}`
+	HandlerPathSTOHolderPartitions         = `/sto/{contract:\w+}/holder/{address:(?i)` + base.REStringAddressString + `}/partitions`
+	HandlerPathSTOHolderPartitionBalance   = `/sto/{contract:\w+}/holder/{address:(?i)` + base.REStringAddressString + `}/partition/{partition:\w+}/balance`
+	HandlerPathSTOHolderPartitionOperators = `/sto/{contract:\w+}/holder/{address:(?i)` + base.REStringAddressString + `}/partition/{partition:\w+}/operators`
+	HandlerPathSTOPartitionBalance         = `/sto/{contract:\w+}/partition/{partition:\w+}/balance`
+	//HandlerPathSTOPartitionControllers     = `/sto/{contract:\w+}/partition/{partition:\w+}/controllers`
+	HandlerPathSTOOperatorHolders = `/sto/{contract:\w+}/operator/{address:(?i)` + base.REStringAddressString + `}/holders`
+)
+
 func init() {
 	if b, err := currencydigest.JSON.Marshal(currencydigest.UnknownProblem); err != nil {
 		panic(err)
@@ -107,7 +117,20 @@ func (hd *Handlers) Handler() http.Handler {
 }
 
 func (hd *Handlers) setHandlers() {
-
+	_ = hd.setHandler(HandlerPathSTOService, hd.handleSTOService, true).
+		Methods(http.MethodOptions, "GET")
+	_ = hd.setHandler(HandlerPathSTOHolderPartitions, hd.handleSTOHolderPartitions, true).
+		Methods(http.MethodOptions, "GET")
+	_ = hd.setHandler(HandlerPathSTOHolderPartitionBalance, hd.handleSTOHolderPartitionBalance, true).
+		Methods(http.MethodOptions, "GET")
+	_ = hd.setHandler(HandlerPathSTOHolderPartitionOperators, hd.handleSTOHolderPartitionOperators, true).
+		Methods(http.MethodOptions, "GET")
+	_ = hd.setHandler(HandlerPathSTOPartitionBalance, hd.handleSTOPartitionBalance, true).
+		Methods(http.MethodOptions, "GET")
+	//_ = hd.setHandler(HandlerPathSTOPartitionControllers, hd.handleSTOPartitionControllers, true).
+	//	Methods(http.MethodOptions, "GET")
+	_ = hd.setHandler(HandlerPathSTOOperatorHolders, hd.handleSTOOperatorHolders, true).
+		Methods(http.MethodOptions, "GET")
 }
 
 func (hd *Handlers) setHandler(prefix string, h network.HTTPHandlerFunc, useCache bool) *mux.Route {

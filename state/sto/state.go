@@ -141,8 +141,8 @@ func IsStateTokenHolderPartitionsKey(key string) bool {
 	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, TokenHolderPartitionsSuffix)
 }
 
-func StateKeyTokenHolderPartitions(caddr base.Address, uaddr base.Address) string {
-	return fmt.Sprintf("%s:%s%s", StateKeySTOPrefix(caddr), uaddr.String(), TokenHolderPartitionsSuffix)
+func StateKeyTokenHolderPartitions(caddr base.Address, addr base.Address) string {
+	return fmt.Sprintf("%s:%s%s", StateKeySTOPrefix(caddr), addr.String(), TokenHolderPartitionsSuffix)
 }
 
 func StateTokenHolderPartitionsValue(st base.State) ([]stotypes.Partition, error) {
@@ -425,6 +425,20 @@ func IsStatePartitionControllersKey(key string) bool {
 	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, PartitionControllersSuffix)
 }
 
+func StatePartitionControllersValue(st base.State) ([]base.Address, error) {
+	v := st.Value()
+	if v == nil {
+		return []base.Address{}, util.ErrNotFound.Errorf("Partition controllers not found in State")
+	}
+
+	addrs, ok := v.(PartitionControllersStateValue)
+	if !ok {
+		return []base.Address{}, errors.Errorf("invalid Partition operators value found, %T", v)
+	}
+
+	return addrs.Controllers, nil
+}
+
 var (
 	OperatorTokenHoldersStateValueHint = hint.MustNewHint("mitum-sto-operator-tokenholders-state-value-v0.0.1")
 	OperatorTokenHoldersSuffix         = ":operator-holders"
@@ -558,4 +572,16 @@ func ExistsPolicy(cAdr base.Address, getStateFunc base.GetStateFunc) (stotypes.P
 		policy = design.Design.Policy()
 	}
 	return policy, nil
+}
+
+func ParseStateKey(key string, Prefix string) ([]string, error) {
+	parsedKey := strings.Split(key, ":")
+	if parsedKey[0] != Prefix[:len(Prefix)-1] {
+		return nil, errors.Errorf("State Key not include Prefix, %s", parsedKey)
+	}
+	if len(parsedKey) < 3 {
+		return nil, errors.Errorf("parsing State Key string failed, %s", parsedKey)
+	} else {
+		return parsedKey, nil
+	}
 }

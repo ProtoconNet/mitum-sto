@@ -22,21 +22,28 @@ var bulkWriteLimit = 500
 
 type BlockSession struct {
 	sync.RWMutex
-	block                 mitumbase.BlockMap
-	ops                   []mitumbase.Operation
-	opstree               fixedtree.Tree
-	sts                   []mitumbase.State
-	st                    *currencydigest.Database
-	proposal              mitumbase.ProposalSignFact
-	opsTreeNodes          map[string]mitumbase.OperationFixedtreeNode
-	blockModels           []mongo.WriteModel
-	operationModels       []mongo.WriteModel
-	accountModels         []mongo.WriteModel
-	balanceModels         []mongo.WriteModel
-	currencyModels        []mongo.WriteModel
-	contractAccountModels []mongo.WriteModel
-	statesValue           *sync.Map
-	balanceAddressList    []string
+	block                             mitumbase.BlockMap
+	ops                               []mitumbase.Operation
+	opstree                           fixedtree.Tree
+	sts                               []mitumbase.State
+	st                                *currencydigest.Database
+	proposal                          mitumbase.ProposalSignFact
+	opsTreeNodes                      map[string]mitumbase.OperationFixedtreeNode
+	blockModels                       []mongo.WriteModel
+	operationModels                   []mongo.WriteModel
+	accountModels                     []mongo.WriteModel
+	balanceModels                     []mongo.WriteModel
+	currencyModels                    []mongo.WriteModel
+	contractAccountModels             []mongo.WriteModel
+	stoDesignModels                   []mongo.WriteModel
+	stoHolderPartitionsModels         []mongo.WriteModel
+	stoHolderPartitionBalanceModels   []mongo.WriteModel
+	stoHolderPartitionOperatorsModels []mongo.WriteModel
+	stoPartitionBalanceModels         []mongo.WriteModel
+	stoPartitionControllersModels     []mongo.WriteModel
+	stoOperatorHoldersModels          []mongo.WriteModel
+	statesValue                       *sync.Map
+	balanceAddressList                []string
 }
 
 func NewBlockSession(
@@ -82,9 +89,9 @@ func (bs *BlockSession) Prepare() error {
 	if err := bs.prepareCurrencies(); err != nil {
 		return err
 	}
-	// if err := bs.prepareDAO(); err != nil {
-	// 	return err
-	// }
+	if err := bs.prepareSTO(); err != nil {
+		return err
+	}
 
 	return bs.prepareAccounts()
 }
@@ -130,6 +137,48 @@ func (bs *BlockSession) Commit(ctx context.Context) error {
 
 	if len(bs.contractAccountModels) > 0 {
 		if err := bs.writeModels(ctx, defaultColNameContractAccount, bs.contractAccountModels); err != nil {
+			return err
+		}
+	}
+
+	if len(bs.stoDesignModels) > 0 {
+		if err := bs.writeModels(ctx, defaultColNameSTO, bs.stoDesignModels); err != nil {
+			return err
+		}
+	}
+
+	if len(bs.stoHolderPartitionsModels) > 0 {
+		if err := bs.writeModels(ctx, defaultColNameSTOHolderPartitions, bs.stoHolderPartitionsModels); err != nil {
+			return err
+		}
+	}
+
+	if len(bs.stoHolderPartitionBalanceModels) > 0 {
+		if err := bs.writeModels(ctx, defaultColNameSTOHolderPartitionBalance, bs.stoHolderPartitionBalanceModels); err != nil {
+			return err
+		}
+	}
+
+	if len(bs.stoHolderPartitionOperatorsModels) > 0 {
+		if err := bs.writeModels(ctx, defaultColNameSTOHolderPartitionOperators, bs.stoHolderPartitionOperatorsModels); err != nil {
+			return err
+		}
+	}
+
+	if len(bs.stoPartitionBalanceModels) > 0 {
+		if err := bs.writeModels(ctx, defaultColNameSTOPartitionBalance, bs.stoPartitionBalanceModels); err != nil {
+			return err
+		}
+	}
+
+	if len(bs.stoPartitionControllersModels) > 0 {
+		if err := bs.writeModels(ctx, defaultColNameSTOPartitionControllers, bs.stoPartitionControllersModels); err != nil {
+			return err
+		}
+	}
+
+	if len(bs.stoOperatorHoldersModels) > 0 {
+		if err := bs.writeModels(ctx, defaultColNameSTOOperatorHolders, bs.stoOperatorHoldersModels); err != nil {
 			return err
 		}
 	}
@@ -362,6 +411,13 @@ func (bs *BlockSession) close() error {
 	bs.accountModels = nil
 	bs.balanceModels = nil
 	bs.contractAccountModels = nil
+	bs.stoDesignModels = nil
+	bs.stoHolderPartitionsModels = nil
+	bs.stoHolderPartitionBalanceModels = nil
+	bs.stoHolderPartitionOperatorsModels = nil
+	bs.stoPartitionBalanceModels = nil
+	bs.stoPartitionControllersModels = nil
+	bs.stoOperatorHoldersModels = nil
 
 	return bs.st.Close()
 }
