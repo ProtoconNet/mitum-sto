@@ -10,7 +10,7 @@ import (
 )
 
 func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big string, bcs []string, bds []byte) error {
-	e := util.StringError("failed to decode bson of Policy")
+	e := util.StringError("failed to unpack of Policy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
 

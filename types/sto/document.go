@@ -37,7 +37,7 @@ type Document struct {
 
 func NewDocument(title, hash string, uri URI) Document {
 	return Document{
-		BaseHinter: hint.NewBaseHinter(DesignHint),
+		BaseHinter: hint.NewBaseHinter(DocumentHint),
 		title:      title,
 		hash:       hash,
 		uri:        uri,

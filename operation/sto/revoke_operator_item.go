@@ -80,7 +80,7 @@ func (it RevokeOperatorItem) Addresses() []base.Address {
 	ad := make([]base.Address, 2)
 
 	ad[0] = it.contract
-	ad[2] = it.operator
+	ad[1] = it.operator
 
 	return ad
 }

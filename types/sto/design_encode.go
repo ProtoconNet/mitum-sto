@@ -8,7 +8,7 @@ import (
 )
 
 func (de *Design) unpack(enc encoder.Encoder, ht hint.Hint, gra uint64, bpo []byte) error {
-	e := util.StringError("failed to decode bson of Design")
+	e := util.StringError("failed to unpack Design")
 
 	de.BaseHinter = hint.NewBaseHinter(ht)
 	de.granularity = gra
