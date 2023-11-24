@@ -10,30 +10,30 @@ import (
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
-type DesignDoc struct {
+type STODesignDoc struct {
 	mongodbstorage.BaseDoc
 	st base.State
 	de stotypes.Design
 }
 
-func NewDesignDoc(st base.State, enc encoder.Encoder) (DesignDoc, error) {
+func NewSTODesignDoc(st base.State, enc encoder.Encoder) (STODesignDoc, error) {
 	de, err := stostate.StateDesignValue(st)
 	if err != nil {
-		return DesignDoc{}, err
+		return STODesignDoc{}, err
 	}
 	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
 	if err != nil {
-		return DesignDoc{}, err
+		return STODesignDoc{}, err
 	}
 
-	return DesignDoc{
+	return STODesignDoc{
 		BaseDoc: b,
 		st:      st,
 		de:      de,
 	}, nil
 }
 
-func (doc DesignDoc) MarshalBSON() ([]byte, error) {
+func (doc STODesignDoc) MarshalBSON() ([]byte, error) {
 	m, err := doc.BaseDoc.M()
 	if err != nil {
 		return nil, err
@@ -47,30 +47,30 @@ func (doc DesignDoc) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(m)
 }
 
-type HolderPartitionsDoc struct {
+type STOHolderPartitionsDoc struct {
 	mongodbstorage.BaseDoc
 	st  base.State
 	pts []stotypes.Partition
 }
 
-func NewHolderPartitionsDoc(st base.State, enc encoder.Encoder) (HolderPartitionsDoc, error) {
+func NewSTOHolderPartitionsDoc(st base.State, enc encoder.Encoder) (STOHolderPartitionsDoc, error) {
 	pts, err := stostate.StateTokenHolderPartitionsValue(st)
 	if err != nil {
-		return HolderPartitionsDoc{}, err
+		return STOHolderPartitionsDoc{}, err
 	}
 	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
 	if err != nil {
-		return HolderPartitionsDoc{}, err
+		return STOHolderPartitionsDoc{}, err
 	}
 
-	return HolderPartitionsDoc{
+	return STOHolderPartitionsDoc{
 		BaseDoc: b,
 		st:      st,
 		pts:     pts,
 	}, nil
 }
 
-func (doc HolderPartitionsDoc) MarshalBSON() ([]byte, error) {
+func (doc STOHolderPartitionsDoc) MarshalBSON() ([]byte, error) {
 	m, err := doc.BaseDoc.M()
 	if err != nil {
 		return nil, err
@@ -85,30 +85,30 @@ func (doc HolderPartitionsDoc) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(m)
 }
 
-type HolderPartitionBalanceDoc struct {
+type STOHolderPartitionBalanceDoc struct {
 	mongodbstorage.BaseDoc
 	st base.State
 	am common.Big
 }
 
-func NewHolderPartitionBalanceDoc(st base.State, enc encoder.Encoder) (HolderPartitionBalanceDoc, error) {
+func NewSTOHolderPartitionBalanceDoc(st base.State, enc encoder.Encoder) (STOHolderPartitionBalanceDoc, error) {
 	am, err := stostate.StateTokenHolderPartitionBalanceValue(st)
 	if err != nil {
-		return HolderPartitionBalanceDoc{}, err
+		return STOHolderPartitionBalanceDoc{}, err
 	}
 	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
 	if err != nil {
-		return HolderPartitionBalanceDoc{}, err
+		return STOHolderPartitionBalanceDoc{}, err
 	}
 
-	return HolderPartitionBalanceDoc{
+	return STOHolderPartitionBalanceDoc{
 		BaseDoc: b,
 		st:      st,
 		am:      am,
 	}, nil
 }
 
-func (doc HolderPartitionBalanceDoc) MarshalBSON() ([]byte, error) {
+func (doc STOHolderPartitionBalanceDoc) MarshalBSON() ([]byte, error) {
 	m, err := doc.BaseDoc.M()
 	if err != nil {
 		return nil, err
@@ -124,30 +124,30 @@ func (doc HolderPartitionBalanceDoc) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(m)
 }
 
-type HolderPartitionOperatorsDoc struct {
+type STOHolderPartitionOperatorsDoc struct {
 	mongodbstorage.BaseDoc
 	st   base.State
 	oprs []base.Address
 }
 
-func NewHolderPartitionOperatorsDoc(st base.State, enc encoder.Encoder) (HolderPartitionOperatorsDoc, error) {
+func NewSTOHolderPartitionOperatorsDoc(st base.State, enc encoder.Encoder) (STOHolderPartitionOperatorsDoc, error) {
 	oprs, err := stostate.StateTokenHolderPartitionOperatorsValue(st)
 	if err != nil {
-		return HolderPartitionOperatorsDoc{}, err
+		return STOHolderPartitionOperatorsDoc{}, err
 	}
 	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
 	if err != nil {
-		return HolderPartitionOperatorsDoc{}, err
+		return STOHolderPartitionOperatorsDoc{}, err
 	}
 
-	return HolderPartitionOperatorsDoc{
+	return STOHolderPartitionOperatorsDoc{
 		BaseDoc: b,
 		st:      st,
 		oprs:    oprs,
 	}, nil
 }
 
-func (doc HolderPartitionOperatorsDoc) MarshalBSON() ([]byte, error) {
+func (doc STOHolderPartitionOperatorsDoc) MarshalBSON() ([]byte, error) {
 	m, err := doc.BaseDoc.M()
 	if err != nil {
 		return nil, err
@@ -163,30 +163,30 @@ func (doc HolderPartitionOperatorsDoc) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(m)
 }
 
-type PartitionBalanceDoc struct {
+type STOPartitionBalanceDoc struct {
 	mongodbstorage.BaseDoc
 	st base.State
 	am common.Big
 }
 
-func NewPartitionBalanceDoc(st base.State, enc encoder.Encoder) (PartitionBalanceDoc, error) {
+func NewSTOPartitionBalanceDoc(st base.State, enc encoder.Encoder) (STOPartitionBalanceDoc, error) {
 	am, err := stostate.StatePartitionBalanceValue(st)
 	if err != nil {
-		return PartitionBalanceDoc{}, err
+		return STOPartitionBalanceDoc{}, err
 	}
 	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
 	if err != nil {
-		return PartitionBalanceDoc{}, err
+		return STOPartitionBalanceDoc{}, err
 	}
 
-	return PartitionBalanceDoc{
+	return STOPartitionBalanceDoc{
 		BaseDoc: b,
 		st:      st,
 		am:      am,
 	}, nil
 }
 
-func (doc PartitionBalanceDoc) MarshalBSON() ([]byte, error) {
+func (doc STOPartitionBalanceDoc) MarshalBSON() ([]byte, error) {
 	m, err := doc.BaseDoc.M()
 	if err != nil {
 		return nil, err
@@ -201,30 +201,30 @@ func (doc PartitionBalanceDoc) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(m)
 }
 
-type OperatorHoldersDoc struct {
+type STOOperatorHoldersDoc struct {
 	mongodbstorage.BaseDoc
 	st  base.State
 	hds []base.Address
 }
 
-func NewOperatorHoldersDoc(st base.State, enc encoder.Encoder) (OperatorHoldersDoc, error) {
+func NewSTOOperatorHoldersDoc(st base.State, enc encoder.Encoder) (STOOperatorHoldersDoc, error) {
 	hds, err := stostate.StateOperatorTokenHoldersValue(st)
 	if err != nil {
-		return OperatorHoldersDoc{}, err
+		return STOOperatorHoldersDoc{}, err
 	}
 	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
 	if err != nil {
-		return OperatorHoldersDoc{}, err
+		return STOOperatorHoldersDoc{}, err
 	}
 
-	return OperatorHoldersDoc{
+	return STOOperatorHoldersDoc{
 		BaseDoc: b,
 		st:      st,
 		hds:     hds,
 	}, nil
 }
 
-func (doc OperatorHoldersDoc) MarshalBSON() ([]byte, error) {
+func (doc STOOperatorHoldersDoc) MarshalBSON() ([]byte, error) {
 	m, err := doc.BaseDoc.M()
 	if err != nil {
 		return nil, err

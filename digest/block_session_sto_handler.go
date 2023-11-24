@@ -81,7 +81,7 @@ func (bs *BlockSession) prepareSTO() error {
 }
 
 func (bs *BlockSession) handleSTODesignState(st mitumbase.State) ([]mongo.WriteModel, error) {
-	if doc, err := NewDesignDoc(st, bs.st.DatabaseEncoder()); err != nil {
+	if doc, err := NewSTODesignDoc(st, bs.st.DatabaseEncoder()); err != nil {
 		return nil, err
 	} else {
 		return []mongo.WriteModel{
@@ -91,7 +91,7 @@ func (bs *BlockSession) handleSTODesignState(st mitumbase.State) ([]mongo.WriteM
 }
 
 func (bs *BlockSession) handleSTOHolderPartitionsState(st mitumbase.State) ([]mongo.WriteModel, error) {
-	if doc, err := NewHolderPartitionsDoc(st, bs.st.DatabaseEncoder()); err != nil {
+	if doc, err := NewSTOHolderPartitionsDoc(st, bs.st.DatabaseEncoder()); err != nil {
 		return nil, err
 	} else {
 		return []mongo.WriteModel{
@@ -101,7 +101,7 @@ func (bs *BlockSession) handleSTOHolderPartitionsState(st mitumbase.State) ([]mo
 }
 
 func (bs *BlockSession) handleSTOHolderPartitionBalanceState(st mitumbase.State) ([]mongo.WriteModel, error) {
-	if doc, err := NewHolderPartitionBalanceDoc(st, bs.st.DatabaseEncoder()); err != nil {
+	if doc, err := NewSTOHolderPartitionBalanceDoc(st, bs.st.DatabaseEncoder()); err != nil {
 		return nil, err
 	} else {
 		return []mongo.WriteModel{
@@ -111,7 +111,7 @@ func (bs *BlockSession) handleSTOHolderPartitionBalanceState(st mitumbase.State)
 }
 
 func (bs *BlockSession) handleSTOHolderPartitionOperatorsState(st mitumbase.State) ([]mongo.WriteModel, error) {
-	if doc, err := NewHolderPartitionOperatorsDoc(st, bs.st.DatabaseEncoder()); err != nil {
+	if doc, err := NewSTOHolderPartitionOperatorsDoc(st, bs.st.DatabaseEncoder()); err != nil {
 		return nil, err
 	} else {
 		return []mongo.WriteModel{
@@ -121,7 +121,7 @@ func (bs *BlockSession) handleSTOHolderPartitionOperatorsState(st mitumbase.Stat
 }
 
 func (bs *BlockSession) handleSTOPartitionBalanceState(st mitumbase.State) ([]mongo.WriteModel, error) {
-	if doc, err := NewPartitionBalanceDoc(st, bs.st.DatabaseEncoder()); err != nil {
+	if doc, err := NewSTOPartitionBalanceDoc(st, bs.st.DatabaseEncoder()); err != nil {
 		return nil, err
 	} else {
 		return []mongo.WriteModel{
@@ -131,7 +131,7 @@ func (bs *BlockSession) handleSTOPartitionBalanceState(st mitumbase.State) ([]mo
 }
 
 func (bs *BlockSession) handleSTOperatorHoldersState(st mitumbase.State) ([]mongo.WriteModel, error) {
-	if doc, err := NewOperatorHoldersDoc(st, bs.st.DatabaseEncoder()); err != nil {
+	if doc, err := NewSTOOperatorHoldersDoc(st, bs.st.DatabaseEncoder()); err != nil {
 		return nil, err
 	} else {
 		return []mongo.WriteModel{
