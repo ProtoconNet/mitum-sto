@@ -1,7 +1,7 @@
 package kyc
 
 import (
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -14,14 +14,14 @@ type AddCustomerItem struct {
 	contract base.Address
 	customer base.Address
 	status   bool
-	currency currencytypes.CurrencyID
+	currency types.CurrencyID
 }
 
 func NewAddCustomerItem(
 	contract base.Address,
 	customer base.Address,
 	status bool,
-	currency currencytypes.CurrencyID,
+	currency types.CurrencyID,
 ) AddCustomerItem {
 	return AddCustomerItem{
 		BaseHinter: hint.NewBaseHinter(AddCustomerItemHint),
@@ -70,7 +70,7 @@ func (it AddCustomerItem) Status() bool {
 	return it.status
 }
 
-func (it AddCustomerItem) Currency() currencytypes.CurrencyID {
+func (it AddCustomerItem) Currency() types.CurrencyID {
 	return it.currency
 }
 

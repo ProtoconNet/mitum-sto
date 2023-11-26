@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -28,7 +28,7 @@ func (cmd *BaseCommand) prepare(pctx context.Context) (context.Context, error) {
 	pps := ps.NewPS("cmd")
 
 	_ = pps.
-		AddOK(launch.PNameEncoder, currencycmds.PEncoder, nil)
+		AddOK(launch.PNameEncoder, crcycmds.PEncoder, nil)
 
 	_ = pps.POK(launch.PNameEncoder).
 		PostAddOK(launch.PNameAddHinters, PAddHinters)

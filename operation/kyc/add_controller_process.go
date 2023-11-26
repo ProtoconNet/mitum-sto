@@ -5,13 +5,13 @@ import (
 	"sync"
 
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
-	currencystate "github.com/ProtoconNet/mitum-currency/v3/state"
-	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	kycstate "github.com/ProtoconNet/mitum-sto/state/kyc"
-	kyctypes "github.com/ProtoconNet/mitum-sto/types/kyc"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	state "github.com/ProtoconNet/mitum-currency/v3/state"
+	stcurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	stextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
+	stkyc "github.com/ProtoconNet/mitum-sto/state/kyc"
+	typekyc "github.com/ProtoconNet/mitum-sto/types/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
@@ -47,12 +47,12 @@ func (ipp *AddControllerItemProcessor) PreProcess(
 ) error {
 	it := ipp.item
 
-	st, err := currencystate.ExistsState(extensioncurrency.StateKeyContractAccount(it.Contract()), "key of contract account", getStateFunc)
+	st, err := state.ExistsState(stextension.StateKeyContractAccount(it.Contract()), "key of contract account", getStateFunc)
 	if err != nil {
 		return err
 	}
 
-	ca, err := extensioncurrency.StateContractAccountValue(st)
+	ca, err := stextension.StateContractAccountValue(st)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (ipp *AddControllerItemProcessor) PreProcess(
 		}
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
+	if err := state.CheckExistsState(stcurrency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
 		return err
 	}
 
@@ -96,7 +96,7 @@ type AddControllerProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewAddControllerProcessor() currencytypes.GetNewProcessor {
+func NewAddControllerProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -137,27 +137,27 @@ func (opp *AddControllerProcessor) PreProcess(
 		return ctx, nil, e.Wrap(err)
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := state.CheckExistsState(stcurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("sender not found, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := state.CheckNotExistsState(stextension.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot set its controllers, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
+	if err := state.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
 	controllers := map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
+		policy, err := stkyc.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s: %w", it.Contract(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[kycstate.StateKeyDesign(it.Contract())] = &cons
+		controllers[stkyc.StateKeyDesign(it.Contract())] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -170,7 +170,7 @@ func (opp *AddControllerProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract())]
+		ipc.controllers = controllers[stkyc.StateKeyDesign(it.Contract())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to preprocess AddControllerItem: %w", err), nil
@@ -198,12 +198,12 @@ func (opp *AddControllerProcessor) Process( // nolint:dupl
 	controllers := map[string]*[]base.Address{}
 
 	for _, it := range fact.Items() {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
+		policy, err := stkyc.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("failed to get kyc policy, %s: %w", it.Contract(), err), nil
 		}
 		cons := policy.Controllers()
-		controllers[kycstate.StateKeyDesign(it.Contract())] = &cons
+		controllers[stkyc.StateKeyDesign(it.Contract())] = &cons
 	}
 
 	for _, it := range fact.Items() {
@@ -216,7 +216,7 @@ func (opp *AddControllerProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.controllers = controllers[kycstate.StateKeyDesign(it.Contract())]
+		ipc.controllers = controllers[stkyc.StateKeyDesign(it.Contract())]
 
 		_, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
@@ -227,15 +227,15 @@ func (opp *AddControllerProcessor) Process( // nolint:dupl
 	}
 
 	for k, m := range controllers {
-		policy := kyctypes.NewPolicy(*m)
-		design := kyctypes.NewDesign(policy)
+		policy := typekyc.NewPolicy(*m)
+		design := typekyc.NewDesign(policy)
 		if err := design.IsValid(nil); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("invalid design, %s: %w", k, err), nil
 		}
 
-		sts = append(sts, currencystate.NewStateMergeValue(
+		sts = append(sts, state.NewStateMergeValue(
 			k,
-			kycstate.NewDesignStateValue(design),
+			stkyc.NewDesignStateValue(design),
 		))
 	}
 
@@ -249,18 +249,18 @@ func (opp *AddControllerProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
 
 	for i := range sb {
-		v, ok := sb[i].Value().(currency.BalanceStateValue)
+		v, ok := sb[i].Value().(stcurrency.BalanceStateValue)
 		if !ok {
 			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
 		}
-		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))
+		stv := stcurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
+		sts = append(sts, state.NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil
@@ -272,8 +272,8 @@ func (opp *AddControllerProcessor) Close() error {
 	return nil
 }
 
-func calculateKYCItemsFee(getStateFunc base.GetStateFunc, items []KYCItem) (map[currencytypes.CurrencyID][2]common.Big, error) {
-	required := map[currencytypes.CurrencyID][2]common.Big{}
+func calculateKYCItemsFee(getStateFunc base.GetStateFunc, items []KYCItem) (map[types.CurrencyID][2]common.Big, error) {
+	required := map[types.CurrencyID][2]common.Big{}
 
 	for _, item := range items {
 		rq := [2]common.Big{common.ZeroBig, common.ZeroBig}
@@ -282,7 +282,7 @@ func calculateKYCItemsFee(getStateFunc base.GetStateFunc, items []KYCItem) (map[
 			rq = k
 		}
 
-		policy, err := currencystate.ExistsCurrencyPolicy(item.Currency(), getStateFunc)
+		policy, err := state.ExistsCurrencyPolicy(item.Currency(), getStateFunc)
 		if err != nil {
 			return nil, err
 		}

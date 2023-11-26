@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
-	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum-sto/digest"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
@@ -74,10 +74,10 @@ func (cmd *RunCommand) Run(pctx context.Context) error {
 		launch.ACLFlagsContextKey:        cmd.ACLFlags,
 	})
 
-	pps := currencycmds.DefaultRunPS()
+	pps := crcycmds.DefaultRunPS()
 
-	_ = pps.AddOK(currencycmds.PNameDigester, ProcessDigester, nil, currencycmds.PNameMongoDBsDataBase).
-		AddOK(currencycmds.PNameStartDigester, ProcessStartDigester, nil, currencycmds.PNameDigestStart)
+	_ = pps.AddOK(crcycmds.PNameDigester, ProcessDigester, nil, crcycmds.PNameMongoDBsDataBase).
+		AddOK(crcycmds.PNameStartDigester, ProcessStartDigester, nil, crcycmds.PNameDigestStart)
 	_ = pps.POK(launch.PNameStorage).PostAddOK(ps.Name("check-hold"), cmd.pCheckHold)
 	_ = pps.POK(launch.PNameStates).
 		PreAddOK(PNameOperationProcessorsMap, POperationProcessorsMap).
@@ -85,10 +85,10 @@ func (cmd *RunCommand) Run(pctx context.Context) error {
 		PreAddOK(ps.Name("when-new-block-confirmed-func"), cmd.pWhenNewBlockConfirmed)
 	_ = pps.POK(launch.PNameEncoder).
 		PostAddOK(launch.PNameAddHinters, PAddHinters)
-	_ = pps.POK(currencycmds.PNameDigest).
-		PostAddOK(currencycmds.PNameDigestAPIHandlers, cmd.pDigestAPIHandlers)
-	_ = pps.POK(currencycmds.PNameDigester).
-		PostAddOK(currencycmds.PNameDigesterFollowUp, PDigesterFollowUp)
+	_ = pps.POK(crcycmds.PNameDigest).
+		PostAddOK(crcycmds.PNameDigestAPIHandlers, cmd.pDigestAPIHandlers)
+	_ = pps.POK(crcycmds.PNameDigester).
+		PostAddOK(crcycmds.PNameDigesterFollowUp, PDigesterFollowUp)
 
 	_ = pps.SetLogging(log)
 
@@ -223,7 +223,7 @@ func (cmd *RunCommand) pWhenNewBlockConfirmed(pctx context.Context) (context.Con
 		return pctx, err
 	}
 
-	if err := util.LoadFromContext(pctx, currencycmds.ContextValueDigester, &di); err != nil {
+	if err := util.LoadFromContext(pctx, crcycmds.ContextValueDigester, &di); err != nil {
 		return pctx, err
 	}
 
@@ -335,8 +335,8 @@ func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context,
 		return nil, err
 	}
 
-	var design currencycmds.DigestDesign
-	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestDesign, &design); err != nil {
+	var design crcycmds.DigestDesign
+	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestDesign, &design); err != nil {
 		if errors.Is(err, util.ErrNotFound) {
 			return ctx, nil
 		}
@@ -344,7 +344,7 @@ func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context,
 		return nil, err
 	}
 
-	if (design == currencycmds.DigestDesign{}) {
+	if (design == crcycmds.DigestDesign{}) {
 		return ctx, nil
 	}
 
@@ -353,8 +353,8 @@ func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context,
 		return ctx, err
 	}
 
-	var dnt *currencydigest.HTTP2Server
-	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestNetwork, &dnt); err != nil {
+	var dnt *crcydigest.HTTP2Server
+	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestNetwork, &dnt); err != nil {
 		return ctx, err
 	}
 	router := dnt.Router()
@@ -382,8 +382,8 @@ func (cmd *RunCommand) pDigestAPIHandlers(ctx context.Context) (context.Context,
 	return ctx, nil
 }
 
-func (cmd *RunCommand) loadCache(_ context.Context, design currencycmds.DigestDesign) (currencydigest.Cache, error) {
-	c, err := currencydigest.NewCacheFromURI(design.Cache().String())
+func (cmd *RunCommand) loadCache(_ context.Context, design crcycmds.DigestDesign) (crcydigest.Cache, error) {
+	c, err := crcydigest.NewCacheFromURI(design.Cache().String())
 	if err != nil {
 		cmd.log.Err(err).Str("cache", design.Cache().String()).Msg("failed to connect cache server")
 		cmd.log.Warn().Msg("instead of remote cache server, internal mem cache can be available, `memory://`")
@@ -396,16 +396,16 @@ func (cmd *RunCommand) loadCache(_ context.Context, design currencycmds.DigestDe
 func (cmd *RunCommand) setDigestDefaultHandlers(
 	ctx context.Context,
 	params *launch.LocalParams,
-	cache currencydigest.Cache,
+	cache crcydigest.Cache,
 	router *mux.Router,
-	queue chan currencydigest.RequestWrapper,
-) (*currencydigest.Handlers, error) {
-	var st *currencydigest.Database
-	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
+	queue chan crcydigest.RequestWrapper,
+) (*crcydigest.Handlers, error) {
+	var st *crcydigest.Database
+	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
 		return nil, err
 	}
 
-	handlers := currencydigest.NewHandlers(ctx, params.ISAAC.NetworkID(), encs, enc, st, cache, router, queue)
+	handlers := crcydigest.NewHandlers(ctx, params.ISAAC.NetworkID(), encs, enc, st, cache, router, queue)
 
 	h, err := cmd.setDigestNetworkClient(ctx, params, handlers)
 	if err != nil {
@@ -419,12 +419,12 @@ func (cmd *RunCommand) setDigestDefaultHandlers(
 func (cmd *RunCommand) setDigestHandlers(
 	ctx context.Context,
 	params *launch.LocalParams,
-	cache currencydigest.Cache,
+	cache crcydigest.Cache,
 	router *mux.Router,
 	routes map[string]*mux.Route,
 ) (*digest.Handlers, error) {
-	var st *currencydigest.Database
-	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
+	var st *crcydigest.Database
+	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
 		return nil, err
 	}
 
@@ -436,8 +436,8 @@ func (cmd *RunCommand) setDigestHandlers(
 func (cmd *RunCommand) setDigestNetworkClient(
 	ctx context.Context,
 	params *launch.LocalParams,
-	handlers *currencydigest.Handlers,
-) (*currencydigest.Handlers, error) {
+	handlers *crcydigest.Handlers,
+) (*crcydigest.Handlers, error) {
 	var memberList *quicmemberlist.Memberlist
 	if err := util.LoadFromContextOK(ctx, launch.MemberlistContextKey, &memberList); err != nil {
 		return nil, err

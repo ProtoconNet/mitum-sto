@@ -1,7 +1,7 @@
 package kyc
 
 import (
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -10,7 +10,7 @@ import (
 type KYCItem interface {
 	util.Byter
 	util.IsValider
-	Currency() currencytypes.CurrencyID
+	Currency() types.CurrencyID
 }
 
 var AddControllerItemHint = hint.MustNewHint("mitum-kyc-add-controller-item-v0.0.1")
@@ -19,13 +19,13 @@ type AddControllerItem struct {
 	hint.BaseHinter
 	contract   base.Address
 	controller base.Address
-	currency   currencytypes.CurrencyID
+	currency   types.CurrencyID
 }
 
 func NewAddControllersItem(
 	contract base.Address,
 	controller base.Address,
-	currency currencytypes.CurrencyID,
+	currency types.CurrencyID,
 ) AddControllerItem {
 	return AddControllerItem{
 		BaseHinter: hint.NewBaseHinter(AddControllerItemHint),
@@ -63,7 +63,7 @@ func (it AddControllerItem) Controller() base.Address {
 	return it.controller
 }
 
-func (it AddControllerItem) Currency() currencytypes.CurrencyID {
+func (it AddControllerItem) Currency() types.CurrencyID {
 	return it.currency
 }
 

@@ -77,7 +77,7 @@ func (fact TransferByPartitionFact) IsValid(b []byte) error {
 
 		k := it.tokenholder.String() + it.receiver.String() + it.partition.String()
 		if _, found := founds[k]; found {
-			return util.ErrInvalid.Errorf("duplicate tokenholder-receiver-partition found, %s", k)
+			return util.ErrInvalid.Errorf("duplicate token holder-receiver-partition found, %s", k)
 		}
 
 		founds[k] = struct{}{}

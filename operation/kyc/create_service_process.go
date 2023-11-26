@@ -5,12 +5,12 @@ import (
 	"sync"
 
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencystate "github.com/ProtoconNet/mitum-currency/v3/state"
-	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	kycstate "github.com/ProtoconNet/mitum-sto/state/kyc"
-	kyctypes "github.com/ProtoconNet/mitum-sto/types/kyc"
+	"github.com/ProtoconNet/mitum-currency/v3/state"
+	stcurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	stextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
+	stkyc "github.com/ProtoconNet/mitum-sto/state/kyc"
+	typekyc "github.com/ProtoconNet/mitum-sto/types/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
@@ -32,7 +32,7 @@ type CreateServiceProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewCreateServiceProcessor() currencytypes.GetNewProcessor {
+func NewCreateServiceProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -73,16 +73,16 @@ func (opp *CreateServiceProcessor) PreProcess(
 		return ctx, nil, e.Wrap(err)
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := state.CheckExistsState(stcurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("sender not found, %q: %w", fact.Sender(), err), nil
 	}
 
-	st, err := currencystate.ExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), "key of contract account", getStateFunc)
+	st, err := state.ExistsState(stextension.StateKeyContractAccount(fact.Sender()), "key of contract account", getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("contract account cannot create kyc service, %q: %w", fact.Sender(), err), nil
 	}
 
-	ca, err := extensioncurrency.StateContractAccountValue(st)
+	ca, err := stextension.StateContractAccountValue(st)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("contract account value not found, %q: %w", fact.Contract(), err), nil
 	}
@@ -91,11 +91,11 @@ func (opp *CreateServiceProcessor) PreProcess(
 		return nil, base.NewBaseOperationProcessReasonError("not contract account owner, %q", fact.sender), nil
 	}
 
-	if err := currencystate.CheckNotExistsState(kycstate.StateKeyDesign(fact.Contract()), getStateFunc); err != nil {
+	if err := state.CheckNotExistsState(stkyc.StateKeyDesign(fact.Contract()), getStateFunc); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("kyc service already exists, %s: %w", fact.Contract(), err), nil
 	}
 
-	if err := currencystate.CheckFactSignsByState(fact.Sender(), op.Signs(), getStateFunc); err != nil {
+	if err := state.CheckFactSignsByState(fact.Sender(), op.Signs(), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
@@ -113,24 +113,24 @@ func (opp *CreateServiceProcessor) Process(
 		return nil, nil, e.Wrap(errors.Errorf("expected CreateServiceFact, not %T", op.Fact()))
 	}
 
-	policy := kyctypes.NewPolicy(fact.Controllers())
+	policy := typekyc.NewPolicy(fact.Controllers())
 	if err := policy.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid kyc policy, %s-%s: %w", fact.Contract(), err), nil
 	}
 
-	design := kyctypes.NewDesign(policy)
+	design := typekyc.NewDesign(policy)
 	if err := design.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid kyc design, %s-%s: %w", fact.Contract(), err), nil
 	}
 
 	sts := make([]base.StateMergeValue, 2)
 
-	sts[0] = currencystate.NewStateMergeValue(
-		kycstate.StateKeyDesign(fact.Contract()),
-		kycstate.NewDesignStateValue(design),
+	sts[0] = state.NewStateMergeValue(
+		stkyc.StateKeyDesign(fact.Contract()),
+		stkyc.NewDesignStateValue(design),
 	)
 
-	currencyPolicy, err := currencystate.ExistsCurrencyPolicy(fact.Currency(), getStateFunc)
+	currencyPolicy, err := state.ExistsCurrencyPolicy(fact.Currency(), getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("currency not found, %q: %w", fact.Currency(), err), nil
 	}
@@ -140,26 +140,26 @@ func (opp *CreateServiceProcessor) Process(
 		return nil, base.NewBaseOperationProcessReasonError("failed to check fee of currency, %q: %w", fact.Currency(), err), nil
 	}
 
-	st, err := currencystate.ExistsState(currency.StateKeyBalance(fact.Sender(), fact.Currency()), "key of sender balance", getStateFunc)
+	st, err := state.ExistsState(stcurrency.StateKeyBalance(fact.Sender(), fact.Currency()), "key of sender balance", getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("sender balance not found, %q: %w", fact.Sender(), err), nil
 	}
-	sb := currencystate.NewStateMergeValue(st.Key(), st.Value())
+	sb := state.NewStateMergeValue(st.Key(), st.Value())
 
-	switch b, err := currency.StateBalanceValue(st); {
+	switch b, err := stcurrency.StateBalanceValue(st); {
 	case err != nil:
-		return nil, base.NewBaseOperationProcessReasonError("failed to get balance value, %q: %w", currency.StateKeyBalance(fact.Sender(), fact.Currency()), err), nil
+		return nil, base.NewBaseOperationProcessReasonError("failed to get balance value, %q: %w", stcurrency.StateKeyBalance(fact.Sender(), fact.Currency()), err), nil
 	case b.Big().Compare(fee) < 0:
 		return nil, base.NewBaseOperationProcessReasonError("not enough balance of sender, %q", fact.Sender()), nil
 	}
 
-	v, ok := sb.Value().(currency.BalanceStateValue)
+	v, ok := sb.Value().(stcurrency.BalanceStateValue)
 	if !ok {
 		return nil, base.NewBaseOperationProcessReasonError("expected BalanceStateValue, not %T", sb.Value()), nil
 	}
-	sts[1] = currencystate.NewStateMergeValue(
+	sts[1] = state.NewStateMergeValue(
 		sb.Key(),
-		currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(fee))),
+		stcurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(fee))),
 	)
 
 	return sts, nil, nil

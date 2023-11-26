@@ -3,22 +3,21 @@ package cmds
 import (
 	"context"
 
-	"github.com/pkg/errors"
-
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	"github.com/ProtoconNet/mitum2/base"
+	"github.com/pkg/errors"
 )
 
 type IssueSecurityTokensCommand struct {
 	BaseCommand
-	currencycmds.OperationFlags
-	Sender    currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract  currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	Receiver  currencycmds.AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
-	Amount    currencycmds.BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
-	Partition PartitionFlag               `arg:"" name:"partition" help:"partition" required:"true"`
-	Currency  currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	crcycmds.OperationFlags
+	Sender    crcycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract  crcycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	Receiver  crcycmds.AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
+	Amount    crcycmds.BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
+	Partition PartitionFlag           `arg:"" name:"partition" help:"partition" required:"true"`
+	Currency  crcycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender    base.Address
 	contract  base.Address
 	receiver  base.Address
@@ -41,7 +40,7 @@ func (cmd *IssueSecurityTokensCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	currencycmds.PrettyPrint(cmd.Out, op)
+	crcycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

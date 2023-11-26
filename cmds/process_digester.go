@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/ProtoconNet/mitum-sto/digest"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
-	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum2/base"
 	isaacblock "github.com/ProtoconNet/mitum2/isaac/block"
 	isaacdatabase "github.com/ProtoconNet/mitum2/isaac/database"
@@ -22,8 +22,8 @@ func ProcessDigester(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	var st *currencydigest.Database
-	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
+	var st *crcydigest.Database
+	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
 		return ctx, err
 	}
 
@@ -40,12 +40,12 @@ func ProcessDigester(ctx context.Context) (context.Context, error) {
 	di := digest.NewDigester(st, root, nil)
 	_ = di.SetLogging(log)
 
-	return context.WithValue(ctx, currencycmds.ContextValueDigester, di), nil
+	return context.WithValue(ctx, crcycmds.ContextValueDigester, di), nil
 }
 
 func ProcessStartDigester(ctx context.Context) (context.Context, error) {
 	var di *digest.Digester
-	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigester, &di); err != nil {
+	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigester, &di); err != nil {
 		return ctx, err
 	}
 	if di == nil {
@@ -68,8 +68,8 @@ func PDigesterFollowUp(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	var st *currencydigest.Database
-	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
+	var st *crcydigest.Database
+	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
 		return ctx, err
 	}
 	if st == nil {
@@ -101,8 +101,8 @@ func PDigesterFollowUp(ctx context.Context) (context.Context, error) {
 }
 
 func digestFollowup(ctx context.Context, height base.Height) error {
-	var st *currencydigest.Database
-	if err := util.LoadFromContextOK(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
+	var st *crcydigest.Database
+	if err := util.LoadFromContextOK(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
 		return err
 	}
 

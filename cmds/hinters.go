@@ -1,14 +1,13 @@
 package cmds
 
 import (
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/kyc"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
-	kycstate "github.com/ProtoconNet/mitum-sto/state/kyc"
-	stostate "github.com/ProtoconNet/mitum-sto/state/sto"
-	kyctypes "github.com/ProtoconNet/mitum-sto/types/kyc"
-	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
-
+	stkyc "github.com/ProtoconNet/mitum-sto/state/kyc"
+	ststo "github.com/ProtoconNet/mitum-sto/state/sto"
+	typekyc "github.com/ProtoconNet/mitum-sto/types/kyc"
+	typesto "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/pkg/errors"
@@ -19,15 +18,15 @@ var SupportedProposalOperationFactHinters []encoder.DecodeDetail
 
 var AddedHinters = []encoder.DecodeDetail{
 	// revive:disable-next-line:line-length-limit
-	{Hint: stostate.DesignStateValueHint, Instance: stostate.DesignStateValue{}},
-	{Hint: stostate.TokenHolderPartitionsStateValueHint, Instance: stostate.TokenHolderPartitionsStateValue{}},
-	{Hint: stostate.TokenHolderPartitionBalanceStateValueHint, Instance: stostate.TokenHolderPartitionBalanceStateValue{}},
-	{Hint: stostate.TokenHolderPartitionOperatorsStateValueHint, Instance: stostate.TokenHolderPartitionOperatorsStateValue{}},
-	{Hint: stostate.PartitionBalanceStateValueHint, Instance: stostate.PartitionBalanceStateValue{}},
-	{Hint: stostate.OperatorTokenHoldersStateValueHint, Instance: stostate.OperatorTokenHoldersStateValue{}},
-	{Hint: stotypes.DesignHint, Instance: stotypes.Design{}},
-	{Hint: stotypes.DocumentHint, Instance: stotypes.Document{}},
-	{Hint: stotypes.PolicyHint, Instance: stotypes.Policy{}},
+	{Hint: ststo.DesignStateValueHint, Instance: ststo.DesignStateValue{}},
+	{Hint: ststo.TokenHolderPartitionsStateValueHint, Instance: ststo.TokenHolderPartitionsStateValue{}},
+	{Hint: ststo.TokenHolderPartitionBalanceStateValueHint, Instance: ststo.TokenHolderPartitionBalanceStateValue{}},
+	{Hint: ststo.TokenHolderPartitionOperatorsStateValueHint, Instance: ststo.TokenHolderPartitionOperatorsStateValue{}},
+	{Hint: ststo.PartitionBalanceStateValueHint, Instance: ststo.PartitionBalanceStateValue{}},
+	{Hint: ststo.OperatorTokenHoldersStateValueHint, Instance: ststo.OperatorTokenHoldersStateValue{}},
+	{Hint: typesto.DesignHint, Instance: typesto.Design{}},
+	{Hint: typesto.DocumentHint, Instance: typesto.Document{}},
+	{Hint: typesto.PolicyHint, Instance: typesto.Policy{}},
 	{Hint: sto.CreateSecurityTokenItemHint, Instance: sto.CreateSecurityTokenItem{}},
 	{Hint: sto.CreateSecurityTokenHint, Instance: sto.CreateSecurityToken{}},
 	{Hint: sto.IssueItemHint, Instance: sto.IssueItem{}},
@@ -42,10 +41,10 @@ var AddedHinters = []encoder.DecodeDetail{
 	{Hint: sto.RevokeOperatorHint, Instance: sto.RevokeOperator{}},
 	{Hint: sto.SetDocumentHint, Instance: sto.SetDocument{}},
 
-	{Hint: kyctypes.DesignHint, Instance: kyctypes.Design{}},
-	{Hint: kycstate.DesignStateValueHint, Instance: kycstate.DesignStateValue{}},
-	{Hint: kyctypes.PolicyHint, Instance: kyctypes.Policy{}},
-	{Hint: kycstate.CustomerStateValueHint, Instance: kycstate.CustomerStateValue{}},
+	{Hint: typekyc.DesignHint, Instance: typekyc.Design{}},
+	{Hint: stkyc.DesignStateValueHint, Instance: stkyc.DesignStateValue{}},
+	{Hint: typekyc.PolicyHint, Instance: typekyc.Policy{}},
+	{Hint: stkyc.CustomerStateValueHint, Instance: stkyc.CustomerStateValue{}},
 	{Hint: kyc.CreateServiceHint, Instance: kyc.CreateService{}},
 	{Hint: kyc.AddControllerItemHint, Instance: kyc.AddControllerItem{}},
 	{Hint: kyc.AddControllerHint, Instance: kyc.AddController{}},
@@ -75,23 +74,23 @@ var AddedSupportedHinters = []encoder.DecodeDetail{
 
 func init() {
 	defaultLen := len(launch.Hinters)
-	currencyExtendedLen := defaultLen + len(currencycmds.AddedHinters)
+	currencyExtendedLen := defaultLen + len(crcycmds.AddedHinters)
 	allExtendedLen := currencyExtendedLen + len(AddedHinters)
 
 	Hinters = make([]encoder.DecodeDetail, allExtendedLen)
 	copy(Hinters, launch.Hinters)
-	copy(Hinters[defaultLen:currencyExtendedLen], currencycmds.AddedHinters)
+	copy(Hinters[defaultLen:currencyExtendedLen], crcycmds.AddedHinters)
 	copy(Hinters[currencyExtendedLen:], AddedHinters)
 
 	defaultSupportedLen := len(launch.SupportedProposalOperationFactHinters)
-	currencySupportedExtendedLen := defaultSupportedLen + len(currencycmds.AddedSupportedHinters)
+	currencySupportedExtendedLen := defaultSupportedLen + len(crcycmds.AddedSupportedHinters)
 	allSupportedExtendedLen := currencySupportedExtendedLen + len(AddedSupportedHinters)
 
 	SupportedProposalOperationFactHinters = make(
 		[]encoder.DecodeDetail,
 		allSupportedExtendedLen)
 	copy(SupportedProposalOperationFactHinters, launch.SupportedProposalOperationFactHinters)
-	copy(SupportedProposalOperationFactHinters[defaultSupportedLen:currencySupportedExtendedLen], currencycmds.AddedSupportedHinters)
+	copy(SupportedProposalOperationFactHinters[defaultSupportedLen:currencySupportedExtendedLen], crcycmds.AddedSupportedHinters)
 	copy(SupportedProposalOperationFactHinters[currencySupportedExtendedLen:], AddedSupportedHinters)
 }
 

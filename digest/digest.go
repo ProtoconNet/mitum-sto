@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
+	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/isaac"
 	isaacblock "github.com/ProtoconNet/mitum2/isaac/block"
@@ -22,13 +22,13 @@ type Digester struct {
 	sync.RWMutex
 	*util.ContextDaemon
 	*logging.Logging
-	database    *currencydigest.Database
+	database    *crcydigest.Database
 	localfsRoot string
 	blockChan   chan base.BlockMap
 	errChan     chan error
 }
 
-func NewDigester(st *currencydigest.Database, root string, errChan chan error) *Digester {
+func NewDigester(st *crcydigest.Database, root string, errChan chan error) *Digester {
 	di := &Digester{
 		Logging: logging.NewLogging(func(c zerolog.Context) zerolog.Context {
 			return c.Str("module", "digester")
@@ -45,7 +45,7 @@ func NewDigester(st *currencydigest.Database, root string, errChan chan error) *
 }
 
 func (di *Digester) start(ctx context.Context) error {
-	errch := func(err currencydigest.DigestError) {
+	errch := func(err crcydigest.DigestError) {
 		if di.errChan == nil {
 			return
 		}
@@ -63,7 +63,7 @@ end:
 		case blk := <-di.blockChan:
 			err := util.Retry(ctx, func() (bool, error) {
 				if err := di.digest(ctx, blk); err != nil {
-					go errch(currencydigest.NewDigestError(err, blk.Manifest().Height()))
+					go errch(crcydigest.NewDigestError(err, blk.Manifest().Height()))
 
 					if errors.Is(err, context.Canceled) {
 						return false, isaac.ErrStopProcessingRetry.Wrap(err)
@@ -80,7 +80,7 @@ end:
 				di.Log().Info().Int64("block", blk.Manifest().Height().Int64()).Msg("block digested")
 			}
 
-			go errch(currencydigest.NewDigestError(err, blk.Manifest().Height()))
+			go errch(crcydigest.NewDigestError(err, blk.Manifest().Height()))
 		}
 	}
 
@@ -151,7 +151,7 @@ func (di *Digester) digest(ctx context.Context, blk base.BlockMap) error {
 
 func DigestBlock(
 	ctx context.Context,
-	st *currencydigest.Database,
+	st *crcydigest.Database,
 	blk base.BlockMap,
 	ops []base.Operation,
 	opstree fixedtree.Tree,

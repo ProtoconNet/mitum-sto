@@ -23,7 +23,7 @@ type TransferByPartitionItem struct {
 
 func NewTransferByPartitionItem(
 	contract base.Address,
-	tokenholder, receiver base.Address,
+	tokenHolder, receiver base.Address,
 	partition stotypes.Partition,
 	amount common.Big,
 	currency currencytypes.CurrencyID,
@@ -31,7 +31,7 @@ func NewTransferByPartitionItem(
 	return TransferByPartitionItem{
 		BaseHinter:  hint.NewBaseHinter(TransferByPartitionItemHint),
 		contract:    contract,
-		tokenholder: tokenholder,
+		tokenholder: tokenHolder,
 		receiver:    receiver,
 		partition:   partition,
 		amount:      amount,
@@ -67,7 +67,7 @@ func (it TransferByPartitionItem) IsValid([]byte) error {
 	}
 
 	if it.contract.Equal(it.tokenholder) {
-		return util.ErrInvalid.Errorf("contract address is same with tokenholder, %q", it.contract)
+		return util.ErrInvalid.Errorf("contract address is same with token holder, %q", it.contract)
 	}
 
 	if it.contract.Equal(it.receiver) {
@@ -75,7 +75,7 @@ func (it TransferByPartitionItem) IsValid([]byte) error {
 	}
 
 	if it.receiver.Equal(it.tokenholder) {
-		return util.ErrInvalid.Errorf("tokenholder is same with receiver, %q", it.receiver)
+		return util.ErrInvalid.Errorf("token holder is same with receiver, %q", it.receiver)
 	}
 
 	return nil

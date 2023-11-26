@@ -81,28 +81,22 @@ func (opp *SetDocumentProcessor) PreProcess(
 		return nil, base.NewBaseOperationProcessReasonError("contract account cannot update sto documents, %q: %w", fact.Sender(), err), nil
 	}
 
+	st, err := currencystate.ExistsState(extensioncurrency.StateKeyContractAccount(fact.Contract()), "key of contract account", getStateFunc)
+	if err != nil {
+		return nil, base.NewBaseOperationProcessReasonError("target contract account not found, %q; %w", fact.Contract(), err), nil
+	}
+
+	ca, err := extensioncurrency.StateContractAccountValue(st)
+	if err != nil {
+		return nil, base.NewBaseOperationProcessReasonError("failed to get state value of contract account, %q; %w", fact.Contract(), err), nil
+	}
+
+	if !(ca.Owner().Equal(fact.Sender()) || ca.IsOperator(fact.Sender())) {
+		return nil, base.NewBaseOperationProcessReasonError("sender is neither the owner nor the operator of the target contract account, %q", fact.sender), nil
+	}
+
 	if err := currencystate.CheckFactSignsByState(fact.Sender(), op.Signs(), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
-	}
-
-	policy, err := stostate.ExistsPolicy(fact.Contract(), getStateFunc)
-	if err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("sto policy not found, %s: %w", fact.Contract(), err), nil
-	}
-
-	controllers := policy.Controllers()
-	if len(controllers) == 0 {
-		return nil, base.NewBaseOperationProcessReasonError("empty controllers, %s", fact.Contract()), nil
-	}
-
-	for i, con := range controllers {
-		if con.Equal(fact.Sender()) {
-			break
-		}
-
-		if i == len(controllers)-1 {
-			return nil, base.NewBaseOperationProcessReasonError("sender is not controller of sto, %q, %s", fact.Sender(), fact.Contract()), nil
-		}
 	}
 
 	return ctx, nil, nil
@@ -135,7 +129,7 @@ func (opp *SetDocumentProcessor) Process(
 	}
 	Policy := design.Policy()
 
-	Policy = stotypes.NewPolicy(Policy.Partitions(), Policy.Aggregate(), Policy.Controllers(), append(Policy.Documents(), doc))
+	Policy = stotypes.NewPolicy(Policy.Partitions(), Policy.Aggregate(), append(Policy.Documents(), doc))
 	if err := Policy.IsValid(nil); err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("invalid sto policy, %s: %w", fact.Contract(), err), nil
 	}

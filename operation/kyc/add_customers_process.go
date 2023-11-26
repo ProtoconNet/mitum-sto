@@ -4,12 +4,12 @@ import (
 	"context"
 	"sync"
 
-	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
-	currencystate "github.com/ProtoconNet/mitum-currency/v3/state"
-	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	kycstate "github.com/ProtoconNet/mitum-sto/state/kyc"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	"github.com/ProtoconNet/mitum-currency/v3/state"
+	stcurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	stextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
+	stkyc "github.com/ProtoconNet/mitum-sto/state/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
@@ -44,18 +44,18 @@ func (ipp *AddCustomerItemProcessor) PreProcess(
 ) error {
 	it := ipp.item
 
-	st, err := currencystate.ExistsState(extensioncurrency.StateKeyContractAccount(it.Contract()), "key of contract account", getStateFunc)
+	st, err := state.ExistsState(stextension.StateKeyContractAccount(it.Contract()), "key of contract account", getStateFunc)
 	if err != nil {
 		return err
 	}
 
-	ca, err := extensioncurrency.StateContractAccountValue(st)
+	ca, err := stextension.StateContractAccountValue(st)
 	if err != nil {
 		return err
 	}
 
 	if !ca.Owner().Equal(ipp.sender) {
-		policy, err := kycstate.ExistsPolicy(it.Contract(), getStateFunc)
+		policy, err := stkyc.ExistsPolicy(it.Contract(), getStateFunc)
 		if err != nil {
 			return err
 		}
@@ -76,11 +76,11 @@ func (ipp *AddCustomerItemProcessor) PreProcess(
 		}
 	}
 
-	if err := currencystate.CheckNotExistsState(kycstate.StateKeyCustomer(it.Contract(), it.Customer()), getStateFunc); err != nil {
+	if err := state.CheckNotExistsState(stkyc.StateKeyCustomer(it.Contract(), it.Customer()), getStateFunc); err != nil {
 		return err
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
+	if err := state.CheckExistsState(stcurrency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
 		return err
 	}
 
@@ -92,9 +92,9 @@ func (ipp *AddCustomerItemProcessor) Process(
 ) ([]base.StateMergeValue, error) {
 	it := ipp.item
 
-	v := currencystate.NewStateMergeValue(
-		kycstate.StateKeyCustomer(it.Contract(), it.Customer()),
-		kycstate.NewCustomerStateValue(kycstate.Status(it.Status())),
+	v := state.NewStateMergeValue(
+		stkyc.StateKeyCustomer(it.Contract(), it.Customer()),
+		stkyc.NewCustomerStateValue(stkyc.Status(it.Status())),
 	)
 
 	sts := []base.StateMergeValue{v}
@@ -116,7 +116,7 @@ type AddCustomerProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewAddCustomerProcessor() currencytypes.GetNewProcessor {
+func NewAddCustomerProcessor() types.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -157,15 +157,15 @@ func (opp *AddCustomerProcessor) PreProcess(
 		return ctx, nil, e.Wrap(err)
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := state.CheckExistsState(stcurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("sender not found, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := state.CheckNotExistsState(stextension.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot add customer status, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
+	if err := state.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
@@ -234,18 +234,18 @@ func (opp *AddCustomerProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
 
 	for i := range sb {
-		v, ok := sb[i].Value().(currency.BalanceStateValue)
+		v, ok := sb[i].Value().(stcurrency.BalanceStateValue)
 		if !ok {
 			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
 		}
-		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))
+		stv := stcurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
+		sts = append(sts, state.NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil

@@ -14,7 +14,7 @@ var IssueItemHint = hint.MustNewHint("mitum-sto-issue-item-v0.0.1")
 type IssueItem struct {
 	hint.BaseHinter
 	contract  base.Address             // contract
-	receiver  base.Address             // tokenholder
+	receiver  base.Address             // token holder
 	amount    common.Big               // amount
 	partition stotypes.Partition       // partition
 	currency  currencytypes.CurrencyID // fee

@@ -3,23 +3,22 @@ package cmds
 import (
 	"context"
 
-	"github.com/pkg/errors"
-
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	"github.com/ProtoconNet/mitum2/base"
+	"github.com/pkg/errors"
 )
 
 type TransferSecurityTokensPartitionCommand struct {
 	BaseCommand
-	currencycmds.OperationFlags
-	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	TokenHolder currencycmds.AddressFlag    `arg:"" name:"tokenholder" help:"tokenholder" required:"true"`
-	Receiver    currencycmds.AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
-	Partition   PartitionFlag               `arg:"" name:"partition" help:"partition" required:"true"`
-	Amount      currencycmds.BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
-	Currency    currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	crcycmds.OperationFlags
+	Sender      crcycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract    crcycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	TokenHolder crcycmds.AddressFlag    `arg:"" name:"token holder" help:"token holder" required:"true"`
+	Receiver    crcycmds.AddressFlag    `arg:"" name:"receiver" help:"token receiver" required:"true"`
+	Partition   PartitionFlag           `arg:"" name:"partition" help:"partition" required:"true"`
+	Amount      crcycmds.BigFlag        `arg:"" name:"amount" help:"token amount" required:"true"`
+	Currency    crcycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender      base.Address
 	contract    base.Address
 	holder      base.Address
@@ -43,7 +42,7 @@ func (cmd *TransferSecurityTokensPartitionCommand) Run(pctx context.Context) err
 		return err
 	}
 
-	currencycmds.PrettyPrint(cmd.Out, op)
+	crcycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }
@@ -67,7 +66,7 @@ func (cmd *TransferSecurityTokensPartitionCommand) parseFlags() error {
 
 	holder, err := cmd.TokenHolder.Encode(enc)
 	if err != nil {
-		return errors.Wrapf(err, "invalid tokenholder format, %q", cmd.TokenHolder.String())
+		return errors.Wrapf(err, "invalid token holder format, %q", cmd.TokenHolder.String())
 	}
 	cmd.holder = holder
 

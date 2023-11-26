@@ -5,23 +5,21 @@ import (
 
 	"github.com/pkg/errors"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type CreateSecurityTokensCommand struct {
 	BaseCommand
-	currencycmds.OperationFlags
-	Sender      currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract    currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	Granularity uint64                      `arg:"" name:"granularity" help:"granularity" required:"true"`
-	Partition   PartitionFlag               `arg:"" name:"default-partition" help:"default partition" required:"true"`
-	Currency    currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
-	Controller  currencycmds.AddressFlag    `name:"controller" help:"controller"`
+	crcycmds.OperationFlags
+	Sender      crcycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract    crcycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	Granularity uint64                  `arg:"" name:"granularity" help:"granularity" required:"true"`
+	Partition   PartitionFlag           `arg:"" name:"default-partition" help:"default partition" required:"true"`
+	Currency    crcycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender      base.Address
 	contract    base.Address
-	controllers []base.Address
 }
 
 func (cmd *CreateSecurityTokensCommand) Run(pctx context.Context) error {
@@ -41,7 +39,7 @@ func (cmd *CreateSecurityTokensCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	currencycmds.PrettyPrint(cmd.Out, op)
+	crcycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }
@@ -63,14 +61,6 @@ func (cmd *CreateSecurityTokensCommand) parseFlags() error {
 	}
 	cmd.contract = contract
 
-	if cmd.Controller.String() != "" {
-		controller, err := cmd.Controller.Encode(enc)
-		if err != nil {
-			return errors.Wrapf(err, "invalid controller format, %q", controller)
-		}
-		cmd.controllers = []base.Address{controller}
-	}
-
 	return nil
 }
 
@@ -81,7 +71,7 @@ func (cmd *CreateSecurityTokensCommand) createOperation() (base.Operation, error
 		cmd.contract,
 		cmd.Granularity,
 		cmd.Partition.Partition,
-		cmd.controllers,
+		//cmd.controllers,
 		cmd.Currency.CID,
 	)
 	if err := item.IsValid(nil); err != nil {

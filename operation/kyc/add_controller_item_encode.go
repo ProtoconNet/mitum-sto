@@ -1,7 +1,7 @@
 package kyc
 
 import (
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -12,7 +12,7 @@ func (it *AddControllerItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, con, 
 	e := util.StringError("failed to unmarshal AddControllerItem")
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
-	it.currency = currencytypes.CurrencyID(cid)
+	it.currency = types.CurrencyID(cid)
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:

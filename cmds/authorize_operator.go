@@ -5,19 +5,19 @@ import (
 
 	"github.com/pkg/errors"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type AuthorizeOperatorsCommand struct {
 	BaseCommand
-	currencycmds.OperationFlags
-	Sender    currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract  currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	Operator  currencycmds.AddressFlag    `arg:"" name:"operator" help:"operator" required:"true"`
-	Partition PartitionFlag               `arg:"" name:"partition" help:"default partition" required:"true"`
-	Currency  currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	crcycmds.OperationFlags
+	Sender    crcycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract  crcycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	Operator  crcycmds.AddressFlag    `arg:"" name:"operator" help:"operator" required:"true"`
+	Partition PartitionFlag           `arg:"" name:"partition" help:"default partition" required:"true"`
+	Currency  crcycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender    base.Address
 	contract  base.Address
 	operator  base.Address
@@ -40,7 +40,7 @@ func (cmd *AuthorizeOperatorsCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	currencycmds.PrettyPrint(cmd.Out, op)
+	crcycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

@@ -2,27 +2,20 @@ package sto
 
 import (
 	"context"
-	"math/big"
 	"sync"
 
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
-	currencystate "github.com/ProtoconNet/mitum-currency/v3/state"
-	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	stostate "github.com/ProtoconNet/mitum-sto/state/sto"
-	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	crcstate "github.com/ProtoconNet/mitum-currency/v3/state"
+	stcurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	stextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	crctypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	ststo "github.com/ProtoconNet/mitum-sto/state/sto"
+	typesto "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
 )
-
-var transferByPartitionItemProcessorPool = sync.Pool{
-	New: func() interface{} {
-		return new(TransferByPartitionItemProcessor)
-	},
-}
 
 var transferByPartitionProcessorPool = sync.Pool{
 	New: func() interface{} {
@@ -36,233 +29,11 @@ func (TransferByPartition) Process(
 	return nil, nil, nil
 }
 
-type TransferByPartitionItemProcessor struct {
-	h          util.Hash
-	sender     base.Address
-	item       TransferByPartitionItem
-	partitions map[string][]stotypes.Partition
-	balances   map[string]common.Big
-}
-
-func (ipp *TransferByPartitionItemProcessor) PreProcess(
-	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
-) error {
-	it := ipp.item
-
-	if err := currencystate.CheckExistsState(extensioncurrency.StateKeyContractAccount(it.Contract()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(it.TokenHolder()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckNotExistsState(extensioncurrency.StateKeyContractAccount(it.TokenHolder()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(it.Receiver()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckNotExistsState(extensioncurrency.StateKeyContractAccount(it.Receiver()), getStateFunc); err != nil {
-		return err
-	}
-
-	partitions := ipp.partitions[stostate.StateKeyTokenHolderPartitions(it.Contract(), it.TokenHolder())]
-	if len(partitions) == 0 {
-		return errors.Errorf("empty tokenholder partitions, %s-%s", it.Contract(), it.TokenHolder())
-	}
-
-	for i, p := range partitions {
-		if p == it.Partition() {
-			break
-		}
-
-		if i == len(partitions)-1 {
-			return errors.Errorf("partition not in tokenholder partitions, %s-%s, %q", it.Contract(), it.TokenHolder(), it.Partition())
-		}
-	}
-
-	st, err := currencystate.ExistsState(stostate.StateKeyDesign(it.Contract()), "key of sto design", getStateFunc)
-	if err != nil {
-		return err
-	}
-
-	design, err := stostate.StateDesignValue(st)
-	if err != nil {
-		return err
-	}
-
-	policy := design.Policy()
-
-	if !it.TokenHolder().Equal(ipp.sender) {
-		controllers := policy.Controllers()
-		isController, isOperator := false, false
-
-		for _, con := range controllers {
-			if con.Equal(ipp.sender) {
-				isController = true
-				break
-			}
-		}
-
-		if !isController {
-			st, err := currencystate.ExistsState(stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.TokenHolder(), it.Partition()), "key of tokenholder partition operators", getStateFunc)
-			if err != nil {
-				return err
-			}
-
-			operators, err := stostate.StateTokenHolderPartitionOperatorsValue(st)
-			if err != nil {
-				return err
-			}
-
-			for _, op := range operators {
-				if op.Equal(ipp.sender) {
-					isOperator = true
-					break
-				}
-			}
-		}
-
-		if !(isController || isOperator) {
-			return errors.Errorf("sender is neither controller nor operator, %s, %q", it.Partition(), ipp.sender)
-		}
-	}
-
-	gn := new(big.Int)
-	gn.SetUint64(design.Granularity())
-
-	if mod := common.NewBigFromBigInt(new(big.Int)).Mod(it.Amount().Int, gn); common.NewBigFromBigInt(mod).OverZero() {
-		return errors.Errorf("amount unit does not comply with sto granularity rule, %q, %q", it.Amount(), design.Granularity())
-	}
-
-	if err := currencystate.CheckExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (ipp *TransferByPartitionItemProcessor) Process(
-	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
-) ([]base.StateMergeValue, error) {
-	it := ipp.item
-
-	partitionsKey := stostate.StateKeyTokenHolderPartitions(it.Contract(), it.TokenHolder())
-	balanceKey := stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition())
-
-	receiverPartitionsKey := stostate.StateKeyTokenHolderPartitions(it.Contract(), it.Receiver())
-	receiverBalanceKey := stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.Receiver(), it.Partition())
-
-	balance := ipp.balances[balanceKey]
-	partitions := ipp.partitions[partitionsKey]
-
-	receiverBalance := ipp.balances[receiverBalanceKey]
-	receiverPartitions := ipp.partitions[receiverPartitionsKey]
-
-	balance = balance.Sub(it.Amount())
-	receiverBalance = receiverBalance.Add(it.Amount())
-
-	sts := []base.StateMergeValue{}
-
-	if !balance.OverZero() {
-		for i, p := range partitions {
-			if p == it.Partition() {
-				if i < len(partitions)-1 {
-					copy(partitions[i:], partitions[i+1:])
-				}
-				partitions = partitions[:len(partitions)-1]
-			}
-		}
-
-		opk := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), it.TokenHolder(), it.Partition())
-
-		var operators []base.Address
-		switch st, found, err := getStateFunc(opk); {
-		case err != nil:
-			return nil, err
-		case found:
-			operators, err = stostate.StateTokenHolderPartitionOperatorsValue(st)
-			if err != nil {
-				return nil, err
-			}
-		default:
-			operators = []base.Address{}
-		}
-
-		sts = append(sts, currencystate.NewStateMergeValue(
-			opk, stostate.NewTokenHolderPartitionOperatorsStateValue([]base.Address{}),
-		))
-
-		for _, op := range operators {
-			thk := stostate.StateKeyOperatorTokenHolders(it.Contract(), op, it.Partition())
-
-			st, err := currencystate.ExistsState(thk, "key of operator tokenholders", getStateFunc)
-			if err != nil {
-				return nil, err
-			}
-
-			holders, err := stostate.StateOperatorTokenHoldersValue(st)
-			if err != nil {
-				return nil, err
-			}
-
-			for i, th := range holders {
-				if th.Equal(it.TokenHolder()) {
-					if i < len(holders)-1 {
-						copy(holders[i:], holders[i+1:])
-					}
-					holders = holders[:len(holders)-1]
-				}
-			}
-
-			sts = append(sts, currencystate.NewStateMergeValue(
-				thk, stostate.NewOperatorTokenHoldersStateValue(holders),
-			))
-		}
-	}
-
-	if len(receiverPartitions) == 0 {
-		receiverPartitions = append(receiverPartitions, it.Partition())
-	} else {
-		for i, p := range receiverPartitions {
-			if p == it.Partition() {
-				break
-			}
-
-			if i == len(receiverPartitions)-1 {
-				receiverPartitions = append(receiverPartitions, it.Partition())
-			}
-		}
-	}
-
-	ipp.partitions[partitionsKey] = partitions
-	ipp.partitions[receiverPartitionsKey] = receiverPartitions
-	ipp.balances[balanceKey] = balance
-	ipp.balances[receiverBalanceKey] = receiverBalance
-
-	return sts, nil
-}
-
-func (ipp *TransferByPartitionItemProcessor) Close() error {
-	ipp.h = nil
-	ipp.sender = nil
-	ipp.item = TransferByPartitionItem{}
-	ipp.balances = nil
-	ipp.partitions = nil
-
-	transferByPartitionItemProcessorPool.Put(ipp)
-
-	return nil
-}
-
 type TransferByPartitionProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewTransferByPartitionProcessor() currencytypes.GetNewProcessor {
+func NewTransferByPartitionProcessor() crctypes.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -303,27 +74,33 @@ func (opp *TransferByPartitionProcessor) PreProcess(
 		return ctx, nil, e.Wrap(err)
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := crcstate.CheckExistsState(stcurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("sender not found, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
-		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot issue security tokens, %q: %w", fact.Sender(), err), nil
+	if err := crcstate.CheckNotExistsState(stextension.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
+		return ctx, base.NewBaseOperationProcessReasonError(
+			"contract account cannot issue security tokens, %q: %w",
+			fact.Sender(), err,
+		), nil
 	}
 
-	if err := currencystate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
+	if err := crcstate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
-	partitions := map[string][]stotypes.Partition{}
+	partitions := map[string][]typesto.Partition{}
 
 	for _, it := range fact.Items() {
-		k := stostate.StateKeyTokenHolderPartitions(it.Contract(), it.TokenHolder())
+		k := ststo.StateKeyTokenHolderPartitions(it.Contract(), it.TokenHolder())
 
 		if _, found := partitions[k]; !found {
-			pts, err := stostate.ExistsTokenHolderPartitions(it.Contract(), it.TokenHolder(), getStateFunc)
+			pts, err := ststo.ExistsTokenHolderPartitions(it.Contract(), it.TokenHolder(), getStateFunc)
 			if err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partitions value, %q: %w", k, err), nil
+				return nil, base.NewBaseOperationProcessReasonError(
+					"failed to get token holder partitions value, %q: %w",
+					k, err,
+				), nil
 			}
 
 			partitions[k] = pts
@@ -344,14 +121,18 @@ func (opp *TransferByPartitionProcessor) PreProcess(
 		ipc.balances = nil
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess TransferByPartitionItem: %w", err), nil
+			return nil, base.NewBaseOperationProcessReasonError(
+				"fail to preprocess TransferByPartitionItem: %w", err,
+			), nil
 		}
 
 		ipc.Close()
 	}
 
 	if err := checkEnoughTokenHolderBalance(getStateFunc, fact.Items()); err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("not enough tokenholder partition balance: %w", err), nil
+		return nil, base.NewBaseOperationProcessReasonError(
+			"not enough token holder partition balance: %w", err,
+		), nil
 	}
 
 	return ctx, nil, nil
@@ -368,64 +149,79 @@ func (opp *TransferByPartitionProcessor) Process( // nolint:dupl
 		return nil, nil, e.Wrap(errors.Errorf("expected TransferByPartitionFact, not %T", op.Fact()))
 	}
 
-	partitions := map[string][]stotypes.Partition{}
+	partitions := map[string][]typesto.Partition{}
 	balances := map[string]common.Big{}
 
 	for _, it := range fact.Items() {
-		k := stostate.StateKeyTokenHolderPartitions(it.Contract(), it.TokenHolder())
+		k := ststo.StateKeyTokenHolderPartitions(it.Contract(), it.TokenHolder())
 
 		if _, found := partitions[k]; !found {
-			pts, err := stostate.ExistsTokenHolderPartitions(it.Contract(), it.TokenHolder(), getStateFunc)
+			pts, err := ststo.ExistsTokenHolderPartitions(it.Contract(), it.TokenHolder(), getStateFunc)
 			if err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partitions value, %q: %w", k, err), nil
+				return nil, base.NewBaseOperationProcessReasonError(
+					"failed to get token holder partitions value, %q: %w",
+					k, err,
+				), nil
 			}
 
 			partitions[k] = pts
 		}
 
-		k = stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition())
+		k = ststo.StateKeyTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition())
 
 		if _, found := balances[k]; !found {
-			balance, err := stostate.ExistsTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition(), getStateFunc)
+			balance, err := ststo.ExistsTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition(), getStateFunc)
 			if err != nil {
-				return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition balance value, %q: %w", k, err), nil
+				return nil, base.NewBaseOperationProcessReasonError(
+					"failed to get token holder partition balance value, %q: %w",
+					k, err,
+				), nil
 			}
 
 			balances[k] = balance
 		}
 
-		k = stostate.StateKeyTokenHolderPartitions(it.Contract(), it.Receiver())
+		k = ststo.StateKeyTokenHolderPartitions(it.Contract(), it.Receiver())
 
 		if _, found := partitions[k]; !found {
-			var pts []stotypes.Partition
+			var pts []typesto.Partition
 
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partitions, %q: %w", k, err), nil
+				return nil, base.NewBaseOperationProcessReasonError(
+					"failed to get token holder partitions, %q: %w", k, err,
+				), nil
 			case found:
-				pts, err = stostate.StateTokenHolderPartitionsValue(st)
+				pts, err = ststo.StateTokenHolderPartitionsValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partitions value, %q: %w", k, err), nil
+					return nil, base.NewBaseOperationProcessReasonError(
+						"failed to get token holder partitions value, %q: %w",
+						k, err,
+					), nil
 				}
 			default:
-				pts = []stotypes.Partition{}
+				pts = []typesto.Partition{}
 			}
 
 			partitions[k] = pts
 		}
 
-		k = stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.Receiver(), it.Partition())
+		k = ststo.StateKeyTokenHolderPartitionBalance(it.Contract(), it.Receiver(), it.Partition())
 
 		if _, found := balances[k]; !found {
 			var am common.Big
 
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition balance, %q: %w", k, err), nil
+				return nil, base.NewBaseOperationProcessReasonError(
+					"failed to get token holder partition balance, %q: %w", k, err,
+				), nil
 			case found:
-				am, err = stostate.StateTokenHolderPartitionBalanceValue(st)
+				am, err = ststo.StateTokenHolderPartitionBalanceValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition balance value, %q: %w", k, err), nil
+					return nil, base.NewBaseOperationProcessReasonError(
+						"failed to get token holder partition balance value, %q: %w", k, err,
+					), nil
 				}
 			default:
 				am = common.ZeroBig
@@ -453,7 +249,9 @@ func (opp *TransferByPartitionProcessor) Process( // nolint:dupl
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
-			return nil, base.NewBaseOperationProcessReasonError("failed to process TransferByPartitionItem: %w", err), nil
+			return nil, base.NewBaseOperationProcessReasonError(
+				"failed to process TransferByPartitionItem: %w", err,
+			), nil
 		}
 		sts = append(sts, s...)
 
@@ -461,15 +259,21 @@ func (opp *TransferByPartitionProcessor) Process( // nolint:dupl
 	}
 
 	for k, v := range partitions {
-		sts = append(sts, currencystate.NewStateMergeValue(k, stostate.NewTokenHolderPartitionsStateValue(v)))
+		sts = append(sts, crcstate.NewStateMergeValue(k, ststo.NewTokenHolderPartitionsStateValue(v)))
 	}
 
 	for _, it := range fact.Items() {
-		k := stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition())
-		sts = append(sts, currencystate.NewStateMergeValue(k, stostate.NewTokenHolderPartitionBalanceStateValue(balances[k], it.Partition())))
+		k := ststo.StateKeyTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition())
+		sts = append(
+			sts,
+			crcstate.NewStateMergeValue(k, ststo.NewTokenHolderPartitionBalanceStateValue(balances[k], it.Partition())),
+		)
 
-		k = stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.Receiver(), it.Partition())
-		sts = append(sts, currencystate.NewStateMergeValue(k, stostate.NewTokenHolderPartitionBalanceStateValue(balances[k], it.Partition())))
+		k = ststo.StateKeyTokenHolderPartitionBalance(it.Contract(), it.Receiver(), it.Partition())
+		sts = append(
+			sts,
+			crcstate.NewStateMergeValue(k, ststo.NewTokenHolderPartitionBalanceStateValue(balances[k], it.Partition())),
+		)
 	}
 
 	for _, ipc := range ipcs {
@@ -486,18 +290,18 @@ func (opp *TransferByPartitionProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
 
 	for i := range sb {
-		v, ok := sb[i].Value().(currency.BalanceStateValue)
+		v, ok := sb[i].Value().(stcurrency.BalanceStateValue)
 		if !ok {
 			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
 		}
-		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))
+		stv := stcurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
+		sts = append(sts, crcstate.NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil
@@ -514,14 +318,14 @@ func checkEnoughTokenHolderBalance(getStateFunc base.GetStateFunc, items []Trans
 	amounts := map[string]common.Big{}
 
 	for _, it := range items {
-		k := stostate.StateKeyTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition())
+		k := ststo.StateKeyTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition())
 
 		if _, found := balances[k]; found {
 			amounts[k] = amounts[k].Add(it.Amount())
 			continue
 		}
 
-		balance, err := stostate.ExistsTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition(), getStateFunc)
+		balance, err := ststo.ExistsTokenHolderPartitionBalance(it.Contract(), it.TokenHolder(), it.Partition(), getStateFunc)
 		if err != nil {
 			return err
 		}
@@ -532,7 +336,7 @@ func checkEnoughTokenHolderBalance(getStateFunc base.GetStateFunc, items []Trans
 
 	for k, balance := range balances {
 		if balance.Compare(amounts[k]) < 0 {
-			return errors.Errorf("tokenholder partition balance not over total amounts, %q, %q < %q", k, balance, amounts[k])
+			return errors.Errorf("token holder partition balance not over total amounts, %q, %q < %q", k, balance, amounts[k])
 		}
 	}
 

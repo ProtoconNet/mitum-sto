@@ -2,11 +2,11 @@ package digest
 
 import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
+	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum-currency/v3/digest/util"
-	stostate "github.com/ProtoconNet/mitum-sto/state/sto"
-	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
+	ststo "github.com/ProtoconNet/mitum-sto/state/sto"
+	typesto "github.com/ProtoconNet/mitum-sto/types/sto"
+	"github.com/ProtoconNet/mitum2/base"
 	mitumutil "github.com/ProtoconNet/mitum2/util"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -29,24 +29,24 @@ var (
 )
 
 func STOService(
-	st *currencydigest.Database,
+	st *crcydigest.Database,
 	contract string,
-) (*stotypes.Design, error) {
+) (*typesto.Design, error) {
 	filter := util.NewBSONFilter("contract", contract)
 
-	var design stotypes.Design
-	var sta mitumbase.State
+	var design typesto.Design
+	var sta base.State
 	var err error
 	if err := st.DatabaseClient().GetByFilter(
 		defaultColNameSTO,
 		filter.D(),
 		func(res *mongo.SingleResult) error {
-			sta, err = currencydigest.LoadState(res.Decode, st.DatabaseEncoders())
+			sta, err = crcydigest.LoadState(res.Decode, st.DatabaseEncoders())
 			if err != nil {
 				return err
 			}
 
-			design, err = stostate.StateDesignValue(sta)
+			design, err = ststo.StateDesignValue(sta)
 			if err != nil {
 				return err
 			}
@@ -61,26 +61,26 @@ func STOService(
 	return &design, nil
 }
 
-func HolderPartitions(
-	st *currencydigest.Database,
+func STOHolderPartitions(
+	st *crcydigest.Database,
 	contract,
 	holder string,
-) ([]stotypes.Partition, error) {
+) ([]typesto.Partition, error) {
 	filter := util.NewBSONFilter("contract", contract)
 	filter = filter.Add("holder", holder)
 
-	var partitions []stotypes.Partition
-	var sta mitumbase.State
+	var partitions []typesto.Partition
+	var sta base.State
 	var err error
 	if err = st.DatabaseClient().GetByFilter(
 		defaultColNameSTOHolderPartitions,
 		filter.D(),
 		func(res *mongo.SingleResult) error {
-			sta, err = currencydigest.LoadState(res.Decode, st.DatabaseEncoders())
+			sta, err = crcydigest.LoadState(res.Decode, st.DatabaseEncoders())
 			if err != nil {
 				return err
 			}
-			partitions, err = stostate.StateTokenHolderPartitionsValue(sta)
+			partitions, err = ststo.StateTokenHolderPartitionsValue(sta)
 			if err != nil {
 				return err
 			}
@@ -95,8 +95,8 @@ func HolderPartitions(
 	return partitions, nil
 }
 
-func HolderPartitionBalance(
-	st *currencydigest.Database,
+func STOHolderPartitionBalance(
+	st *crcydigest.Database,
 	contract,
 	holder,
 	partition string,
@@ -106,18 +106,18 @@ func HolderPartitionBalance(
 	filter = filter.Add("partition", partition)
 
 	var amount common.Big
-	var sta mitumbase.State
+	var sta base.State
 	var err error
 	if err := st.DatabaseClient().GetByFilter(
 		defaultColNameSTOHolderPartitionBalance,
 		filter.D(),
 		func(res *mongo.SingleResult) error {
-			sta, err = currencydigest.LoadState(res.Decode, st.DatabaseEncoders())
+			sta, err = crcydigest.LoadState(res.Decode, st.DatabaseEncoders())
 			if err != nil {
 				return err
 			}
 
-			amount, err = stostate.StateTokenHolderPartitionBalanceValue(sta)
+			amount, err = ststo.StateTokenHolderPartitionBalanceValue(sta)
 			if err != nil {
 				return err
 			}
@@ -136,28 +136,28 @@ func HolderPartitionBalance(
 	return amount, nil
 }
 
-func HolderPartitionOperators(
-	st *currencydigest.Database,
+func STOHolderPartitionOperators(
+	st *crcydigest.Database,
 	contract,
 	holder,
 	partition string,
-) ([]mitumbase.Address, error) {
+) ([]base.Address, error) {
 	filter := util.NewBSONFilter("contract", contract)
 	filter = filter.Add("holder", holder)
 	filter = filter.Add("partition", partition)
 
-	var operators []mitumbase.Address
-	var sta mitumbase.State
+	var operators []base.Address
+	var sta base.State
 	var err error
 	if err = st.DatabaseClient().GetByFilter(
 		defaultColNameSTOHolderPartitionOperators,
 		filter.D(),
 		func(res *mongo.SingleResult) error {
-			sta, err = currencydigest.LoadState(res.Decode, st.DatabaseEncoders())
+			sta, err = crcydigest.LoadState(res.Decode, st.DatabaseEncoders())
 			if err != nil {
 				return err
 			}
-			operators, err = stostate.StateTokenHolderPartitionOperatorsValue(sta)
+			operators, err = ststo.StateTokenHolderPartitionOperatorsValue(sta)
 			if err != nil {
 				return err
 			}
@@ -172,8 +172,8 @@ func HolderPartitionOperators(
 	return operators, nil
 }
 
-func PartitionBalance(
-	st *currencydigest.Database,
+func STOPartitionBalance(
+	st *crcydigest.Database,
 	contract,
 	partition string,
 ) (common.Big, error) {
@@ -181,18 +181,18 @@ func PartitionBalance(
 	filter = filter.Add("partition", partition)
 
 	var amount common.Big
-	var sta mitumbase.State
+	var sta base.State
 	var err error
 	if err := st.DatabaseClient().GetByFilter(
 		defaultColNameSTOPartitionBalance,
 		filter.D(),
 		func(res *mongo.SingleResult) error {
-			sta, err = currencydigest.LoadState(res.Decode, st.DatabaseEncoders())
+			sta, err = crcydigest.LoadState(res.Decode, st.DatabaseEncoders())
 			if err != nil {
 				return err
 			}
 
-			amount, err = stostate.StatePartitionBalanceValue(sta)
+			amount, err = ststo.StatePartitionBalanceValue(sta)
 			if err != nil {
 				return err
 			}
@@ -211,26 +211,26 @@ func PartitionBalance(
 	return amount, nil
 }
 
-func OperatorHolders(
-	st *currencydigest.Database,
+func STOOperatorHolders(
+	st *crcydigest.Database,
 	contract,
 	operator string,
-) ([]mitumbase.Address, error) {
+) ([]base.Address, error) {
 	filter := util.NewBSONFilter("contract", contract)
 	filter = filter.Add("operator", operator)
 
-	var holders []mitumbase.Address
-	var sta mitumbase.State
+	var holders []base.Address
+	var sta base.State
 	var err error
 	if err = st.DatabaseClient().GetByFilter(
 		defaultColNameSTOOperatorHolders,
 		filter.D(),
 		func(res *mongo.SingleResult) error {
-			sta, err = currencydigest.LoadState(res.Decode, st.DatabaseEncoders())
+			sta, err = crcydigest.LoadState(res.Decode, st.DatabaseEncoders())
 			if err != nil {
 				return err
 			}
-			holders, err = stostate.StateOperatorTokenHoldersValue(sta)
+			holders, err = ststo.StateOperatorTokenHoldersValue(sta)
 			if err != nil {
 				return err
 			}

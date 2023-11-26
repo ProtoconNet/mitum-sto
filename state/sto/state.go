@@ -148,12 +148,12 @@ func StateKeyTokenHolderPartitions(caddr base.Address, addr base.Address) string
 func StateTokenHolderPartitionsValue(st base.State) ([]stotypes.Partition, error) {
 	v := st.Value()
 	if v == nil {
-		return []stotypes.Partition{}, util.ErrNotFound.Errorf("tokenholder partitions not found in State")
+		return []stotypes.Partition{}, util.ErrNotFound.Errorf("token holder partitions not found in State")
 	}
 
 	p, ok := v.(TokenHolderPartitionsStateValue)
 	if !ok {
-		return []stotypes.Partition{}, errors.Errorf("invalid tokenholder partitions value found, %T", v)
+		return []stotypes.Partition{}, errors.Errorf("invalid token holder partitions value found, %T", v)
 	}
 
 	return p.Partitions, nil
@@ -211,12 +211,12 @@ func IsStateTokenHolderPartitionBalanceKey(key string) bool {
 func StateTokenHolderPartitionBalanceValue(st base.State) (common.Big, error) {
 	v := st.Value()
 	if v == nil {
-		return common.Big{}, util.ErrNotFound.Errorf("tokenholder stotypes.Partition balance not found in State")
+		return common.Big{}, util.ErrNotFound.Errorf("token holder Partition balance not found in State")
 	}
 
 	p, ok := v.(TokenHolderPartitionBalanceStateValue)
 	if !ok {
-		return common.Big{}, errors.Errorf("invalid tokenholder stotypes.Partition balance value found, %T", v)
+		return common.Big{}, errors.Errorf("invalid token holder Partition balance value found, %T", v)
 	}
 
 	return p.Amount, nil
@@ -295,12 +295,12 @@ func IsStateTokenHolderPartitionOperatorsKey(key string) bool {
 func StateTokenHolderPartitionOperatorsValue(st base.State) ([]base.Address, error) {
 	v := st.Value()
 	if v == nil {
-		return []base.Address{}, util.ErrNotFound.Errorf("tokenholder stotypes.Partition operators not found in State")
+		return []base.Address{}, util.ErrNotFound.Errorf("token holder Partition operators not found in State")
 	}
 
 	addrs, ok := v.(TokenHolderPartitionOperatorsStateValue)
 	if !ok {
-		return []base.Address{}, errors.Errorf("invalid tokenholder stotypes.Partition operators value found, %T", v)
+		return []base.Address{}, errors.Errorf("invalid token holder Partition operators value found, %T", v)
 	}
 
 	return addrs.Operators, nil
@@ -357,87 +357,87 @@ func StatePartitionBalanceValue(st base.State) (common.Big, error) {
 
 	pb, ok := v.(PartitionBalanceStateValue)
 	if !ok {
-		return common.Big{}, errors.Errorf("invalid stotypes.Partition balance value found, %T", v)
+		return common.Big{}, errors.Errorf("invalid Partition balance value found, %T", v)
 	}
 
 	return pb.Amount, nil
 }
 
-var (
-	PartitionControllersStateValueHint = hint.MustNewHint("mitum-sto-partition-controllers-state-value-v0.0.1")
-	PartitionControllersSuffix         = ":partition-controllers"
-)
-
-type PartitionControllersStateValue struct {
-	hint.BaseHinter
-	Controllers []base.Address
-}
-
-func NewPartitionControllersStateValue(controllers []base.Address) PartitionControllersStateValue {
-	return PartitionControllersStateValue{
-		BaseHinter:  hint.NewBaseHinter(PartitionControllersStateValueHint),
-		Controllers: controllers,
-	}
-}
-
-func (p PartitionControllersStateValue) Hint() hint.Hint {
-	return p.BaseHinter.Hint()
-}
-
-func (p PartitionControllersStateValue) IsValid([]byte) error {
-	e := util.ErrInvalid.Errorf("invalid PartitionControllersStateValue")
-
-	if err := p.BaseHinter.IsValid(PartitionControllersStateValueHint.Type().Bytes()); err != nil {
-		return e.Wrap(err)
-	}
-
-	if len(p.Controllers) == 0 {
-		return errors.Errorf("empty controllers")
-	}
-
-	m := map[string]struct{}{}
-	for _, controller := range p.Controllers {
-		if _, found := m[controller.String()]; found {
-			return util.ErrInvalid.Errorf("duplicated Address found")
-		}
-		m[controller.String()] = struct{}{}
-	}
-
-	return nil
-}
-
-func (p PartitionControllersStateValue) HashBytes() []byte {
-	bs := make([][]byte, len(p.Controllers))
-	sort.Slice(p.Controllers, func(i, j int) bool {
-		return bytes.Compare(p.Controllers[i].Bytes(), p.Controllers[j].Bytes()) < 0
-	})
-	for i, controller := range p.Controllers {
-		bs[i] = controller.Bytes()
-	}
-	return util.ConcatBytesSlice(bs...)
-}
-
-func StateKeyPartitionControllers(caddr base.Address, partition stotypes.Partition) string {
-	return fmt.Sprintf("%s:%s%s", StateKeySTOPrefix(caddr), partition.String(), PartitionControllersSuffix)
-}
-
-func IsStatePartitionControllersKey(key string) bool {
-	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, PartitionControllersSuffix)
-}
-
-func StatePartitionControllersValue(st base.State) ([]base.Address, error) {
-	v := st.Value()
-	if v == nil {
-		return []base.Address{}, util.ErrNotFound.Errorf("Partition controllers not found in State")
-	}
-
-	addrs, ok := v.(PartitionControllersStateValue)
-	if !ok {
-		return []base.Address{}, errors.Errorf("invalid Partition operators value found, %T", v)
-	}
-
-	return addrs.Controllers, nil
-}
+//var (
+//	PartitionControllersStateValueHint = hint.MustNewHint("mitum-sto-partition-controllers-state-value-v0.0.1")
+//	PartitionControllersSuffix         = ":partition-controllers"
+//)
+//
+//type PartitionControllersStateValue struct {
+//	hint.BaseHinter
+//	Controllers []base.Address
+//}
+//
+//func NewPartitionControllersStateValue(controllers []base.Address) PartitionControllersStateValue {
+//	return PartitionControllersStateValue{
+//		BaseHinter:  hint.NewBaseHinter(PartitionControllersStateValueHint),
+//		Controllers: controllers,
+//	}
+//}
+//
+//func (p PartitionControllersStateValue) Hint() hint.Hint {
+//	return p.BaseHinter.Hint()
+//}
+//
+//func (p PartitionControllersStateValue) IsValid([]byte) error {
+//	e := util.ErrInvalid.Errorf("invalid PartitionControllersStateValue")
+//
+//	if err := p.BaseHinter.IsValid(PartitionControllersStateValueHint.Type().Bytes()); err != nil {
+//		return e.Wrap(err)
+//	}
+//
+//	if len(p.Controllers) == 0 {
+//		return errors.Errorf("empty controllers")
+//	}
+//
+//	m := map[string]struct{}{}
+//	for _, controller := range p.Controllers {
+//		if _, found := m[controller.String()]; found {
+//			return util.ErrInvalid.Errorf("duplicated Address found")
+//		}
+//		m[controller.String()] = struct{}{}
+//	}
+//
+//	return nil
+//}
+//
+//func (p PartitionControllersStateValue) HashBytes() []byte {
+//	bs := make([][]byte, len(p.Controllers))
+//	sort.Slice(p.Controllers, func(i, j int) bool {
+//		return bytes.Compare(p.Controllers[i].Bytes(), p.Controllers[j].Bytes()) < 0
+//	})
+//	for i, controller := range p.Controllers {
+//		bs[i] = controller.Bytes()
+//	}
+//	return util.ConcatBytesSlice(bs...)
+//}
+//
+//func StateKeyPartitionControllers(caddr base.Address, partition stotypes.Partition) string {
+//	return fmt.Sprintf("%s:%s%s", StateKeySTOPrefix(caddr), partition.String(), PartitionControllersSuffix)
+//}
+//
+//func IsStatePartitionControllersKey(key string) bool {
+//	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, PartitionControllersSuffix)
+//}
+//
+//func StatePartitionControllersValue(st base.State) ([]base.Address, error) {
+//	v := st.Value()
+//	if v == nil {
+//		return []base.Address{}, util.ErrNotFound.Errorf("Partition controllers not found in State")
+//	}
+//
+//	addrs, ok := v.(PartitionControllersStateValue)
+//	if !ok {
+//		return []base.Address{}, errors.Errorf("invalid Partition operators value found, %T", v)
+//	}
+//
+//	return addrs.Controllers, nil
+//}
 
 var (
 	OperatorTokenHoldersStateValueHint = hint.MustNewHint("mitum-sto-operator-tokenholders-state-value-v0.0.1")
@@ -529,7 +529,7 @@ func ExistsTokenHolderPartitions(cAdr base.Address, holder base.Address, getStat
 	case err != nil:
 		return nil, err
 	case !found:
-		return nil, base.NewBaseOperationProcessReasonError("tokenholder partitions not found, %s-%s", cAdr, holder)
+		return nil, base.NewBaseOperationProcessReasonError("token holder partitions not found, %s-%s", cAdr, holder)
 	default:
 		pts, ok := i.Value().(TokenHolderPartitionsStateValue) //nolint:forcetypeassert //...
 		if !ok {
@@ -546,7 +546,7 @@ func ExistsTokenHolderPartitionBalance(cAdr base.Address, holder base.Address, p
 	case err != nil:
 		return common.Big{}, err
 	case !found:
-		return common.Big{}, base.NewBaseOperationProcessReasonError("tokenholder stotypes.Partition balance not found, %s-%s-%s", cAdr, p, holder)
+		return common.Big{}, base.NewBaseOperationProcessReasonError("token holder Partition balance not found, %s-%s-%s", cAdr, p, holder)
 	default:
 		b, ok := i.Value().(TokenHolderPartitionBalanceStateValue) //nolint:forcetypeassert //...
 		if !ok {

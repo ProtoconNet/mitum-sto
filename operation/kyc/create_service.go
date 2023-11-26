@@ -2,7 +2,7 @@ package kyc
 
 import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/hint"
@@ -19,7 +19,7 @@ type CreateServiceFact struct {
 	sender      base.Address
 	contract    base.Address // contract account
 	controllers []base.Address
-	currency    currencytypes.CurrencyID
+	currency    types.CurrencyID
 }
 
 func NewCreateServiceFact(
@@ -27,7 +27,7 @@ func NewCreateServiceFact(
 	sender base.Address,
 	contract base.Address,
 	controllers []base.Address,
-	currency currencytypes.CurrencyID,
+	currency types.CurrencyID,
 ) CreateServiceFact {
 	bf := base.NewBaseFact(CreateServiceFactHint, token)
 	fact := CreateServiceFact{
@@ -119,7 +119,7 @@ func (fact CreateServiceFact) Controllers() []base.Address {
 	return append([]base.Address{}, fact.controllers...)
 }
 
-func (fact CreateServiceFact) Currency() currencytypes.CurrencyID {
+func (fact CreateServiceFact) Currency() types.CurrencyID {
 	return fact.currency
 }
 

@@ -1,29 +1,28 @@
 package digest
 
 import (
-	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
-	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
-	"github.com/ProtoconNet/mitum2/base"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/ProtoconNet/mitum-currency/v3/common"
+	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
+	typesto "github.com/ProtoconNet/mitum-sto/types/sto"
+	"github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/gorilla/mux"
-
 	"github.com/pkg/errors"
 )
 
 func (hd *Handlers) handleSTOService(w http.ResponseWriter, r *http.Request) {
-	cacheKey := currencydigest.CacheKeyPath(r)
-	if err := currencydigest.LoadFromCache(hd.cache, cacheKey, w); err == nil {
+	cacheKey := crcydigest.CacheKeyPath(r)
+	if err := crcydigest.LoadFromCache(hd.cache, cacheKey, w); err == nil {
 		return
 	}
 
 	contract, err, status := parseRequest(w, r, "contract")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
@@ -31,11 +30,11 @@ func (hd *Handlers) handleSTOService(w http.ResponseWriter, r *http.Request) {
 	if v, err, shared := hd.rg.Do(cacheKey, func() (interface{}, error) {
 		return hd.handleSTODesignInGroup(contract)
 	}); err != nil {
-		currencydigest.HTTP2HandleError(w, err)
+		crcydigest.HTTP2HandleError(w, err)
 	} else {
-		currencydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
+		crcydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
 		if !shared {
-			currencydigest.HTTP2WriteCache(w, cacheKey, time.Second*3)
+			crcydigest.HTTP2WriteCache(w, cacheKey, time.Second*3)
 		}
 	}
 }
@@ -43,9 +42,9 @@ func (hd *Handlers) handleSTOService(w http.ResponseWriter, r *http.Request) {
 func (hd *Handlers) handleSTODesignInGroup(contract string) (interface{}, error) {
 	switch design, err := STOService(hd.database, contract); {
 	case err != nil:
-		return nil, mitumutil.ErrNotFound.WithMessage(err, "sto service, contract %s", contract)
+		return nil, util.ErrNotFound.WithMessage(err, "sto service, contract %s", contract)
 	case design == nil:
-		return nil, mitumutil.ErrNotFound.Errorf("sto service, contract %s", contract)
+		return nil, util.ErrNotFound.Errorf("sto service, contract %s", contract)
 	default:
 		hal, err := hd.buildSTODesignHal(contract, *design)
 		if err != nil {
@@ -55,58 +54,58 @@ func (hd *Handlers) handleSTODesignInGroup(contract string) (interface{}, error)
 	}
 }
 
-func (hd *Handlers) buildSTODesignHal(contract string, design stotypes.Design) (currencydigest.Hal, error) {
+func (hd *Handlers) buildSTODesignHal(contract string, design typesto.Design) (crcydigest.Hal, error) {
 	h, err := hd.combineURL(HandlerPathSTOService, "contract", contract)
 	if err != nil {
 		return nil, err
 	}
 
-	hal := currencydigest.NewBaseHal(design, currencydigest.NewHalLink(h, nil))
+	hal := crcydigest.NewBaseHal(design, crcydigest.NewHalLink(h, nil))
 
 	return hal, nil
 }
 
 func (hd *Handlers) handleSTOHolderPartitions(w http.ResponseWriter, r *http.Request) {
-	cacheKey := currencydigest.CacheKeyPath(r)
-	if err := currencydigest.LoadFromCache(hd.cache, cacheKey, w); err == nil {
+	cacheKey := crcydigest.CacheKeyPath(r)
+	if err := crcydigest.LoadFromCache(hd.cache, cacheKey, w); err == nil {
 		return
 	}
 
 	contract, err, status := parseRequest(w, r, "contract")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 		return
 	}
 
 	holder, err, status := parseRequest(w, r, "address")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 		return
 	}
 
 	if v, err, shared := hd.rg.Do(cacheKey, func() (interface{}, error) {
 		return hd.handleSTOHolderPartitionsInGroup(contract, holder)
 	}); err != nil {
-		currencydigest.HTTP2HandleError(w, err)
+		crcydigest.HTTP2HandleError(w, err)
 	} else {
-		currencydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
+		crcydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
 		if !shared {
-			currencydigest.HTTP2WriteCache(w, cacheKey, time.Second*3)
+			crcydigest.HTTP2WriteCache(w, cacheKey, time.Second*3)
 		}
 	}
 }
 
 func (hd *Handlers) handleSTOHolderPartitionsInGroup(contract, holder string) (interface{}, error) {
-	switch partitions, err := HolderPartitions(hd.database, contract, holder); {
+	switch partitions, err := STOHolderPartitions(hd.database, contract, holder); {
 	case err != nil:
-		return nil, mitumutil.ErrNotFound.WithMessage(
+		return nil, util.ErrNotFound.WithMessage(
 			err,
 			"partitions, contract %s, holder %s",
 			contract,
 			holder,
 		)
 	case partitions == nil:
-		return nil, mitumutil.ErrNotFound.Errorf(
+		return nil, util.ErrNotFound.Errorf(
 			"partitions, contract %s, holder %s",
 			contract,
 			holder,
@@ -121,41 +120,41 @@ func (hd *Handlers) handleSTOHolderPartitionsInGroup(contract, holder string) (i
 }
 
 func (hd *Handlers) buildSTOHolderPartitionsHal(
-	contract, holder string, partitions []stotypes.Partition,
-) (currencydigest.Hal, error) {
+	contract, holder string, partitions []typesto.Partition,
+) (crcydigest.Hal, error) {
 	h, err := hd.combineURL(HandlerPathSTOHolderPartitions, "contract", contract, "address", holder)
 	if err != nil {
 		return nil, err
 	}
 
-	hal := currencydigest.NewBaseHal(partitions, currencydigest.NewHalLink(h, nil))
+	hal := crcydigest.NewBaseHal(partitions, crcydigest.NewHalLink(h, nil))
 
 	return hal, nil
 }
 
 func (hd *Handlers) handleSTOHolderPartitionBalance(w http.ResponseWriter, r *http.Request) {
-	cachekey := currencydigest.CacheKeyPath(r)
-	if err := currencydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
+	cachekey := crcydigest.CacheKeyPath(r)
+	if err := crcydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
 		return
 	}
 
 	contract, err, status := parseRequest(w, r, "contract")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
 
 	holder, err, status := parseRequest(w, r, "address")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
 
 	partition, err, status := parseRequest(w, r, "partition")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
@@ -163,11 +162,11 @@ func (hd *Handlers) handleSTOHolderPartitionBalance(w http.ResponseWriter, r *ht
 	if v, err, shared := hd.rg.Do(cachekey, func() (interface{}, error) {
 		return hd.handleSTOHolderPartitionBalanceInGroup(contract, holder, partition)
 	}); err != nil {
-		currencydigest.HTTP2HandleError(w, err)
+		crcydigest.HTTP2HandleError(w, err)
 	} else {
-		currencydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
+		crcydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
 		if !shared {
-			currencydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
+			crcydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
 		}
 	}
 }
@@ -175,7 +174,7 @@ func (hd *Handlers) handleSTOHolderPartitionBalance(w http.ResponseWriter, r *ht
 func (hd *Handlers) handleSTOHolderPartitionBalanceInGroup(
 	contract, holder, partition string,
 ) (interface{}, error) {
-	switch amount, err := HolderPartitionBalance(hd.database, contract, holder, partition); {
+	switch amount, err := STOHolderPartitionBalance(hd.database, contract, holder, partition); {
 	case err != nil:
 		return nil, err
 	default:
@@ -189,42 +188,42 @@ func (hd *Handlers) handleSTOHolderPartitionBalanceInGroup(
 
 func (hd *Handlers) buildSTOHolderPartitionBalanceHal(
 	contract, holder, partition string, amount common.Big,
-) (currencydigest.Hal, error) {
+) (crcydigest.Hal, error) {
 	h, err := hd.combineURL(HandlerPathSTOHolderPartitionBalance, "contract", contract, "address", holder, "partition", partition)
 	if err != nil {
 		return nil, err
 	}
 
-	hal := currencydigest.NewBaseHal(struct {
+	hal := crcydigest.NewBaseHal(struct {
 		Amount common.Big `json:"amount"`
-	}{Amount: amount}, currencydigest.NewHalLink(h, nil))
+	}{Amount: amount}, crcydigest.NewHalLink(h, nil))
 
 	return hal, nil
 }
 
 func (hd *Handlers) handleSTOHolderPartitionOperators(w http.ResponseWriter, r *http.Request) {
-	cachekey := currencydigest.CacheKeyPath(r)
-	if err := currencydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
+	cachekey := crcydigest.CacheKeyPath(r)
+	if err := crcydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
 		return
 	}
 
 	contract, err, status := parseRequest(w, r, "contract")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
 
 	holder, err, status := parseRequest(w, r, "address")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
 
 	partition, err, status := parseRequest(w, r, "partition")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
@@ -232,11 +231,11 @@ func (hd *Handlers) handleSTOHolderPartitionOperators(w http.ResponseWriter, r *
 	if v, err, shared := hd.rg.Do(cachekey, func() (interface{}, error) {
 		return hd.handleSTOHolderPartitionOperatorsInGroup(contract, holder, partition)
 	}); err != nil {
-		currencydigest.HTTP2HandleError(w, err)
+		crcydigest.HTTP2HandleError(w, err)
 	} else {
-		currencydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
+		crcydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
 		if !shared {
-			currencydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
+			crcydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
 		}
 	}
 }
@@ -244,7 +243,7 @@ func (hd *Handlers) handleSTOHolderPartitionOperators(w http.ResponseWriter, r *
 func (hd *Handlers) handleSTOHolderPartitionOperatorsInGroup(
 	contract, holder, partition string,
 ) (interface{}, error) {
-	switch operators, err := HolderPartitionOperators(hd.database, contract, holder, partition); {
+	switch operators, err := STOHolderPartitionOperators(hd.database, contract, holder, partition); {
 	case err != nil:
 		return nil, err
 	default:
@@ -258,35 +257,35 @@ func (hd *Handlers) handleSTOHolderPartitionOperatorsInGroup(
 
 func (hd *Handlers) buildSTOHolderPartitionOperatorsHal(
 	contract, holder, partition string, operators []base.Address,
-) (currencydigest.Hal, error) {
+) (crcydigest.Hal, error) {
 	h, err := hd.combineURL(HandlerPathSTOHolderPartitionOperators, "contract", contract, "address", holder, "partition", partition)
 	if err != nil {
 		return nil, err
 	}
 
-	hal := currencydigest.NewBaseHal(struct {
+	hal := crcydigest.NewBaseHal(struct {
 		Operators []base.Address `json:"operators"`
-	}{Operators: operators}, currencydigest.NewHalLink(h, nil))
+	}{Operators: operators}, crcydigest.NewHalLink(h, nil))
 
 	return hal, nil
 }
 
 func (hd *Handlers) handleSTOPartitionBalance(w http.ResponseWriter, r *http.Request) {
-	cachekey := currencydigest.CacheKeyPath(r)
-	if err := currencydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
+	cachekey := crcydigest.CacheKeyPath(r)
+	if err := crcydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
 		return
 	}
 
 	contract, err, status := parseRequest(w, r, "contract")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
 
 	partition, err, status := parseRequest(w, r, "partition")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
@@ -294,11 +293,11 @@ func (hd *Handlers) handleSTOPartitionBalance(w http.ResponseWriter, r *http.Req
 	if v, err, shared := hd.rg.Do(cachekey, func() (interface{}, error) {
 		return hd.handleSTOPartitionBalanceInGroup(contract, partition)
 	}); err != nil {
-		currencydigest.HTTP2HandleError(w, err)
+		crcydigest.HTTP2HandleError(w, err)
 	} else {
-		currencydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
+		crcydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
 		if !shared {
-			currencydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
+			crcydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
 		}
 	}
 }
@@ -306,7 +305,7 @@ func (hd *Handlers) handleSTOPartitionBalance(w http.ResponseWriter, r *http.Req
 func (hd *Handlers) handleSTOPartitionBalanceInGroup(
 	contract, partition string,
 ) (interface{}, error) {
-	switch amount, err := PartitionBalance(hd.database, contract, partition); {
+	switch amount, err := STOPartitionBalance(hd.database, contract, partition); {
 	case err != nil:
 		return nil, err
 	default:
@@ -320,35 +319,35 @@ func (hd *Handlers) handleSTOPartitionBalanceInGroup(
 
 func (hd *Handlers) buildSTOPartitionBalanceHal(
 	contract, partition string, amount common.Big,
-) (currencydigest.Hal, error) {
+) (crcydigest.Hal, error) {
 	h, err := hd.combineURL(HandlerPathSTOPartitionBalance, "contract", contract, "partition", partition)
 	if err != nil {
 		return nil, err
 	}
 
-	hal := currencydigest.NewBaseHal(struct {
+	hal := crcydigest.NewBaseHal(struct {
 		Amount common.Big `json:"amount"`
-	}{Amount: amount}, currencydigest.NewHalLink(h, nil))
+	}{Amount: amount}, crcydigest.NewHalLink(h, nil))
 
 	return hal, nil
 }
 
 func (hd *Handlers) handleSTOOperatorHolders(w http.ResponseWriter, r *http.Request) {
-	cachekey := currencydigest.CacheKeyPath(r)
-	if err := currencydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
+	cachekey := crcydigest.CacheKeyPath(r)
+	if err := crcydigest.LoadFromCache(hd.cache, cachekey, w); err == nil {
 		return
 	}
 
 	contract, err, status := parseRequest(w, r, "contract")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
 
 	operator, err, status := parseRequest(w, r, "address")
 	if err != nil {
-		currencydigest.HTTP2ProblemWithError(w, err, status)
+		crcydigest.HTTP2ProblemWithError(w, err, status)
 
 		return
 	}
@@ -356,11 +355,11 @@ func (hd *Handlers) handleSTOOperatorHolders(w http.ResponseWriter, r *http.Requ
 	if v, err, shared := hd.rg.Do(cachekey, func() (interface{}, error) {
 		return hd.handleSTOOperatorHoldersInGroup(contract, operator)
 	}); err != nil {
-		currencydigest.HTTP2HandleError(w, err)
+		crcydigest.HTTP2HandleError(w, err)
 	} else {
-		currencydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
+		crcydigest.HTTP2WriteHalBytes(hd.encoder, w, v.([]byte), http.StatusOK)
 		if !shared {
-			currencydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
+			crcydigest.HTTP2WriteCache(w, cachekey, time.Second*3)
 		}
 	}
 }
@@ -368,7 +367,7 @@ func (hd *Handlers) handleSTOOperatorHolders(w http.ResponseWriter, r *http.Requ
 func (hd *Handlers) handleSTOOperatorHoldersInGroup(
 	contract, operator string,
 ) (interface{}, error) {
-	switch holders, err := OperatorHolders(hd.database, contract, operator); {
+	switch holders, err := STOOperatorHolders(hd.database, contract, operator); {
 	case err != nil:
 		return nil, err
 	default:
@@ -382,15 +381,15 @@ func (hd *Handlers) handleSTOOperatorHoldersInGroup(
 
 func (hd *Handlers) buildSTOOperatorHoldersHal(
 	contract, operator string, holders []base.Address,
-) (currencydigest.Hal, error) {
+) (crcydigest.Hal, error) {
 	h, err := hd.combineURL(HandlerPathSTOOperatorHolders, "contract", contract, "address", operator)
 	if err != nil {
 		return nil, err
 	}
 
-	hal := currencydigest.NewBaseHal(struct {
+	hal := crcydigest.NewBaseHal(struct {
 		Holders []base.Address `json:"holders"`
-	}{Holders: holders}, currencydigest.NewHalLink(h, nil))
+	}{Holders: holders}, crcydigest.NewHalLink(h, nil))
 
 	return hal, nil
 }

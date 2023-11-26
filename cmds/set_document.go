@@ -3,23 +3,22 @@ package cmds
 import (
 	"context"
 
-	"github.com/pkg/errors"
-
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
-	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
+	typesto "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
+	"github.com/pkg/errors"
 )
 
 type SetDocumentCommand struct {
 	BaseCommand
-	currencycmds.OperationFlags
-	Sender       currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract     currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract address of sto" required:"true"`
-	Title        string                      `arg:"" name:"title" help:"sto document title" required:"true"`
-	URI          string                      `arg:"" name:"uri" help:"sto document uri" required:"true"`
-	DocumentHash string                      `arg:"" name:"document-hash" help:"sto document hash" required:"true"`
-	Currency     currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	crcycmds.OperationFlags
+	Sender       crcycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract     crcycmds.AddressFlag    `arg:"" name:"contract" help:"contract address of sto" required:"true"`
+	Title        string                  `arg:"" name:"title" help:"sto document title" required:"true"`
+	URI          string                  `arg:"" name:"uri" help:"sto document uri" required:"true"`
+	DocumentHash string                  `arg:"" name:"document-hash" help:"sto document hash" required:"true"`
+	Currency     crcycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender       base.Address
 	contract     base.Address
 }
@@ -41,7 +40,7 @@ func (cmd *SetDocumentCommand) Run(pctx context.Context) error { // nolint:dupl
 		return err
 	}
 
-	currencycmds.PrettyPrint(cmd.Out, op)
+	crcycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }
@@ -72,7 +71,7 @@ func (cmd *SetDocumentCommand) createOperation() (base.Operation, error) { // no
 		cmd.sender,
 		cmd.contract,
 		cmd.Title,
-		stotypes.URI(cmd.URI),
+		typesto.URI(cmd.URI),
 		cmd.DocumentHash,
 		cmd.Currency.CID,
 	)

@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
-
+	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum-currency/v3/digest/network"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/launch"
@@ -31,10 +30,10 @@ var (
 )
 
 func init() {
-	if b, err := currencydigest.JSON.Marshal(currencydigest.UnknownProblem); err != nil {
+	if b, err := crcydigest.JSON.Marshal(crcydigest.UnknownProblem); err != nil {
 		panic(err)
 	} else {
-		currencydigest.UnknownProblemJSON = b
+		crcydigest.UnknownProblemJSON = b
 	}
 }
 
@@ -43,9 +42,9 @@ type Handlers struct {
 	networkID       base.NetworkID
 	encoders        *encoder.Encoders
 	encoder         encoder.Encoder
-	database        *currencydigest.Database
-	cache           currencydigest.Cache
-	nodeInfoHandler currencydigest.NodeInfoHandler
+	database        *crcydigest.Database
+	cache           crcydigest.Cache
+	nodeInfoHandler crcydigest.NodeInfoHandler
 	send            func(interface{}) (base.Operation, error)
 	router          *mux.Router
 	routes          map[ /* path */ string]*mux.Route
@@ -59,8 +58,8 @@ func NewHandlers(
 	networkID base.NetworkID,
 	encs *encoder.Encoders,
 	enc encoder.Encoder,
-	st *currencydigest.Database,
-	cache currencydigest.Cache,
+	st *crcydigest.Database,
+	cache crcydigest.Cache,
 	router *mux.Router,
 	routes map[string]*mux.Route,
 ) *Handlers {
@@ -78,7 +77,7 @@ func NewHandlers(
 		cache:           cache,
 		router:          router,
 		routes:          routes,
-		itemsLimiter:    currencydigest.DefaultItemsLimiter,
+		itemsLimiter:    crcydigest.DefaultItemsLimiter,
 		rg:              &singleflight.Group{},
 		expireNotFilled: time.Second * 3,
 	}
@@ -104,7 +103,7 @@ func (hd *Handlers) SetLimiter(f func(string) int64) *Handlers {
 	return hd
 }
 
-func (hd *Handlers) Cache() currencydigest.Cache {
+func (hd *Handlers) Cache() crcydigest.Cache {
 	return hd.cache
 }
 
@@ -138,7 +137,7 @@ func (hd *Handlers) setHandler(prefix string, h network.HTTPHandlerFunc, useCach
 	if !useCache {
 		handler = http.HandlerFunc(h)
 	} else {
-		ch := currencydigest.NewCachedHTTPHandler(hd.cache, h)
+		ch := crcydigest.NewCachedHTTPHandler(hd.cache, h)
 
 		handler = ch
 	}

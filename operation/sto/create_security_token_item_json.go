@@ -14,7 +14,6 @@ type CreateSecurityTokenItemJSONMarshaler struct {
 	Contract         base.Address             `json:"contract"`
 	Granularity      uint64                   `json:"granularity"`
 	DefaultPartition stotypes.Partition       `json:"default_partition"`
-	Controllers      []base.Address           `json:"controllers"`
 	Currency         currencytypes.CurrencyID `json:"currency"`
 }
 
@@ -24,7 +23,6 @@ func (it CreateSecurityTokenItem) MarshalJSON() ([]byte, error) {
 		Contract:         it.contract,
 		Granularity:      it.granularity,
 		DefaultPartition: it.defaultPartition,
-		Controllers:      it.controllers,
 		Currency:         it.currency,
 	})
 }
@@ -34,7 +32,6 @@ type CreateSecurityTokenItemJSONUnMarshaler struct {
 	Contract         string    `json:"contract"`
 	Granularity      uint64    `json:"granularity"`
 	DefaultPartition string    `json:"default_partition"`
-	Controllers      []string  `json:"controllers"`
 	Currency         string    `json:"currency"`
 }
 
@@ -46,5 +43,5 @@ func (it *CreateSecurityTokenItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) er
 		return e.Wrap(err)
 	}
 
-	return it.unpack(enc, uit.Hint, uit.Contract, uit.Granularity, uit.DefaultPartition, uit.Controllers, uit.Currency)
+	return it.unpack(enc, uit.Hint, uit.Contract, uit.Granularity, uit.DefaultPartition, uit.Currency)
 }

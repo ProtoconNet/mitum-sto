@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
+	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum-currency/v3/digest/isaac"
-	statecurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	stateextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	mitumbase "github.com/ProtoconNet/mitum2/base"
-	mitumutil "github.com/ProtoconNet/mitum2/util"
+	stcurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	stextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	"github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/fixedtree"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,13 +22,13 @@ var bulkWriteLimit = 500
 
 type BlockSession struct {
 	sync.RWMutex
-	block                             mitumbase.BlockMap
-	ops                               []mitumbase.Operation
+	block                             base.BlockMap
+	ops                               []base.Operation
 	opstree                           fixedtree.Tree
-	sts                               []mitumbase.State
-	st                                *currencydigest.Database
-	proposal                          mitumbase.ProposalSignFact
-	opsTreeNodes                      map[string]mitumbase.OperationFixedtreeNode
+	sts                               []base.State
+	st                                *crcydigest.Database
+	proposal                          base.ProposalSignFact
+	opsTreeNodes                      map[string]base.OperationFixedtreeNode
 	blockModels                       []mongo.WriteModel
 	operationModels                   []mongo.WriteModel
 	accountModels                     []mongo.WriteModel
@@ -47,12 +47,12 @@ type BlockSession struct {
 }
 
 func NewBlockSession(
-	st *currencydigest.Database,
-	blk mitumbase.BlockMap,
-	ops []mitumbase.Operation,
+	st *crcydigest.Database,
+	blk base.BlockMap,
+	ops []base.Operation,
 	opstree fixedtree.Tree,
-	sts []mitumbase.State,
-	proposal mitumbase.ProposalSignFact,
+	sts []base.State,
+	proposal base.ProposalSignFact,
 ) (*BlockSession, error) {
 	if st.Readonly() {
 		return nil, errors.Errorf("readonly mode")
@@ -194,10 +194,10 @@ func (bs *BlockSession) Close() error {
 }
 
 func (bs *BlockSession) prepareOperationsTree() error {
-	nodes := map[string]mitumbase.OperationFixedtreeNode{}
+	nodes := map[string]base.OperationFixedtreeNode{}
 
 	if err := bs.opstree.Traverse(func(_ uint64, no fixedtree.Node) (bool, error) {
-		nno := no.(mitumbase.OperationFixedtreeNode)
+		nno := no.(base.OperationFixedtreeNode)
 		if nno.InState() {
 			nodes[nno.Key()] = nno
 		} else {
@@ -231,7 +231,7 @@ func (bs *BlockSession) prepareBlock() error {
 		bs.block.Manifest().ProposedAt(),
 	)
 
-	doc, err := currencydigest.NewManifestDoc(manifest, bs.st.DatabaseEncoder(), bs.block.Manifest().Height(), bs.ops, bs.block.SignedAt(), bs.proposal.ProposalFact().Proposer(), bs.proposal.ProposalFact().Point().Round())
+	doc, err := crcydigest.NewManifestDoc(manifest, bs.st.DatabaseEncoder(), bs.block.Manifest().Height(), bs.ops, bs.block.SignedAt(), bs.proposal.ProposalFact().Proposer(), bs.proposal.ProposalFact().Point().Round())
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func (bs *BlockSession) prepareOperations() error {
 		return nil
 	}
 
-	node := func(h mitumutil.Hash) (bool, bool, mitumbase.OperationProcessReasonError) {
+	node := func(h util.Hash) (bool, bool, base.OperationProcessReasonError) {
 		no, found := bs.opsTreeNodes[h.String()]
 		if !found {
 			return false, false, nil
@@ -259,10 +259,10 @@ func (bs *BlockSession) prepareOperations() error {
 	for i := range bs.ops {
 		op := bs.ops[i]
 
-		var doc currencydigest.OperationDoc
+		var doc crcydigest.OperationDoc
 		switch found, inState, reason := node(op.Fact().Hash()); {
 		case !found:
-			return mitumutil.ErrNotFound.Errorf("operation, %v in operations tree", op.Fact().Hash().String())
+			return util.ErrNotFound.Errorf("operation, %v in operations tree", op.Fact().Hash().String())
 		default:
 			var reasonMsg string
 			switch {
@@ -271,7 +271,7 @@ func (bs *BlockSession) prepareOperations() error {
 			default:
 				reasonMsg = reason.Msg()
 			}
-			d, err := currencydigest.NewOperationDoc(
+			d, err := crcydigest.NewOperationDoc(
 				op,
 				bs.st.DatabaseEncoder(),
 				bs.block.Manifest().Height(),
@@ -304,20 +304,20 @@ func (bs *BlockSession) prepareAccounts() error {
 		st := bs.sts[i]
 
 		switch {
-		case statecurrency.IsStateAccountKey(st.Key()):
+		case stcurrency.IsStateAccountKey(st.Key()):
 			j, err := bs.handleAccountState(st)
 			if err != nil {
 				return err
 			}
 			accountModels = append(accountModels, j...)
-		case statecurrency.IsStateBalanceKey(st.Key()):
+		case stcurrency.IsStateBalanceKey(st.Key()):
 			j, address, err := bs.handleBalanceState(st)
 			if err != nil {
 				return err
 			}
 			balanceModels = append(balanceModels, j...)
 			bs.balanceAddressList = append(bs.balanceAddressList, address)
-		case stateextension.IsStateContractAccountKey(st.Key()):
+		case stextension.IsStateContractAccountKey(st.Key()):
 			j, err := bs.handleContractAccountState(st)
 			if err != nil {
 				return err
@@ -344,7 +344,7 @@ func (bs *BlockSession) prepareCurrencies() error {
 	for i := range bs.sts {
 		st := bs.sts[i]
 		switch {
-		case statecurrency.IsStateCurrencyDesignKey(st.Key()):
+		case stcurrency.IsStateCurrencyDesignKey(st.Key()):
 			j, err := bs.handleCurrencyState(st)
 			if err != nil {
 				return err

@@ -2,14 +2,13 @@ package sto
 
 import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
 	"github.com/pkg/errors"
 )
 
-func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big string, bcs []string, bds []byte) error {
+func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big string, bds []byte) error {
 	e := util.StringError("failed to unpack of Policy")
 
 	po.BaseHinter = hint.NewBaseHinter(ht)
@@ -26,15 +25,15 @@ func (po *Policy) unpack(enc encoder.Encoder, ht hint.Hint, ps []string, big str
 		po.aggregate = ag
 	}
 
-	controllers := make([]base.Address, len(bcs))
-	for i := range bcs {
-		ctr, err := base.DecodeAddress(bcs[i], enc)
-		if err != nil {
-			return e.Wrap(err)
-		}
-		controllers[i] = ctr
-	}
-	po.controllers = controllers
+	//controllers := make([]base.Address, len(bcs))
+	//for i := range bcs {
+	//	ctr, err := base.DecodeAddress(bcs[i], enc)
+	//	if err != nil {
+	//		return e.Wrap(err)
+	//	}
+	//	controllers[i] = ctr
+	//}
+	//po.controllers = controllers
 
 	hds, err := enc.DecodeSlice(bds)
 	if err != nil {

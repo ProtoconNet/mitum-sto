@@ -63,7 +63,7 @@ func (it RedeemItem) IsValid([]byte) error {
 	}
 
 	if it.contract.Equal(it.tokenHolder) {
-		return util.ErrInvalid.Errorf("contract address is same with tokenholder, %q", it.contract)
+		return util.ErrInvalid.Errorf("contract address is same with token holder, %q", it.contract)
 	}
 
 	return nil

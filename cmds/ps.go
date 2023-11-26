@@ -3,8 +3,8 @@ package cmds
 import (
 	"context"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
-	currencyprocessor "github.com/ProtoconNet/mitum-currency/v3/operation/processor"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcyprocessor "github.com/ProtoconNet/mitum-currency/v3/operation/processor"
 	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum-sto/operation/kyc"
 	"github.com/ProtoconNet/mitum-sto/operation/sto"
@@ -28,13 +28,13 @@ type processorInfo struct {
 func POperationProcessorsMap(pctx context.Context) (context.Context, error) {
 	var isaacParams *isaac.Params
 	var db isaac.Database
-	var opr *currencyprocessor.OperationProcessor
+	var opr *crcyprocessor.OperationProcessor
 	var set *hint.CompatibleSet[isaac.NewOperationProcessorInternalFunc]
 
 	if err := util.LoadFromContextOK(pctx,
 		launch.ISAACParamsContextKey, &isaacParams,
 		launch.CenterDatabaseContextKey, &db,
-		currencycmds.OperationProcessorContextKey, &opr,
+		crcycmds.OperationProcessorContextKey, &opr,
 		launch.OperationProcessorsMapContextKey, &set,
 	); err != nil {
 		return pctx, err
@@ -82,11 +82,11 @@ func POperationProcessorsMap(pctx context.Context) (context.Context, error) {
 		}
 	}
 
-	var f currencycmds.ProposalOperationFactHintFunc = IsSupportedProposalOperationFactHintFunc
+	var f crcycmds.ProposalOperationFactHintFunc = IsSupportedProposalOperationFactHintFunc
 
-	pctx = context.WithValue(pctx, currencycmds.OperationProcessorContextKey, opr)
+	pctx = context.WithValue(pctx, crcycmds.OperationProcessorContextKey, opr)
 	pctx = context.WithValue(pctx, launch.OperationProcessorsMapContextKey, set) //revive:disable-line:modifies-parameter
-	pctx = context.WithValue(pctx, currencycmds.ProposalOperationFactHintContextKey, f)
+	pctx = context.WithValue(pctx, crcycmds.ProposalOperationFactHintContextKey, f)
 
 	return pctx, nil
 }

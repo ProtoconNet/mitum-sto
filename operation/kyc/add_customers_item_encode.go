@@ -1,7 +1,7 @@
 package kyc
 
 import (
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
@@ -13,7 +13,7 @@ func (it *AddCustomerItem) unpack(enc encoder.Encoder, ht hint.Hint, ca, ctm str
 
 	it.BaseHinter = hint.NewBaseHinter(ht)
 	it.status = st
-	it.currency = currencytypes.CurrencyID(cid)
+	it.currency = types.CurrencyID(cid)
 
 	switch a, err := base.DecodeAddress(ca, enc); {
 	case err != nil:

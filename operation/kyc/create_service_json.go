@@ -2,7 +2,7 @@ package kyc
 
 import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	"github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
@@ -10,10 +10,10 @@ import (
 
 type CreateServiceFactJSONMarshaler struct {
 	base.BaseFactJSONMarshaler
-	Owner       base.Address             `json:"sender"`
-	Contract    base.Address             `json:"contract"`
-	Controllers []base.Address           `json:"controllers"`
-	Currency    currencytypes.CurrencyID `json:"currency"`
+	Owner       base.Address     `json:"sender"`
+	Contract    base.Address     `json:"contract"`
+	Controllers []base.Address   `json:"controllers"`
+	Currency    types.CurrencyID `json:"currency"`
 }
 
 func (fact CreateServiceFact) MarshalJSON() ([]byte, error) {

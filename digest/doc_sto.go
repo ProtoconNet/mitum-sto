@@ -2,26 +2,26 @@ package digest
 
 import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	mongodbstorage "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
-	bsonenc "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
-	stostate "github.com/ProtoconNet/mitum-sto/state/sto"
-	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
+	mongodb "github.com/ProtoconNet/mitum-currency/v3/digest/mongodb"
+	bson "github.com/ProtoconNet/mitum-currency/v3/digest/util/bson"
+	ststo "github.com/ProtoconNet/mitum-sto/state/sto"
+	typesto "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
 type STODesignDoc struct {
-	mongodbstorage.BaseDoc
+	mongodb.BaseDoc
 	st base.State
-	de stotypes.Design
+	de typesto.Design
 }
 
 func NewSTODesignDoc(st base.State, enc encoder.Encoder) (STODesignDoc, error) {
-	de, err := stostate.StateDesignValue(st)
+	de, err := ststo.StateDesignValue(st)
 	if err != nil {
 		return STODesignDoc{}, err
 	}
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodb.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return STODesignDoc{}, err
 	}
@@ -39,26 +39,26 @@ func (doc STODesignDoc) MarshalBSON() ([]byte, error) {
 		return nil, err
 	}
 
-	parsedKey, err := stostate.ParseStateKey(doc.st.Key(), stostate.STOPrefix)
+	parsedKey, err := ststo.ParseStateKey(doc.st.Key(), ststo.STOPrefix)
 	m["contract"] = parsedKey[1]
 	m["height"] = doc.st.Height()
 	m["design"] = doc.de
 
-	return bsonenc.Marshal(m)
+	return bson.Marshal(m)
 }
 
 type STOHolderPartitionsDoc struct {
-	mongodbstorage.BaseDoc
+	mongodb.BaseDoc
 	st  base.State
-	pts []stotypes.Partition
+	pts []typesto.Partition
 }
 
 func NewSTOHolderPartitionsDoc(st base.State, enc encoder.Encoder) (STOHolderPartitionsDoc, error) {
-	pts, err := stostate.StateTokenHolderPartitionsValue(st)
+	pts, err := ststo.StateTokenHolderPartitionsValue(st)
 	if err != nil {
 		return STOHolderPartitionsDoc{}, err
 	}
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodb.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return STOHolderPartitionsDoc{}, err
 	}
@@ -76,27 +76,27 @@ func (doc STOHolderPartitionsDoc) MarshalBSON() ([]byte, error) {
 		return nil, err
 	}
 
-	parsedKey, err := stostate.ParseStateKey(doc.st.Key(), stostate.STOPrefix)
+	parsedKey, err := ststo.ParseStateKey(doc.st.Key(), ststo.STOPrefix)
 	m["contract"] = parsedKey[1]
 	m["holder"] = parsedKey[2]
 	m["height"] = doc.st.Height()
 	m["partitions"] = doc.pts
 
-	return bsonenc.Marshal(m)
+	return bson.Marshal(m)
 }
 
 type STOHolderPartitionBalanceDoc struct {
-	mongodbstorage.BaseDoc
+	mongodb.BaseDoc
 	st base.State
 	am common.Big
 }
 
 func NewSTOHolderPartitionBalanceDoc(st base.State, enc encoder.Encoder) (STOHolderPartitionBalanceDoc, error) {
-	am, err := stostate.StateTokenHolderPartitionBalanceValue(st)
+	am, err := ststo.StateTokenHolderPartitionBalanceValue(st)
 	if err != nil {
 		return STOHolderPartitionBalanceDoc{}, err
 	}
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodb.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return STOHolderPartitionBalanceDoc{}, err
 	}
@@ -114,28 +114,28 @@ func (doc STOHolderPartitionBalanceDoc) MarshalBSON() ([]byte, error) {
 		return nil, err
 	}
 
-	parsedKey, err := stostate.ParseStateKey(doc.st.Key(), stostate.STOPrefix)
+	parsedKey, err := ststo.ParseStateKey(doc.st.Key(), ststo.STOPrefix)
 	m["contract"] = parsedKey[1]
 	m["holder"] = parsedKey[2]
 	m["partition"] = parsedKey[3]
 	m["height"] = doc.st.Height()
 	m["balance"] = doc.am
 
-	return bsonenc.Marshal(m)
+	return bson.Marshal(m)
 }
 
 type STOHolderPartitionOperatorsDoc struct {
-	mongodbstorage.BaseDoc
+	mongodb.BaseDoc
 	st   base.State
 	oprs []base.Address
 }
 
 func NewSTOHolderPartitionOperatorsDoc(st base.State, enc encoder.Encoder) (STOHolderPartitionOperatorsDoc, error) {
-	oprs, err := stostate.StateTokenHolderPartitionOperatorsValue(st)
+	oprs, err := ststo.StateTokenHolderPartitionOperatorsValue(st)
 	if err != nil {
 		return STOHolderPartitionOperatorsDoc{}, err
 	}
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodb.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return STOHolderPartitionOperatorsDoc{}, err
 	}
@@ -153,28 +153,28 @@ func (doc STOHolderPartitionOperatorsDoc) MarshalBSON() ([]byte, error) {
 		return nil, err
 	}
 
-	parsedKey, err := stostate.ParseStateKey(doc.st.Key(), stostate.STOPrefix)
+	parsedKey, err := ststo.ParseStateKey(doc.st.Key(), ststo.STOPrefix)
 	m["contract"] = parsedKey[1]
 	m["holder"] = parsedKey[2]
 	m["partition"] = parsedKey[3]
 	m["height"] = doc.st.Height()
 	m["operators"] = doc.oprs
 
-	return bsonenc.Marshal(m)
+	return bson.Marshal(m)
 }
 
 type STOPartitionBalanceDoc struct {
-	mongodbstorage.BaseDoc
+	mongodb.BaseDoc
 	st base.State
 	am common.Big
 }
 
 func NewSTOPartitionBalanceDoc(st base.State, enc encoder.Encoder) (STOPartitionBalanceDoc, error) {
-	am, err := stostate.StatePartitionBalanceValue(st)
+	am, err := ststo.StatePartitionBalanceValue(st)
 	if err != nil {
 		return STOPartitionBalanceDoc{}, err
 	}
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodb.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return STOPartitionBalanceDoc{}, err
 	}
@@ -192,27 +192,27 @@ func (doc STOPartitionBalanceDoc) MarshalBSON() ([]byte, error) {
 		return nil, err
 	}
 
-	parsedKey, err := stostate.ParseStateKey(doc.st.Key(), stostate.STOPrefix)
+	parsedKey, err := ststo.ParseStateKey(doc.st.Key(), ststo.STOPrefix)
 	m["contract"] = parsedKey[1]
 	m["partition"] = parsedKey[2]
 	m["height"] = doc.st.Height()
 	m["balance"] = doc.am
 
-	return bsonenc.Marshal(m)
+	return bson.Marshal(m)
 }
 
 type STOOperatorHoldersDoc struct {
-	mongodbstorage.BaseDoc
+	mongodb.BaseDoc
 	st  base.State
 	hds []base.Address
 }
 
 func NewSTOOperatorHoldersDoc(st base.State, enc encoder.Encoder) (STOOperatorHoldersDoc, error) {
-	hds, err := stostate.StateOperatorTokenHoldersValue(st)
+	hds, err := ststo.StateOperatorTokenHoldersValue(st)
 	if err != nil {
 		return STOOperatorHoldersDoc{}, err
 	}
-	b, err := mongodbstorage.NewBaseDoc(nil, st, enc)
+	b, err := mongodb.NewBaseDoc(nil, st, enc)
 	if err != nil {
 		return STOOperatorHoldersDoc{}, err
 	}
@@ -230,11 +230,11 @@ func (doc STOOperatorHoldersDoc) MarshalBSON() ([]byte, error) {
 		return nil, err
 	}
 
-	parsedKey, err := stostate.ParseStateKey(doc.st.Key(), stostate.STOPrefix)
+	parsedKey, err := ststo.ParseStateKey(doc.st.Key(), ststo.STOPrefix)
 	m["contract"] = parsedKey[1]
 	m["operator"] = parsedKey[2]
 	m["height"] = doc.st.Height()
 	m["operators"] = doc.hds
 
-	return bsonenc.Marshal(m)
+	return bson.Marshal(m)
 }

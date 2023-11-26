@@ -5,19 +5,19 @@ import (
 
 	"github.com/pkg/errors"
 
-	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum-sto/operation/kyc"
 	"github.com/ProtoconNet/mitum2/base"
 )
 
 type AddCustomersCommand struct {
 	BaseCommand
-	currencycmds.OperationFlags
-	Sender   currencycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
-	Contract currencycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
-	Customer currencycmds.AddressFlag    `arg:"" name:"customer" help:"customer" required:"true"`
-	Status   bool                        `arg:"" name:"status" help:"customer status" required:"true"`
-	Currency currencycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
+	crcycmds.OperationFlags
+	Sender   crcycmds.AddressFlag    `arg:"" name:"sender" help:"sender address" required:"true"`
+	Contract crcycmds.AddressFlag    `arg:"" name:"contract" help:"contract account address" required:"true"`
+	Customer crcycmds.AddressFlag    `arg:"" name:"customer" help:"customer" required:"true"`
+	Status   bool                    `arg:"" name:"status" help:"customer status" required:"true"`
+	Currency crcycmds.CurrencyIDFlag `arg:"" name:"currency-id" help:"currency id" required:"true"`
 	sender   base.Address
 	contract base.Address
 	customer base.Address
@@ -40,7 +40,7 @@ func (cmd *AddCustomersCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	currencycmds.PrettyPrint(cmd.Out, op)
+	crcycmds.PrettyPrint(cmd.Out, op)
 
 	return nil
 }

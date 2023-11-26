@@ -4,22 +4,16 @@ import (
 	"context"
 	"sync"
 
-	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
-	currencystate "github.com/ProtoconNet/mitum-currency/v3/state"
-	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	stostate "github.com/ProtoconNet/mitum-sto/state/sto"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	crcstate "github.com/ProtoconNet/mitum-currency/v3/state"
+	stcurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	stextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	crctypes "github.com/ProtoconNet/mitum-currency/v3/types"
+	ststo "github.com/ProtoconNet/mitum-sto/state/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
 )
-
-var revokeOperatorItemProcessorPool = sync.Pool{
-	New: func() interface{} {
-		return new(RevokeOperatorItemProcessor)
-	},
-}
 
 var revokeOperatorProcessorPool = sync.Pool{
 	New: func() interface{} {
@@ -33,135 +27,11 @@ func (RevokeOperator) Process(
 	return nil, nil, nil
 }
 
-type RevokeOperatorItemProcessor struct {
-	h            util.Hash
-	sender       base.Address
-	item         RevokeOperatorItem
-	operators    *[]base.Address
-	tokenHolders *[]base.Address
-}
-
-func (ipp *RevokeOperatorItemProcessor) PreProcess(
-	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
-) error {
-	it := ipp.item
-
-	if err := currencystate.CheckExistsState(extensioncurrency.StateKeyContractAccount(it.Contract()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckExistsState(stostate.StateKeyDesign(it.Contract()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.Partition()), getStateFunc); err != nil {
-		return err
-	}
-
-	if len(*ipp.operators) == 0 {
-		return errors.Errorf("empty tokenholder operators, %s-%s-%s", it.Contract(), it.Partition(), ipp.sender)
-	}
-
-	for i, ad := range *ipp.operators {
-		if ad.Equal(it.Operator()) {
-			break
-		}
-
-		if i == len(*ipp.operators)-1 {
-			return errors.Errorf("operator not in tokenholder operators, %s-%s-%s, %q", it.Contract(), it.Partition(), ipp.sender, it.Operator())
-		}
-	}
-
-	if len(*ipp.tokenHolders) == 0 {
-		return errors.Errorf("empty operator tokenholders, %s-%s-%s", it.Contract(), it.Partition(), it.Operator())
-	}
-
-	for i, ad := range *ipp.tokenHolders {
-		if ad.Equal(ipp.sender) {
-			break
-		}
-
-		if i == len(*ipp.tokenHolders)-1 {
-			return errors.Errorf("sender not in operator tokenholders, %s-%s-%s, %q", it.Contract(), it.Partition(), it.Operator(), ipp.sender)
-		}
-	}
-
-	if err := currencystate.CheckExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (ipp *RevokeOperatorItemProcessor) Process(
-	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
-) ([]base.StateMergeValue, error) {
-	sts := make([]base.StateMergeValue, 1)
-
-	it := ipp.item
-
-	if len(*ipp.operators) == 0 {
-		return nil, errors.Errorf("empty tokenholder operators, %s-%s-%s", it.Contract(), it.Partition(), ipp.sender)
-	}
-
-	for i, ad := range *ipp.operators {
-		if ad.Equal(it.Operator()) {
-			if i < len(*ipp.operators)-1 {
-				copy((*ipp.operators)[i:], (*ipp.operators)[i+1:])
-			}
-			*ipp.operators = (*ipp.operators)[:len(*ipp.operators)-1]
-			break
-		}
-
-		if i == len(*ipp.operators)-1 {
-			return nil, errors.Errorf("operator not in tokenholder operators, %s-%s-%s, %q", it.Contract(), it.Partition(), ipp.sender, it.Operator())
-		}
-	}
-
-	holders := *ipp.tokenHolders
-	if len(holders) == 0 {
-		return nil, errors.Errorf("empty operator tokenholders, %s-%s-%s", it.Contract(), it.Partition(), it.Operator())
-	}
-
-	for i, ad := range holders {
-		if ad.Equal(ipp.sender) {
-			if i < len(holders)-1 {
-				copy((holders)[i:], (holders)[i+1:])
-			}
-			holders = (holders)[:len(holders)-1]
-			break
-		}
-
-		if i == len(holders)-1 {
-			return nil, errors.Errorf("sender not in operator tokenholders, %s-%s-%s, %q", it.Contract(), it.Partition(), it.Operator(), ipp.sender)
-		}
-	}
-
-	sts[0] = currencystate.NewStateMergeValue(
-		stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition()),
-		stostate.NewOperatorTokenHoldersStateValue(holders),
-	)
-
-	return sts, nil
-}
-
-func (ipp *RevokeOperatorItemProcessor) Close() error {
-	ipp.h = nil
-	ipp.sender = nil
-	ipp.item = RevokeOperatorItem{}
-	ipp.operators = nil
-	ipp.tokenHolders = nil
-
-	revokeOperatorItemProcessorPool.Put(ipp)
-
-	return nil
-}
-
 type RevokeOperatorProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewRevokeOperatorProcessor() currencytypes.GetNewProcessor {
+func NewRevokeOperatorProcessor() crctypes.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -202,15 +72,15 @@ func (opp *RevokeOperatorProcessor) PreProcess(
 		return ctx, nil, e.Wrap(err)
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := crcstate.CheckExistsState(stcurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("sender not found, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := crcstate.CheckNotExistsState(stextension.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot set its operators, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
+	if err := crcstate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
@@ -220,29 +90,29 @@ func (opp *RevokeOperatorProcessor) PreProcess(
 	for _, it := range fact.Items() {
 		var ops, hds []base.Address
 
-		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
+		k := ststo.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s: %w", k, err), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to find token holder partition operators, %s: %w", k, err), nil
 			case found:
-				ops, err = stostate.StateTokenHolderPartitionOperatorsValue(st)
+				ops, err = ststo.StateTokenHolderPartitionOperatorsValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s: %w", k, err), nil
+					return nil, base.NewBaseOperationProcessReasonError("failed to get token holder partition operators, %s: %w", k, err), nil
 				}
 			default:
-				return nil, base.NewBaseOperationProcessReasonError("tokenholder partition operators not in state, %q", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("token holder partition operators not in state, %q", k), nil
 			}
 			operators[k] = &ops
 		}
 
-		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
+		k = ststo.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
 				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s: %w", k, err), nil
 			case found:
-				hds, err = stostate.StateOperatorTokenHoldersValue(st)
+				hds, err = ststo.StateOperatorTokenHoldersValue(st)
 				if err != nil {
 					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s: %w", k, err), nil
 				}
@@ -263,8 +133,8 @@ func (opp *RevokeOperatorProcessor) PreProcess(
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
+		ipc.operators = operators[ststo.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[ststo.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
 
 		if err := ipc.PreProcess(ctx, op, getStateFunc); err != nil {
 			return nil, base.NewBaseOperationProcessReasonError("fail to preprocess RevokeOperatorItem: %w", err), nil
@@ -295,29 +165,29 @@ func (opp *RevokeOperatorProcessor) Process( // nolint:dupl
 	for _, it := range fact.Items() {
 		var ops, hds []base.Address
 
-		k := stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
+		k := ststo.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())
 		if _, found := operators[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
-				return nil, base.NewBaseOperationProcessReasonError("failed to find tokenholder partition operators, %s: %w", k, err), nil
+				return nil, base.NewBaseOperationProcessReasonError("failed to find token holder partition operators, %s: %w", k, err), nil
 			case found:
-				ops, err = stostate.StateTokenHolderPartitionOperatorsValue(st)
+				ops, err = ststo.StateTokenHolderPartitionOperatorsValue(st)
 				if err != nil {
-					return nil, base.NewBaseOperationProcessReasonError("failed to get tokenholder partition operators, %s: %w", k, err), nil
+					return nil, base.NewBaseOperationProcessReasonError("failed to get token holder partition operators, %s: %w", k, err), nil
 				}
 			default:
-				return nil, base.NewBaseOperationProcessReasonError("tokenholder partition operators not in state, %q", k), nil
+				return nil, base.NewBaseOperationProcessReasonError("token holder partition operators not in state, %q", k), nil
 			}
 			operators[k] = &ops
 		}
 
-		k = stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
+		k = ststo.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())
 		if _, found := holders[k]; !found {
 			switch st, found, err := getStateFunc(k); {
 			case err != nil:
 				return nil, base.NewBaseOperationProcessReasonError("failed to find operator tokenholders, %s: %w", k, err), nil
 			case found:
-				hds, err = stostate.StateOperatorTokenHoldersValue(st)
+				hds, err = ststo.StateOperatorTokenHoldersValue(st)
 				if err != nil {
 					return nil, base.NewBaseOperationProcessReasonError("failed to get operator tokenholders, %s: %w", k, err), nil
 				}
@@ -340,8 +210,8 @@ func (opp *RevokeOperatorProcessor) Process( // nolint:dupl
 		ipc.h = op.Hash()
 		ipc.sender = fact.Sender()
 		ipc.item = it
-		ipc.operators = operators[stostate.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
-		ipc.tokenHolders = holders[stostate.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
+		ipc.operators = operators[ststo.StateKeyTokenHolderPartitionOperators(it.Contract(), fact.sender, it.Partition())]
+		ipc.tokenHolders = holders[ststo.StateKeyOperatorTokenHolders(it.Contract(), it.Operator(), it.Partition())]
 
 		s, err := ipc.Process(ctx, op, getStateFunc)
 		if err != nil {
@@ -353,9 +223,9 @@ func (opp *RevokeOperatorProcessor) Process( // nolint:dupl
 	}
 
 	for k, v := range operators {
-		sts = append(sts, currencystate.NewStateMergeValue(
+		sts = append(sts, crcstate.NewStateMergeValue(
 			k,
-			stostate.NewTokenHolderPartitionOperatorsStateValue(*v),
+			ststo.NewTokenHolderPartitionOperatorsStateValue(*v),
 		))
 	}
 
@@ -373,18 +243,18 @@ func (opp *RevokeOperatorProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
 
 	for i := range sb {
-		v, ok := sb[i].Value().(currency.BalanceStateValue)
+		v, ok := sb[i].Value().(stcurrency.BalanceStateValue)
 		if !ok {
 			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
 		}
-		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))
+		stv := stcurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
+		sts = append(sts, crcstate.NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil

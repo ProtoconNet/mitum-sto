@@ -11,21 +11,21 @@ import (
 func (po Policy) MarshalBSON() ([]byte, error) {
 	return bsonenc.Marshal(
 		bson.M{
-			"_hint":       po.Hint().String(),
-			"partitions":  po.partitions,
-			"aggregate":   po.aggregate.String(),
-			"controllers": po.controllers,
-			"documents":   po.documents,
+			"_hint":      po.Hint().String(),
+			"partitions": po.partitions,
+			"aggregate":  po.aggregate.String(),
+			//"controllers": po.controllers,
+			"documents": po.documents,
 		},
 	)
 }
 
 type PolicyBSONUnmarshaler struct {
-	Hint        string   `bson:"_hint"`
-	Partitions  []string `bson:"partitions"`
-	Aggregate   string   `bson:"aggregate"`
-	Controllers []string `bson:"controllers"`
-	Documents   bson.Raw `bson:"documents"`
+	Hint       string   `bson:"_hint"`
+	Partitions []string `bson:"partitions"`
+	Aggregate  string   `bson:"aggregate"`
+	//Controllers []string `bson:"controllers"`
+	Documents bson.Raw `bson:"documents"`
 }
 
 func (po *Policy) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
@@ -41,5 +41,5 @@ func (po *Policy) DecodeBSON(b []byte, enc *bsonenc.Encoder) error {
 		return e.Wrap(err)
 	}
 
-	return po.unpack(enc, ht, upo.Partitions, upo.Aggregate, upo.Controllers, upo.Documents)
+	return po.unpack(enc, ht, upo.Partitions, upo.Aggregate, upo.Documents)
 }

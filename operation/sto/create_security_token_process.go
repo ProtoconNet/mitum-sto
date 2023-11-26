@@ -5,23 +5,15 @@ import (
 	"sync"
 
 	"github.com/ProtoconNet/mitum-currency/v3/common"
-	currencyoperation "github.com/ProtoconNet/mitum-currency/v3/operation/currency"
-	currencystate "github.com/ProtoconNet/mitum-currency/v3/state"
-	currency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
-	extensioncurrency "github.com/ProtoconNet/mitum-currency/v3/state/extension"
-	currencytypes "github.com/ProtoconNet/mitum-currency/v3/types"
-	stostate "github.com/ProtoconNet/mitum-sto/state/sto"
-	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
+	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
+	crcstate "github.com/ProtoconNet/mitum-currency/v3/state"
+	stcurrency "github.com/ProtoconNet/mitum-currency/v3/state/currency"
+	stextension "github.com/ProtoconNet/mitum-currency/v3/state/extension"
+	crctypes "github.com/ProtoconNet/mitum-currency/v3/types"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/pkg/errors"
 )
-
-var createSecurityTokenItemProcessorPool = sync.Pool{
-	New: func() interface{} {
-		return new(CreateSecurityTokenItemProcessor)
-	},
-}
 
 var createSecurityTokenProcessorPool = sync.Pool{
 	New: func() interface{} {
@@ -35,87 +27,11 @@ func (CreateSecurityToken) Process(
 	return nil, nil, nil
 }
 
-type CreateSecurityTokenItemProcessor struct {
-	h      util.Hash
-	sender base.Address
-	item   CreateSecurityTokenItem
-}
-
-func (ipp *CreateSecurityTokenItemProcessor) PreProcess(
-	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
-) error {
-	it := ipp.item
-
-	if err := currencystate.CheckExistsState(extensioncurrency.StateKeyContractAccount(it.Contract()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckNotExistsState(stostate.StateKeyDesign(it.Contract()), getStateFunc); err != nil {
-		return err
-	}
-
-	if err := currencystate.CheckNotExistsState(stostate.StateKeyPartitionBalance(it.Contract(), it.DefaultPartition()), getStateFunc); err != nil {
-		return err
-	}
-
-	for _, con := range it.Controllers() {
-		if err := currencystate.CheckExistsState(currency.StateKeyAccount(con), getStateFunc); err != nil {
-			return err
-		}
-	}
-
-	if err := currencystate.CheckExistsState(currency.StateKeyCurrencyDesign(it.Currency()), getStateFunc); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (ipp *CreateSecurityTokenItemProcessor) Process(
-	ctx context.Context, op base.Operation, getStateFunc base.GetStateFunc,
-) ([]base.StateMergeValue, error) {
-	sts := make([]base.StateMergeValue, 2)
-
-	it := ipp.item
-
-	partition := it.DefaultPartition()
-	partitions := []stotypes.Partition{partition}
-	documents := []stotypes.Document{}
-
-	policy := stotypes.NewPolicy(partitions, common.NewBig(0), it.Controllers(), documents)
-	design := stotypes.NewDesign(it.Granularity(), policy)
-
-	if err := design.IsValid(nil); err != nil {
-		return nil, err
-	}
-
-	sts[0] = currencystate.NewStateMergeValue(
-		stostate.StateKeyDesign(it.Contract()),
-		stostate.NewDesignStateValue(design),
-	)
-	sts[1] = currencystate.NewStateMergeValue(
-		stostate.StateKeyPartitionBalance(it.Contract(), it.DefaultPartition()),
-		stostate.NewPartitionBalanceStateValue(common.ZeroBig),
-	)
-
-	return sts, nil
-}
-
-func (ipp *CreateSecurityTokenItemProcessor) Close() error {
-	ipp.h = nil
-	ipp.sender = nil
-	ipp.item = CreateSecurityTokenItem{}
-
-	createSecurityTokenItemProcessorPool.Put(ipp)
-
-	return nil
-}
-
 type CreateSecurityTokenProcessor struct {
 	*base.BaseOperationProcessor
 }
 
-func NewCreateSecurityTokenProcessor() currencytypes.GetNewProcessor {
+func NewCreateSecurityTokenProcessor() crctypes.GetNewProcessor {
 	return func(
 		height base.Height,
 		getStateFunc base.GetStateFunc,
@@ -156,15 +72,15 @@ func (opp *CreateSecurityTokenProcessor) PreProcess(
 		return ctx, nil, e.Wrap(err)
 	}
 
-	if err := currencystate.CheckExistsState(currency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := crcstate.CheckExistsState(stcurrency.StateKeyAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("sender not found, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckNotExistsState(extensioncurrency.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
+	if err := crcstate.CheckNotExistsState(stextension.StateKeyContractAccount(fact.Sender()), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("contract account cannot create security tokens, %q: %w", fact.Sender(), err), nil
 	}
 
-	if err := currencystate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
+	if err := crcstate.CheckFactSignsByState(fact.sender, op.Signs(), getStateFunc); err != nil {
 		return ctx, base.NewBaseOperationProcessReasonError("invalid signing: %w", err), nil
 	}
 
@@ -232,18 +148,18 @@ func (opp *CreateSecurityTokenProcessor) Process( // nolint:dupl
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
 	}
-	sb, err := currencyoperation.CheckEnoughBalance(fact.sender, required, getStateFunc)
+	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
 	}
 
 	for i := range sb {
-		v, ok := sb[i].Value().(currency.BalanceStateValue)
+		v, ok := sb[i].Value().(stcurrency.BalanceStateValue)
 		if !ok {
 			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
 		}
-		stv := currency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, currencystate.NewStateMergeValue(sb[i].Key(), stv))
+		stv := stcurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
+		sts = append(sts, crcstate.NewStateMergeValue(sb[i].Key(), stv))
 	}
 
 	return sts, nil, nil
@@ -255,8 +171,8 @@ func (opp *CreateSecurityTokenProcessor) Close() error {
 	return nil
 }
 
-func calculateSTOItemsFee(getStateFunc base.GetStateFunc, items []STOItem) (map[currencytypes.CurrencyID][2]common.Big, error) {
-	required := map[currencytypes.CurrencyID][2]common.Big{}
+func calculateSTOItemsFee(getStateFunc base.GetStateFunc, items []STOItem) (map[crctypes.CurrencyID][2]common.Big, error) {
+	required := map[crctypes.CurrencyID][2]common.Big{}
 
 	for _, item := range items {
 		rq := [2]common.Big{common.ZeroBig, common.ZeroBig}
@@ -265,7 +181,7 @@ func calculateSTOItemsFee(getStateFunc base.GetStateFunc, items []STOItem) (map[
 			rq = k
 		}
 
-		policy, err := currencystate.ExistsCurrencyPolicy(item.Currency(), getStateFunc)
+		policy, err := crcstate.ExistsCurrencyPolicy(item.Currency(), getStateFunc)
 		if err != nil {
 			return nil, err
 		}
