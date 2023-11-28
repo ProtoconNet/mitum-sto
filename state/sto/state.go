@@ -15,14 +15,14 @@ import (
 )
 
 var (
-	STOPrefix            = "sto:"
+	STOPrefix            = "sto"
 	DesignStateValueHint = hint.MustNewHint("mitum-sto-design-state-value-v0.0.1")
-	DesignSuffix         = ":design"
+	DesignSuffix         = "design"
 )
 
 // StateKeySTOPrefix returns sto:address
-func StateKeySTOPrefix(addr base.Address) string {
-	return fmt.Sprintf("%s%s", STOPrefix, addr.String())
+func StateKeySTOPrefix(adr base.Address) string {
+	return fmt.Sprintf("%s:%s", STOPrefix, adr.String())
 }
 
 type DesignStateValue struct {
@@ -78,8 +78,8 @@ func IsStateDesignKey(key string) bool {
 }
 
 // sto:address-stoID:design
-func StateKeyDesign(addr base.Address) string {
-	return fmt.Sprintf("%s%s", StateKeySTOPrefix(addr), DesignSuffix)
+func StateKeyDesign(adr base.Address) string {
+	return fmt.Sprintf("%s:%s", StateKeySTOPrefix(adr), DesignSuffix)
 }
 
 var MaxOperatorInOperators = 10
@@ -87,7 +87,7 @@ var MaxTokenHolderInTokenHolders = 10
 
 var (
 	TokenHolderPartitionsStateValueHint = hint.MustNewHint("mitum-sto-tokenholder-partitions-state-value-v0.0.1")
-	TokenHolderPartitionsSuffix         = ":holder-partitions"
+	TokenHolderPartitionsSuffix         = "holder-partitions"
 )
 
 type TokenHolderPartitionsStateValue struct {
@@ -141,8 +141,8 @@ func IsStateTokenHolderPartitionsKey(key string) bool {
 	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, TokenHolderPartitionsSuffix)
 }
 
-func StateKeyTokenHolderPartitions(caddr base.Address, addr base.Address) string {
-	return fmt.Sprintf("%s:%s%s", StateKeySTOPrefix(caddr), addr.String(), TokenHolderPartitionsSuffix)
+func StateKeyTokenHolderPartitions(cAdr base.Address, hAdr base.Address) string {
+	return fmt.Sprintf("%s:%s:%s", StateKeySTOPrefix(cAdr), hAdr.String(), TokenHolderPartitionsSuffix)
 }
 
 func StateTokenHolderPartitionsValue(st base.State) ([]stotypes.Partition, error) {
@@ -161,7 +161,7 @@ func StateTokenHolderPartitionsValue(st base.State) ([]stotypes.Partition, error
 
 var (
 	TokenHolderPartitionBalanceStateValueHint = hint.MustNewHint("mitum-sto-tokenholder-partition-balance-state-value-v0.0.1")
-	TokenHolderPartitionBalanceSuffix         = ":holder-partition-balance"
+	TokenHolderPartitionBalanceSuffix         = "holder-partition-balance"
 )
 
 type TokenHolderPartitionBalanceStateValue struct {
@@ -200,8 +200,8 @@ func (sv TokenHolderPartitionBalanceStateValue) HashBytes() []byte {
 	return sv.Amount.Bytes()
 }
 
-func StateKeyTokenHolderPartitionBalance(caddr base.Address, uaddr base.Address, partition stotypes.Partition) string {
-	return fmt.Sprintf("%s:%s:%s%s", StateKeySTOPrefix(caddr), uaddr.String(), partition, TokenHolderPartitionBalanceSuffix)
+func StateKeyTokenHolderPartitionBalance(cAdr base.Address, hAdr base.Address, partition stotypes.Partition) string {
+	return fmt.Sprintf("%s:%s:%s:%s", StateKeySTOPrefix(cAdr), hAdr.String(), partition, TokenHolderPartitionBalanceSuffix)
 }
 
 func IsStateTokenHolderPartitionBalanceKey(key string) bool {
@@ -224,7 +224,7 @@ func StateTokenHolderPartitionBalanceValue(st base.State) (common.Big, error) {
 
 var (
 	TokenHolderPartitionOperatorsStateValueHint = hint.MustNewHint("mitum-sto-tokenholder-partition-operators-state-value-v0.0.1")
-	TokenHolderPartitionOperatorsSuffix         = ":holder-partition-operators"
+	TokenHolderPartitionOperatorsSuffix         = "holder-partition-operators"
 )
 
 type TokenHolderPartitionOperatorsStateValue struct {
@@ -284,8 +284,8 @@ func (sv TokenHolderPartitionOperatorsStateValue) HashBytes() []byte {
 	return util.ConcatBytesSlice(bs...)
 }
 
-func StateKeyTokenHolderPartitionOperators(caddr base.Address, uaddr base.Address, partition stotypes.Partition) string {
-	return fmt.Sprintf("%s:%s:%s%s", StateKeySTOPrefix(caddr), uaddr.String(), partition.String(), TokenHolderPartitionOperatorsSuffix)
+func StateKeyTokenHolderPartitionOperators(cAdr base.Address, hAdr base.Address, partition stotypes.Partition) string {
+	return fmt.Sprintf("%s:%s:%s:%s", StateKeySTOPrefix(cAdr), hAdr.String(), partition.String(), TokenHolderPartitionOperatorsSuffix)
 }
 
 func IsStateTokenHolderPartitionOperatorsKey(key string) bool {
@@ -308,7 +308,7 @@ func StateTokenHolderPartitionOperatorsValue(st base.State) ([]base.Address, err
 
 var (
 	PartitionBalanceStateValueHint = hint.MustNewHint("mitum-sto-partition-balance-state-value-v0.0.1")
-	PartitionBalanceSuffix         = ":partition-balance"
+	PartitionBalanceSuffix         = "partition-balance"
 )
 
 type PartitionBalanceStateValue struct {
@@ -341,8 +341,8 @@ func (sv PartitionBalanceStateValue) HashBytes() []byte {
 	return sv.Amount.Bytes()
 }
 
-func StateKeyPartitionBalance(caddr base.Address, partition stotypes.Partition) string {
-	return fmt.Sprintf("%s:%s%s", StateKeySTOPrefix(caddr), partition.String(), PartitionBalanceSuffix)
+func StateKeyPartitionBalance(cAdr base.Address, partition stotypes.Partition) string {
+	return fmt.Sprintf("%s:%s:%s", StateKeySTOPrefix(cAdr), partition.String(), PartitionBalanceSuffix)
 }
 
 func IsStatePartitionBalanceKey(key string) bool {
@@ -363,85 +363,9 @@ func StatePartitionBalanceValue(st base.State) (common.Big, error) {
 	return pb.Amount, nil
 }
 
-//var (
-//	PartitionControllersStateValueHint = hint.MustNewHint("mitum-sto-partition-controllers-state-value-v0.0.1")
-//	PartitionControllersSuffix         = ":partition-controllers"
-//)
-//
-//type PartitionControllersStateValue struct {
-//	hint.BaseHinter
-//	Controllers []base.Address
-//}
-//
-//func NewPartitionControllersStateValue(controllers []base.Address) PartitionControllersStateValue {
-//	return PartitionControllersStateValue{
-//		BaseHinter:  hint.NewBaseHinter(PartitionControllersStateValueHint),
-//		Controllers: controllers,
-//	}
-//}
-//
-//func (p PartitionControllersStateValue) Hint() hint.Hint {
-//	return p.BaseHinter.Hint()
-//}
-//
-//func (p PartitionControllersStateValue) IsValid([]byte) error {
-//	e := util.ErrInvalid.Errorf("invalid PartitionControllersStateValue")
-//
-//	if err := p.BaseHinter.IsValid(PartitionControllersStateValueHint.Type().Bytes()); err != nil {
-//		return e.Wrap(err)
-//	}
-//
-//	if len(p.Controllers) == 0 {
-//		return errors.Errorf("empty controllers")
-//	}
-//
-//	m := map[string]struct{}{}
-//	for _, controller := range p.Controllers {
-//		if _, found := m[controller.String()]; found {
-//			return util.ErrInvalid.Errorf("duplicated Address found")
-//		}
-//		m[controller.String()] = struct{}{}
-//	}
-//
-//	return nil
-//}
-//
-//func (p PartitionControllersStateValue) HashBytes() []byte {
-//	bs := make([][]byte, len(p.Controllers))
-//	sort.Slice(p.Controllers, func(i, j int) bool {
-//		return bytes.Compare(p.Controllers[i].Bytes(), p.Controllers[j].Bytes()) < 0
-//	})
-//	for i, controller := range p.Controllers {
-//		bs[i] = controller.Bytes()
-//	}
-//	return util.ConcatBytesSlice(bs...)
-//}
-//
-//func StateKeyPartitionControllers(caddr base.Address, partition stotypes.Partition) string {
-//	return fmt.Sprintf("%s:%s%s", StateKeySTOPrefix(caddr), partition.String(), PartitionControllersSuffix)
-//}
-//
-//func IsStatePartitionControllersKey(key string) bool {
-//	return strings.HasPrefix(key, STOPrefix) && strings.HasSuffix(key, PartitionControllersSuffix)
-//}
-//
-//func StatePartitionControllersValue(st base.State) ([]base.Address, error) {
-//	v := st.Value()
-//	if v == nil {
-//		return []base.Address{}, util.ErrNotFound.Errorf("Partition controllers not found in State")
-//	}
-//
-//	addrs, ok := v.(PartitionControllersStateValue)
-//	if !ok {
-//		return []base.Address{}, errors.Errorf("invalid Partition operators value found, %T", v)
-//	}
-//
-//	return addrs.Controllers, nil
-//}
-
 var (
 	OperatorTokenHoldersStateValueHint = hint.MustNewHint("mitum-sto-operator-tokenholders-state-value-v0.0.1")
-	OperatorTokenHoldersSuffix         = ":operator-holders"
+	OperatorTokenHoldersSuffix         = "operator-holders"
 )
 
 type OperatorTokenHoldersStateValue struct {
@@ -502,7 +426,7 @@ func (o OperatorTokenHoldersStateValue) HashBytes() []byte {
 }
 
 func StateKeyOperatorTokenHolders(cAdr base.Address, oAdr base.Address, partition stotypes.Partition) string {
-	return fmt.Sprintf("%s:%s:%s%s", StateKeySTOPrefix(cAdr), oAdr.String(), partition.String(), OperatorTokenHoldersSuffix)
+	return fmt.Sprintf("%s:%s:%s:%s", StateKeySTOPrefix(cAdr), oAdr.String(), partition.String(), OperatorTokenHoldersSuffix)
 }
 
 func IsStateOperatorTokenHoldersKey(key string) bool {
@@ -512,15 +436,15 @@ func IsStateOperatorTokenHoldersKey(key string) bool {
 func StateOperatorTokenHoldersValue(st base.State) ([]base.Address, error) {
 	v := st.Value()
 	if v == nil {
-		return []base.Address{}, util.ErrNotFound.Errorf("operator tokenholders not found in State")
+		return []base.Address{}, util.ErrNotFound.Errorf("operator token holders not found in State")
 	}
 
-	addrs, ok := v.(OperatorTokenHoldersStateValue)
+	stv, ok := v.(OperatorTokenHoldersStateValue)
 	if !ok {
 		return []base.Address{}, errors.Errorf("invalid operator tokenholders value found, %T", v)
 	}
 
-	return addrs.TokenHolders, nil
+	return stv.TokenHolders, nil
 }
 
 func ExistsTokenHolderPartitions(cAdr base.Address, holder base.Address, getStateFunc base.GetStateFunc) ([]stotypes.Partition, error) {
@@ -574,13 +498,13 @@ func ExistsPolicy(cAdr base.Address, getStateFunc base.GetStateFunc) (stotypes.P
 	return policy, nil
 }
 
-func ParseStateKey(key string, Prefix string) ([]string, error) {
+func ParseStateKey(key string, Prefix string, expected int) ([]string, error) {
 	parsedKey := strings.Split(key, ":")
 	if parsedKey[0] != Prefix[:len(Prefix)-1] {
 		return nil, errors.Errorf("State Key not include Prefix, %s", parsedKey)
 	}
-	if len(parsedKey) < 3 {
-		return nil, errors.Errorf("parsing State Key string failed, %s", parsedKey)
+	if len(parsedKey) < expected {
+		return nil, errors.Errorf("parsed State Key length under %v", expected)
 	} else {
 		return parsedKey, nil
 	}
