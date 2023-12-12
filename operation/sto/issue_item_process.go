@@ -188,12 +188,10 @@ func (ipp *IssueItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *IssueItemProcessor) Close() error {
+func (ipp *IssueItemProcessor) Close() {
 	ipp.h = nil
 	ipp.sender = nil
 	ipp.item = IssueItem{}
 
 	issueItemProcessorPool.Put(ipp)
-
-	return nil
 }

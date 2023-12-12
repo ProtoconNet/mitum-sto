@@ -2,6 +2,7 @@ package kyc
 
 import (
 	"context"
+	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"sync"
 
 	"github.com/ProtoconNet/mitum-currency/v3/operation/currency"
@@ -102,14 +103,12 @@ func (ipp *AddCustomerItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *AddCustomerItemProcessor) Close() error {
+func (ipp *AddCustomerItemProcessor) Close() {
 	ipp.h = nil
 	ipp.sender = nil
 	ipp.item = AddCustomerItem{}
 
 	addCustomerItemProcessorPool.Put(ipp)
-
-	return nil
 }
 
 type AddCustomerProcessor struct {
@@ -224,28 +223,52 @@ func (opp *AddCustomerProcessor) Process( // nolint:dupl
 		ipc.Close()
 	}
 
-	fitems := fact.Items()
-	items := make([]KYCItem, len(fitems))
+	items := make([]KYCItem, len(fact.Items()))
 	for i := range fact.Items() {
-		items[i] = fitems[i]
+		items[i] = fact.Items()[i]
 	}
 
-	required, err := calculateKYCItemsFee(getStateFunc, items)
+	feeReceiveBalSts, required, err := calculateKYCItemsFee(getStateFunc, items)
 	if err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee: %w", err), nil
+		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee; %w", err), nil
 	}
 	sb, err := currency.CheckEnoughBalance(fact.sender, required, getStateFunc)
 	if err != nil {
-		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance: %w", err), nil
+		return nil, base.NewBaseOperationProcessReasonError("failed to check enough balance; %w", err), nil
 	}
 
-	for i := range sb {
-		v, ok := sb[i].Value().(stcurrency.BalanceStateValue)
+	for cid := range sb {
+		v, ok := sb[cid].Value().(stcurrency.BalanceStateValue)
 		if !ok {
-			return nil, nil, e.Wrap(errors.Errorf("expected BalanceStateValue, not %T", sb[i].Value()))
+			return nil, nil, e.Errorf("expected BalanceStateValue, not %T", sb[cid].Value())
 		}
-		stv := stcurrency.NewBalanceStateValue(v.Amount.WithBig(v.Amount.Big().Sub(required[i][0])))
-		sts = append(sts, state.NewStateMergeValue(sb[i].Key(), stv))
+
+		if sb[cid].Key() != feeReceiveBalSts[cid].Key() {
+			stmv := common.NewBaseStateMergeValue(
+				sb[cid].Key(),
+				stcurrency.NewDeductBalanceStateValue(v.Amount.WithBig(required[cid][1])),
+				func(height base.Height, st base.State) base.StateValueMerger {
+					return stcurrency.NewBalanceStateValueMerger(height, sb[cid].Key(), cid, st)
+				},
+			)
+
+			r, ok := feeReceiveBalSts[cid].Value().(stcurrency.BalanceStateValue)
+			if !ok {
+				return nil, base.NewBaseOperationProcessReasonError("expected %T, not %T", stcurrency.BalanceStateValue{}, feeReceiveBalSts[cid].Value()), nil
+			}
+			sts = append(
+				sts,
+				common.NewBaseStateMergeValue(
+					feeReceiveBalSts[cid].Key(),
+					stcurrency.NewAddBalanceStateValue(r.Amount.WithBig(required[cid][1])),
+					func(height base.Height, st base.State) base.StateValueMerger {
+						return stcurrency.NewBalanceStateValueMerger(height, feeReceiveBalSts[cid].Key(), cid, st)
+					},
+				),
+			)
+
+			sts = append(sts, stmv)
+		}
 	}
 
 	return sts, nil, nil

@@ -100,7 +100,7 @@ func (ipp *AuthorizeOperatorItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *AuthorizeOperatorItemProcessor) Close() error {
+func (ipp *AuthorizeOperatorItemProcessor) Close() {
 	ipp.h = nil
 	ipp.sender = nil
 	ipp.item = AuthorizeOperatorItem{}
@@ -108,6 +108,4 @@ func (ipp *AuthorizeOperatorItemProcessor) Close() error {
 	ipp.tokenHolders = nil
 
 	authorizeOperatorItemProcessorPool.Put(ipp)
-
-	return nil
 }

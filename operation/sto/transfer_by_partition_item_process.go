@@ -267,7 +267,7 @@ func (ipp *TransferByPartitionItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *TransferByPartitionItemProcessor) Close() error {
+func (ipp *TransferByPartitionItemProcessor) Close() {
 	ipp.h = nil
 	ipp.sender = nil
 	ipp.item = TransferByPartitionItem{}
@@ -275,6 +275,4 @@ func (ipp *TransferByPartitionItemProcessor) Close() error {
 	ipp.partitions = nil
 
 	transferByPartitionItemProcessorPool.Put(ipp)
-
-	return nil
 }

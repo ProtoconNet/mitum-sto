@@ -131,7 +131,7 @@ func (ipp *RevokeOperatorItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *RevokeOperatorItemProcessor) Close() error {
+func (ipp *RevokeOperatorItemProcessor) Close() {
 	ipp.h = nil
 	ipp.sender = nil
 	ipp.item = RevokeOperatorItem{}
@@ -139,6 +139,4 @@ func (ipp *RevokeOperatorItemProcessor) Close() error {
 	ipp.tokenHolders = nil
 
 	revokeOperatorItemProcessorPool.Put(ipp)
-
-	return nil
 }

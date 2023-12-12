@@ -264,7 +264,7 @@ func (ipp *RedeemItemProcessor) Process(
 	return sts, nil
 }
 
-func (ipp *RedeemItemProcessor) Close() error {
+func (ipp *RedeemItemProcessor) Close() {
 	ipp.h = nil
 	ipp.sender = nil
 	ipp.item = RedeemItem{}
@@ -272,6 +272,4 @@ func (ipp *RedeemItemProcessor) Close() error {
 	ipp.partitionBalance = nil
 
 	redeemItemProcessorPool.Put(ipp)
-
-	return nil
 }
