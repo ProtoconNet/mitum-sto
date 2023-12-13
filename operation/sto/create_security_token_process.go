@@ -143,7 +143,7 @@ func (opp *CreateSecurityTokenProcessor) Process( // nolint:dupl
 		items[i] = fact.Items()[i]
 	}
 
-	feeReceiveBalSts, required, err := calculateSTOItemsFee(getStateFunc, items)
+	feeReceiverBalSts, required, err := calculateSTOItemsFee(getStateFunc, items)
 	if err != nil {
 		return nil, base.NewBaseOperationProcessReasonError("failed to calculate fee; %w", err), nil
 	}
@@ -158,7 +158,9 @@ func (opp *CreateSecurityTokenProcessor) Process( // nolint:dupl
 			return nil, nil, e.Errorf("expected BalanceStateValue, not %T", sb[cid].Value())
 		}
 
-		if sb[cid].Key() != feeReceiveBalSts[cid].Key() {
+		_, feeReceiverFound := feeReceiverBalSts[cid]
+
+		if feeReceiverFound && (sb[cid].Key() != feeReceiverBalSts[cid].Key()) {
 			stmv := common.NewBaseStateMergeValue(
 				sb[cid].Key(),
 				stcurrency.NewDeductBalanceStateValue(v.Amount.WithBig(required[cid][1])),
@@ -167,17 +169,17 @@ func (opp *CreateSecurityTokenProcessor) Process( // nolint:dupl
 				},
 			)
 
-			r, ok := feeReceiveBalSts[cid].Value().(stcurrency.BalanceStateValue)
+			r, ok := feeReceiverBalSts[cid].Value().(stcurrency.BalanceStateValue)
 			if !ok {
-				return nil, base.NewBaseOperationProcessReasonError("expected %T, not %T", stcurrency.BalanceStateValue{}, feeReceiveBalSts[cid].Value()), nil
+				return nil, base.NewBaseOperationProcessReasonError("expected %T, not %T", stcurrency.BalanceStateValue{}, feeReceiverBalSts[cid].Value()), nil
 			}
 			sts = append(
 				sts,
 				common.NewBaseStateMergeValue(
-					feeReceiveBalSts[cid].Key(),
+					feeReceiverBalSts[cid].Key(),
 					stcurrency.NewAddBalanceStateValue(r.Amount.WithBig(required[cid][1])),
 					func(height base.Height, st base.State) base.StateValueMerger {
-						return stcurrency.NewBalanceStateValueMerger(height, feeReceiveBalSts[cid].Key(), cid, st)
+						return stcurrency.NewBalanceStateValueMerger(height, feeReceiverBalSts[cid].Key(), cid, st)
 					},
 				),
 			)
