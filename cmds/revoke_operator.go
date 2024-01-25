@@ -27,9 +27,6 @@ func (cmd *RevokeOperatorsCommand) Run(pctx context.Context) error {
 		return err
 	}
 
-	encs = cmd.Encoders
-	enc = cmd.Encoder
-
 	if err := cmd.parseFlags(); err != nil {
 		return err
 	}
@@ -49,19 +46,19 @@ func (cmd *RevokeOperatorsCommand) parseFlags() error {
 		return err
 	}
 
-	sender, err := cmd.Sender.Encode(enc)
+	sender, err := cmd.Sender.Encode(cmd.Encoders.JSON())
 	if err != nil {
 		return errors.Wrapf(err, "invalid sender format, %q", cmd.Sender.String())
 	}
 	cmd.sender = sender
 
-	contract, err := cmd.Contract.Encode(enc)
+	contract, err := cmd.Contract.Encode(cmd.Encoders.JSON())
 	if err != nil {
 		return errors.Wrapf(err, "invalid contract account format, %q", cmd.Contract.String())
 	}
 	cmd.contract = contract
 
-	operator, err := cmd.Operator.Encode(enc)
+	operator, err := cmd.Operator.Encode(cmd.Encoders.JSON())
 	if err != nil {
 		return errors.Wrapf(err, "invalid operator account format, %q", cmd.Operator.String())
 	}

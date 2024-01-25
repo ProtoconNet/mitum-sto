@@ -6,21 +6,20 @@ import (
 	"io"
 	"os"
 
-	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util"
 	"github.com/ProtoconNet/mitum2/util/encoder"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
 	"github.com/ProtoconNet/mitum2/util/logging"
 	"github.com/ProtoconNet/mitum2/util/ps"
 	"github.com/rs/zerolog"
 )
 
 type BaseCommand struct {
-	Encoder  *jsonenc.Encoder
-	Encoders *encoder.Encoders
-	Log      *zerolog.Logger
-	Out      io.Writer `kong:"-"`
+	Encoder  encoder.Encoder   `kong:"-"`
+	Encoders *encoder.Encoders `kong:"-"`
+	Log      *zerolog.Logger   `kong:"-"`
+	Out      io.Writer         `kong:"-"`
 }
 
 func (cmd *BaseCommand) prepare(pctx context.Context) (context.Context, error) {
@@ -28,7 +27,7 @@ func (cmd *BaseCommand) prepare(pctx context.Context) (context.Context, error) {
 	pps := ps.NewPS("cmd")
 
 	_ = pps.
-		AddOK(launch.PNameEncoder, crcycmds.PEncoder, nil)
+		AddOK(launch.PNameEncoder, currencycmds.PEncoder, nil)
 
 	_ = pps.POK(launch.PNameEncoder).
 		PostAddOK(launch.PNameAddHinters, PAddHinters)
@@ -45,10 +44,13 @@ func (cmd *BaseCommand) prepare(pctx context.Context) (context.Context, error) {
 		return pctx, err
 	}
 
-	return pctx, util.LoadFromContextOK(pctx,
-		launch.EncodersContextKey, &cmd.Encoders,
-		launch.EncoderContextKey, &cmd.Encoder,
-	)
+	if err := util.LoadFromContextOK(pctx, launch.EncodersContextKey, &cmd.Encoders); err != nil {
+		return pctx, err
+	}
+
+	cmd.Encoder = cmd.Encoders.JSON()
+
+	return pctx, nil
 }
 
 func (cmd *BaseCommand) print(f string, a ...interface{}) {

@@ -2,18 +2,16 @@ package cmds
 
 import (
 	"context"
+	currencycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
+	currencydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum-sto/digest"
-
-	crcycmds "github.com/ProtoconNet/mitum-currency/v3/cmds"
-	crcydigest "github.com/ProtoconNet/mitum-currency/v3/digest"
 	"github.com/ProtoconNet/mitum2/base"
+	"github.com/ProtoconNet/mitum2/isaac"
 	isaacblock "github.com/ProtoconNet/mitum2/isaac/block"
 	isaacdatabase "github.com/ProtoconNet/mitum2/isaac/database"
 	"github.com/ProtoconNet/mitum2/launch"
 	"github.com/ProtoconNet/mitum2/util"
-	"github.com/ProtoconNet/mitum2/util/fixedtree"
 	"github.com/ProtoconNet/mitum2/util/logging"
-	"github.com/pkg/errors"
 )
 
 func ProcessDigester(ctx context.Context) (context.Context, error) {
@@ -22,8 +20,8 @@ func ProcessDigester(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	var st *crcydigest.Database
-	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
+	var st *currencydigest.Database
+	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
 		return ctx, err
 	}
 
@@ -37,15 +35,34 @@ func ProcessDigester(ctx context.Context) (context.Context, error) {
 	}
 	root := launch.LocalFSDataDirectory(design.Storage.Base)
 
-	di := digest.NewDigester(st, root, nil)
+	var newReaders func(context.Context, string, *isaac.BlockItemReadersArgs) (*isaac.BlockItemReaders, error)
+	var fromRemotes isaac.RemotesBlockItemReadFunc
+
+	if err := util.LoadFromContextOK(ctx,
+		launch.NewBlockItemReadersFuncContextKey, &newReaders,
+		launch.RemotesBlockItemReaderFuncContextKey, &fromRemotes,
+	); err != nil {
+		return ctx, err
+	}
+
+	var sourceReaders *isaac.BlockItemReaders
+
+	switch i, err := newReaders(ctx, root, nil); {
+	case err != nil:
+		return ctx, err
+	default:
+		sourceReaders = i
+	}
+
+	di := digest.NewDigester(st, root, sourceReaders, fromRemotes, design.NetworkID, nil)
 	_ = di.SetLogging(log)
 
-	return context.WithValue(ctx, crcycmds.ContextValueDigester, di), nil
+	return context.WithValue(ctx, currencycmds.ContextValueDigester, di), nil
 }
 
 func ProcessStartDigester(ctx context.Context) (context.Context, error) {
 	var di *digest.Digester
-	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigester, &di); err != nil {
+	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigester, &di); err != nil {
 		return ctx, err
 	}
 	if di == nil {
@@ -68,8 +85,8 @@ func PDigesterFollowUp(ctx context.Context) (context.Context, error) {
 		return ctx, err
 	}
 
-	var st *crcydigest.Database
-	if err := util.LoadFromContext(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
+	var st *currencydigest.Database
+	if err := util.LoadFromContext(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
 		return ctx, err
 	}
 	if st == nil {
@@ -101,8 +118,8 @@ func PDigesterFollowUp(ctx context.Context) (context.Context, error) {
 }
 
 func digestFollowup(ctx context.Context, height base.Height) error {
-	var st *crcydigest.Database
-	if err := util.LoadFromContextOK(ctx, crcycmds.ContextValueDigestDatabase, &st); err != nil {
+	var st *currencydigest.Database
+	if err := util.LoadFromContextOK(ctx, currencycmds.ContextValueDigestDatabase, &st); err != nil {
 		return err
 	}
 
@@ -111,6 +128,25 @@ func digestFollowup(ctx context.Context, height base.Height) error {
 		return err
 	}
 	root := launch.LocalFSDataDirectory(design.Storage.Base)
+
+	var newReaders func(context.Context, string, *isaac.BlockItemReadersArgs) (*isaac.BlockItemReaders, error)
+	var fromRemotes isaac.RemotesBlockItemReadFunc
+
+	if err := util.LoadFromContextOK(ctx,
+		launch.NewBlockItemReadersFuncContextKey, &newReaders,
+		launch.RemotesBlockItemReaderFuncContextKey, &fromRemotes,
+	); err != nil {
+		return err
+	}
+
+	var sourceReaders *isaac.BlockItemReaders
+
+	switch i, err := newReaders(ctx, root, nil); {
+	case err != nil:
+		return err
+	default:
+		sourceReaders = i
+	}
 
 	if height <= st.LastBlock() {
 		return nil
@@ -121,58 +157,33 @@ func digestFollowup(ctx context.Context, height base.Height) error {
 		lastBlock = base.GenesisHeight
 	}
 
-	for i := lastBlock; i <= height; i++ {
-		reader, err := isaacblock.NewLocalFSReaderFromHeight(root, i, enc)
+	for h := lastBlock; h <= height; h++ {
+
+		var bm base.BlockMap
+
+		switch i, found, err := isaac.BlockItemReadersDecode[base.BlockMap](sourceReaders.Item, h, base.BlockItemMap, nil); {
+		case err != nil:
+			return err
+		case !found:
+			return util.ErrNotFound.Errorf("blockmap")
+		default:
+			if err := i.IsValid(design.NetworkID); err != nil {
+				return err
+			}
+
+			bm = i
+		}
+
+		pr, ops, sts, opsTree, _, _, err := isaacblock.LoadBlockItemsFromReader(bm, sourceReaders.Item, h)
 		if err != nil {
 			return err
 		}
-		m, found, err := reader.BlockMap()
-		if err != nil {
-			return err
-		} else if !found {
-			return errors.Errorf("blockmap not found")
-		}
-		if err := m.IsValid(design.NetworkID); err != nil {
+
+		if err := digest.DigestBlock(ctx, st, bm, ops, opsTree, sts, pr); err != nil {
 			return err
 		}
 
-		var ops []base.Operation
-		switch v, found, err := reader.Item(base.BlockMapItemTypeOperations); {
-		case err != nil:
-			return err
-		case found:
-			ops = v.([]base.Operation) //nolint:forcetypeassert //...
-		}
-
-		var opstree fixedtree.Tree
-		switch v, found, err := reader.Item(base.BlockMapItemTypeOperationsTree); {
-		case err != nil:
-			return err
-		case found:
-			opstree = v.(fixedtree.Tree) //nolint:forcetypeassert //...
-		}
-
-		var sts []base.State
-		switch v, found, err := reader.Item(base.BlockMapItemTypeStates); {
-		case err != nil:
-			return err
-		case found:
-			sts = v.([]base.State) //nolint:forcetypeassert //...
-		}
-
-		var proposal base.ProposalSignFact
-		switch v, found, err := reader.Item(base.BlockMapItemTypeProposal); {
-		case err != nil:
-			return err
-		case found:
-			proposal = v.(base.ProposalSignFact) //nolint:forcetypeassert //...
-		}
-
-		if err := digest.DigestBlock(ctx, st, m, ops, opstree, sts, proposal); err != nil {
-			return err
-		}
-
-		if err := st.SetLastBlock(m.Manifest().Height()); err != nil {
+		if err := st.SetLastBlock(h); err != nil {
 			return err
 		}
 
