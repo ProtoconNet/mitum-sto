@@ -82,11 +82,8 @@ func POperationProcessorsMap(pctx context.Context) (context.Context, error) {
 		}
 	}
 
-	var f crcycmds.ProposalOperationFactHintFunc = IsSupportedProposalOperationFactHintFunc
-
 	pctx = context.WithValue(pctx, crcycmds.OperationProcessorContextKey, opr)
 	pctx = context.WithValue(pctx, launch.OperationProcessorsMapContextKey, set) //revive:disable-line:modifies-parameter
-	pctx = context.WithValue(pctx, crcycmds.ProposalOperationFactHintContextKey, f)
 
 	return pctx, nil
 }
