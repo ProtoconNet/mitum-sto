@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
@@ -34,7 +34,7 @@ type PolicyJSONUnmarshaler struct {
 	Documents json.RawMessage `json:"documents"`
 }
 
-func (po *Policy) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (po *Policy) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of Policy")
 
 	var upo PolicyJSONUnmarshaler

@@ -6,7 +6,7 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
 type TransferByPartitionFactJSONMarshaler struct {
@@ -29,7 +29,7 @@ type TransferByPartitionFactJSONUnMarshaler struct {
 	Items json.RawMessage `json:"items"`
 }
 
-func (fact *TransferByPartitionFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (fact *TransferByPartitionFact) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of TransferByPartitionFact")
 
 	var uf TransferByPartitionFactJSONUnMarshaler
@@ -52,7 +52,7 @@ func (op TransferByPartition) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (op *TransferByPartition) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (op *TransferByPartition) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of TransferByPartition")
 
 	var ubo common.BaseOperation

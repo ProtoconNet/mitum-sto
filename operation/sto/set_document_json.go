@@ -6,7 +6,7 @@ import (
 	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
 type SetDocumentFactJSONMarshaler struct {
@@ -41,7 +41,7 @@ type SetDocumentFactJSONUnMarshaler struct {
 	Currency     string `json:"currency"`
 }
 
-func (fact *SetDocumentFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (fact *SetDocumentFact) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of SetDocumentFact")
 
 	var uf SetDocumentFactJSONUnMarshaler
@@ -64,7 +64,7 @@ func (op SetDocument) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (op *SetDocument) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (op *SetDocument) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of SetDocument")
 
 	var ubo common.BaseOperation

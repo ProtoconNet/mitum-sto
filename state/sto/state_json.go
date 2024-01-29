@@ -7,7 +7,7 @@ import (
 	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
@@ -27,7 +27,7 @@ type DesignStateValueJSONUnmarshaler struct {
 	STO json.RawMessage `json:"sto"`
 }
 
-func (de *DesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (de *DesignStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of DesignStateValue")
 
 	var u DesignStateValueJSONUnmarshaler
@@ -64,7 +64,7 @@ type PartitionBalanceStateValueJSONUnmarshaler struct {
 	Amount string `json:"amount"`
 }
 
-func (p *PartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (p *PartitionBalanceStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of PartitionBalanceStateValue")
 
 	var u PartitionBalanceStateValueJSONUnmarshaler
@@ -98,7 +98,7 @@ type TokenHolderPartitionsStateValueJSONUnmarshaler struct {
 	Partitions []string `json:"partitions"`
 }
 
-func (p *TokenHolderPartitionsStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (p *TokenHolderPartitionsStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of TokenHolderPartitionsStateValue")
 
 	var u TokenHolderPartitionsStateValueJSONUnmarshaler
@@ -135,7 +135,7 @@ type TokenHolderPartitionBalanceStateValueJSONUnmarshaler struct {
 	Partition string `json:"partition"`
 }
 
-func (p *TokenHolderPartitionBalanceStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (p *TokenHolderPartitionBalanceStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of TokenHolderPartitionBalanceStateValue")
 
 	var u TokenHolderPartitionBalanceStateValueJSONUnmarshaler
@@ -170,7 +170,7 @@ type TokenHolderPartitionOperatorsStateValueJSONUnmarshaler struct {
 	Operators []string `json:"operators"`
 }
 
-func (ops *TokenHolderPartitionOperatorsStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (ops *TokenHolderPartitionOperatorsStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of TokenHolderPartitionOperatorsStateValue")
 
 	var u TokenHolderPartitionOperatorsStateValueJSONUnmarshaler
@@ -207,7 +207,7 @@ type OperatorTokenHoldersStateValueJSONUnmarshaler struct {
 	TokenHolders []string `json:"tokenholders"`
 }
 
-func (oth *OperatorTokenHoldersStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (oth *OperatorTokenHoldersStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of OperatorTokenHoldersStateValue")
 
 	var u OperatorTokenHoldersStateValueJSONUnmarshaler

@@ -5,7 +5,7 @@ import (
 
 	kyctypes "github.com/ProtoconNet/mitum-sto/types/kyc"
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
@@ -25,7 +25,7 @@ type DesignStateValueJSONUnmarshaler struct {
 	KYC json.RawMessage `json:"kyc"`
 }
 
-func (de *DesignStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (de *DesignStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of DesignStateValue")
 
 	var u DesignStateValueJSONUnmarshaler
@@ -60,7 +60,7 @@ type CustomerStateValueJSONUnmarshaler struct {
 	Status bool `json:"status"`
 }
 
-func (cm *CustomerStateValue) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (cm *CustomerStateValue) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of CustomerStateValue")
 
 	var u CustomerStateValueJSONUnmarshaler

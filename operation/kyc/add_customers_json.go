@@ -5,7 +5,7 @@ import (
 	"github.com/ProtoconNet/mitum-currency/v3/common"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 )
 
 type AddCustomerFactJSONMarshaler struct {
@@ -28,7 +28,7 @@ type AddCustomerFactJSONUnMarshaler struct {
 	Items json.RawMessage `json:"items"`
 }
 
-func (fact *AddCustomerFact) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (fact *AddCustomerFact) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of AddCustomerFact")
 
 	var uf AddCustomerFactJSONUnMarshaler
@@ -51,7 +51,7 @@ func (op AddCustomer) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (op *AddCustomer) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (op *AddCustomer) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of AddCustomer")
 
 	var ubo common.BaseOperation

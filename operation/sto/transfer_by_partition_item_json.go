@@ -5,7 +5,7 @@ import (
 	stotypes "github.com/ProtoconNet/mitum-sto/types/sto"
 	"github.com/ProtoconNet/mitum2/base"
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
@@ -41,7 +41,7 @@ type TransferByPartitionItemJSONUnMarshaler struct {
 	Currency    string    `json:"currency"`
 }
 
-func (it *TransferByPartitionItem) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (it *TransferByPartitionItem) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of TransferByPartitionItem")
 
 	var uit TransferByPartitionItemJSONUnMarshaler

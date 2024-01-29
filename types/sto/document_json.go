@@ -2,7 +2,7 @@ package sto
 
 import (
 	"github.com/ProtoconNet/mitum2/util"
-	jsonenc "github.com/ProtoconNet/mitum2/util/encoder/json"
+	"github.com/ProtoconNet/mitum2/util/encoder"
 	"github.com/ProtoconNet/mitum2/util/hint"
 )
 
@@ -29,7 +29,7 @@ type DocumentJSONUnmarshaler struct {
 	URI   string    `json:"uri"`
 }
 
-func (doc *Document) DecodeJSON(b []byte, enc *jsonenc.Encoder) error {
+func (doc *Document) DecodeJSON(b []byte, enc encoder.Encoder) error {
 	e := util.StringError("failed to decode json of Document")
 
 	var ud DocumentJSONUnmarshaler
