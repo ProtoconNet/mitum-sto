@@ -194,6 +194,12 @@ func (ipp *RedeemItemProcessor) Process(
 	if err != nil {
 		return nil, err
 	}
+	if len(tokenHolderPartitions) < 1 {
+		return nil, errors.Errorf(
+			"empty holder partition , %q, %q",
+			it.Contract(), it.TokenHolder(),
+		)
+	}
 
 	var sts []base.StateMergeValue
 

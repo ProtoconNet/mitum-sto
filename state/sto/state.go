@@ -113,9 +113,9 @@ func (sv TokenHolderPartitionsStateValue) IsValid([]byte) error {
 		return e.Wrap(err)
 	}
 
-	if len(sv.Partitions) == 0 {
-		return errors.Errorf("empty partitions")
-	}
+	//if len(sv.Partitions) == 0 {
+	//	return errors.Errorf("empty partitions")
+	//}
 
 	for _, partition := range sv.Partitions {
 		if err := partition.IsValid(nil); err != nil {
@@ -250,10 +250,11 @@ func (sv TokenHolderPartitionOperatorsStateValue) IsValid([]byte) error {
 		return e.Wrap(err)
 	}
 
-	if n := len(sv.Operators); n < 1 {
-		return util.ErrInvalid.Errorf("empty keys")
-	} else if n > MaxOperatorInOperators {
-		return util.ErrInvalid.Errorf("keys over %d, %d", MaxOperatorInOperators, n)
+	//if n := len(sv.Operators); n < 1 {
+	//	return util.ErrInvalid.Errorf("empty operators")
+	//}
+	if n := len(sv.Operators); n > MaxOperatorInOperators {
+		return util.ErrInvalid.Errorf("operators over %d, %d", MaxOperatorInOperators, n)
 	}
 
 	m := map[string]struct{}{}
@@ -391,10 +392,11 @@ func (o OperatorTokenHoldersStateValue) IsValid([]byte) error {
 		return e.Wrap(err)
 	}
 
-	if n := len(o.TokenHolders); n < 1 {
-		return util.ErrInvalid.Errorf("empty keys")
-	} else if n > MaxTokenHolderInTokenHolders {
-		return util.ErrInvalid.Errorf("keys over %d, %d", MaxTokenHolderInTokenHolders, n)
+	//if n := len(o.TokenHolders); n < 1 {
+	//	return util.ErrInvalid.Errorf("empty tokenholders")
+	//}
+	if n := len(o.TokenHolders); n > MaxTokenHolderInTokenHolders {
+		return util.ErrInvalid.Errorf("tokenholders over %d, %d", MaxTokenHolderInTokenHolders, n)
 	}
 
 	m := map[string]struct{}{}
