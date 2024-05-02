@@ -107,83 +107,87 @@ func (bs *BlockSession) Commit(ctx context.Context) error {
 		_ = bs.close()
 	}()
 
-	if err := bs.writeModels(ctx, defaultColNameBlock, bs.blockModels); err != nil {
-		return err
-	}
-
-	if len(bs.operationModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameOperation, bs.operationModels); err != nil {
-			return err
+	_, err := bs.st.DatabaseClient().WithSession(func(txnCtx mongo.SessionContext, collection func(string) *mongo.Collection) (interface{}, error) {
+		if err := bs.writeModels(txnCtx, defaultColNameBlock, bs.blockModels); err != nil {
+			return nil, err
 		}
-	}
 
-	if len(bs.currencyModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameCurrency, bs.currencyModels); err != nil {
-			return err
+		if len(bs.operationModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameOperation, bs.operationModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.accountModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameAccount, bs.accountModels); err != nil {
-			return err
+		if len(bs.currencyModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameCurrency, bs.currencyModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.balanceModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameBalance, bs.balanceModels); err != nil {
-			return err
+		if len(bs.accountModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameAccount, bs.accountModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.contractAccountModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameContractAccount, bs.contractAccountModels); err != nil {
-			return err
+		if len(bs.contractAccountModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameContractAccount, bs.contractAccountModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.stoDesignModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameSTO, bs.stoDesignModels); err != nil {
-			return err
+		if len(bs.balanceModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameBalance, bs.balanceModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.stoHolderPartitionsModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameSTOHolderPartitions, bs.stoHolderPartitionsModels); err != nil {
-			return err
+		if len(bs.stoDesignModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameSTO, bs.stoDesignModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.stoHolderPartitionBalanceModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameSTOHolderPartitionBalance, bs.stoHolderPartitionBalanceModels); err != nil {
-			return err
+		if len(bs.stoHolderPartitionsModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameSTOHolderPartitions, bs.stoHolderPartitionsModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.stoHolderPartitionOperatorsModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameSTOHolderPartitionOperators, bs.stoHolderPartitionOperatorsModels); err != nil {
-			return err
+		if len(bs.stoHolderPartitionBalanceModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameSTOHolderPartitionBalance, bs.stoHolderPartitionBalanceModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.stoPartitionBalanceModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameSTOPartitionBalance, bs.stoPartitionBalanceModels); err != nil {
-			return err
+		if len(bs.stoHolderPartitionOperatorsModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameSTOHolderPartitionOperators, bs.stoHolderPartitionOperatorsModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.stoPartitionControllersModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameSTOPartitionControllers, bs.stoPartitionControllersModels); err != nil {
-			return err
+		if len(bs.stoPartitionBalanceModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameSTOPartitionBalance, bs.stoPartitionBalanceModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if len(bs.stoOperatorHoldersModels) > 0 {
-		if err := bs.writeModels(ctx, defaultColNameSTOOperatorHolders, bs.stoOperatorHoldersModels); err != nil {
-			return err
+		if len(bs.stoPartitionControllersModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameSTOPartitionControllers, bs.stoPartitionControllersModels); err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	return nil
+		if len(bs.stoOperatorHoldersModels) > 0 {
+			if err := bs.writeModels(txnCtx, defaultColNameSTOOperatorHolders, bs.stoOperatorHoldersModels); err != nil {
+				return nil, err
+			}
+		}
+
+		return nil, nil
+	})
+
+	return err
 }
 
 func (bs *BlockSession) Close() error {
